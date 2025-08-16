@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>לוח צבעוני — אייקונים אחידים</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --cell-size: 60px;
+      --gap: 6px;            /* עובי מפריד שחור בין תאים */
+      --gold: #FFD700;
+
+      /* גדלי אייקונים — לפי הספק */
+      --icon-size: 26px;     /* Reset / Random / Palette / Resize */
+      --save-dot-size: 10px; /* Save (נקודה לבנה קטנה) */
+      --stroke: 3px;         /* קו לכפתור ה-# */
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin:0; min-height:100vh; background:#000; color:#fff;
+      font-family: Arial, sans-serif;
+      display:flex; flex-direction:column; align-items:center; padding:24px 16px 48px;
+    }
+    h1{ margin:0 0 12px; font-size:20px; }
+
+    /* הלוח */
+    #board{
+      display:grid;
+      grid-template-columns: repeat(var(--n, 5), var(--cell-size));
+      grid-auto-rows: var(--cell-size);
+      gap: var(--gap);
+      margin-top:8px; margin-bottom:40px; /* ≥40px */
+      background:#000;                     /* גורם ל-gaps להיות שחורים גם ביצוא */
+      outline:1px solid rgba(255,255,255,0.08);
+      outline-offset:8px;
+      touch-action: none;
+      position: relative;
+    }
+    .cell{
+      width: var(--cell-size); height: var(--cell-size);
+      background: transparent; cursor: pointer;
+      display:flex; align-items:center; justify-content:center;
+      user-select:none; outline:none; position:relative;
+    }
+    .cell:focus-visible{ box-shadow:0 0 0 3px rgba(255,255,255,0.25); }
+
+    .tile{
+      position:relative; width:100%; height:100%;
+      background: var(--gold);
+      transition: background-color 120ms linear;
+    }
+
+    /* שורת כפתורים */
+    #controls{ display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+    .ctrl{
+      width:50px; height:50px; cursor:pointer; user-select:none; outline:none;
+      background:transparent; border:none; display:inline-flex; align-items:center; justify-content:center;
+      position: relative;
+    }
+    .ctrl:focus-visible, .ctrl:hover{ box-shadow:0 0 0 3px rgba(255,255,255,0.25); border-radius:8px; }
+
+    /* גליף בסיס 26px ממורכז */
+    .glyph{ width:var(--icon-size); height:var(--icon-size); display:inline-block; position:relative; }
+
+    /* 1) איפוס לזהב — ריבוע שחור עם מסגרת זהובה (26px) */
+    .glyph-square-gold{
+      background:#000; border:2px solid var(--gold);
+      box-sizing:border-box; border-radius:2px;
+    }
+
+    /* 2) רנדום — עיגול חצוי שחור/לבן (26px) */
+    .glyph-random{
+      background: linear-gradient(90deg,#000 50%,#fff 50%);
+      border-radius:50%;
+    }
+
+    /* 3) פלטות — אמוג׳י בגודל 26px */
+    .palette{ font-size:var(--icon-size); line-height:1; }
+
+    /* 4) שינוי גודל — # בתוך 26px */
+    .glyph-hash{ position:relative; }
+    .glyph-hash::before, .glyph-hash::after{
+      content:''; position:absolute; left:0; right:0; height:var(--stroke); background:#fff; border-radius:2px;
+    }
+    .glyph-hash::before{ top:6px; }
+    .glyph-hash::after { bottom:6px; }
+    .glyph-hash .v1, .glyph-hash .v2{
+      position:absolute; top:0; bottom:0; width:var(--stroke); background:#fff; border-radius:2px;
+    }
+    .glyph-hash .v1{ left:6px; }
+    .glyph-hash .v2{ right:6px; }
+
+    /* 5) שמירה — נקודה לבנה קטנה במרכז כפתור 50×50 */
+    .save{ background:transparent; border:none; }
+    .save::after{
+      content:''; position:absolute; left:50%; top:50%;
+      width:var(--save-dot-size); height:var(--save-dot-size);
+      margin-left:calc(var(--save-dot-size)/-2); margin-top:calc(var(--save-dot-size)/-2);
+      background:#fff; border-radius:50%;
+    }
+
+    /* היילייט יעד לגרירה — אלמנט נפרד (מחוץ ללוח) */
+    #dragHighlight{
+      position: fixed; z-index: 9999; pointer-events:none; display:none;
+      box-shadow: inset 0 0 0 3px #fff, 0 0 8px rgba(255,255,255,0.65);
+      border-radius: 4px;
+    }
+
+    /* מצב 'מודבק עם מקלדת' — סימון פנימי (נבוטל לפני יצוא) */
+    .kbd-paste-armed .cell:focus::after{
+      content:''; position:absolute; inset:4px; border:3px solid #fff; border-radius:4px; pointer-events:none;
+      box-shadow: 0 0 8px rgba(255,255,255,0.65);
+    }
+
+    @media (max-width: 480px){
+      :root{ --cell-size: 48px; }
+      .ctrl{ width:44px; height:44px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>לוח צבעוני דינמי</h1>
+
+  <div id="board" aria-label="לוח"></div>
+
+  <!-- סדר: איפוס לזהב → רנדום → פלטות → גודל (#) → שמירה -->
+  <div id="controls" aria-label="כפתורי שליטה">
+    <button id="btnResetGold" class="ctrl" aria-label="איפוס לזהב" title="איפוס לזהב">
+      <span class="glyph glyph-square-gold" aria-hidden="true"></span>
+    </button>
+
+    <button id="btnRandom" class="ctrl" aria-label="רנדומייזר" title="רנדומייזר">
+      <span class="glyph glyph-random" aria-hidden="true"></span>
+    </button>
+
+    <button id="btnPalette" class="ctrl palette" aria-label="החלפת פלטה" title="החלפת פלטה"></button>
+
+    <button id="btnResize" class="ctrl" aria-label="שינוי גודל (#)" title="שינוי גודל (#)">
+      <span class="glyph glyph-hash" aria-hidden="true">
+        <span class="v1"></span><span class="v2"></span>
+      </span>
+    </button>
+
+    <button id="btnSave" class="ctrl save" aria-label="שמירה (PNG)" title="שמירה (PNG)"></button>
+  </div>
+
+  <!-- היילייט יעד לגרירה (מחוץ ללוח => לא ייכלל ביצוא) -->
+  <div id="dragHighlight" aria-hidden="true"></div>
+
+  <script>
+    /* ===== Palettes per spec ===== */
+    const DEFAULT_64 = [
+      /* Yellows / Golds (8) */
+      '#FFD700','#FFC107','#FFEE58','#FDD835','#FBC02D','#FFE082','#FFCA28','#FFF176',
+      /* Oranges (8) */
+      '#FF8C00','#FF9800','#FB8C00','#FFA726','#FF7043','#FF5722','#F4511E','#F57C00',
+      /* Reds (8) */
+      '#FF1744','#F44336','#E53935','#D32F2F','#C62828','#B71C1C','#FF5252','#EF5350',
+      /* Pinks / Magentas (8) */
+      '#E91E63','#F06292','#FF4081','#AD1457','#D81B60','#C2185B','#EC407A','#F48FB1',
+      /* Purples / Violets (8) */
+      '#9C27B0','#7B1FA2','#8E24AA','#AB47BC','#673AB7','#5E35B1','#3F51B5','#3949AB',
+      /* Blues / Teals (8) */
+      '#2196F3','#1976D2','#1E88E5','#42A5F5','#00BCD4','#26C6DA','#0097A7','#80DEEA',
+      /* Greens / Limes (8) */
+      '#4CAF50','#43A047','#2E7D32','#66BB6A','#8BC34A','#9CCC65','#CDDC39','#AFB42B',
+      /* Neutrals (8) */
+      '#FFFFFF','#F5F5F5','#E0E0E0','#BDBDBD','#9E9E9E','#757575','#424242','#000000'
+    ];
+    const AUTUMN_23 = [
+      '#8B3A3A','#A52A2A','#8B0000','#B22222','#D2691E','#FF8C00','#FF7F50','#F4A460',
+      '#CD853F','#C2A14A','#B8860B','#DAA520','#808000','#556B2F','#6B8E23','#8B4513',
+      '#5D4037','#4E342E','#3E2723','#2F4F4F','#37474F','#607D8B','#795548'
+    ];
+    const SUMMER_23 = [
+      '#00FF7F','#1DE9B6','#00E676','#00C853','#2ECC71','#00A86B','#FFD700','#FFEB3B',
+      '#FFC107','#FDD835','#00BFFF','#1E90FF','#00B0FF','#18FFFF','#40E0D0','#FF1493',
+      '#FF69B4','#FF7F50','#FF5722','#F50057','#2962FF','#64DD17','#00C4FF'
+    ];
+    const WINTER_23 = [
+      '#E6F7FF','#E1F5FE','#B3E5FC','#81D4FA','#4FC3F7','#29B6F6','#03A9F4','#90A4AE',
+      '#B0BEC5','#CFD8DC','#ECEFF1','#FFFFFF','#F5F5F5','#BDBDBD','#9E9E9E','#78909C',
+      '#546E7A','#455A64','#37474F','#263238','#A7FFEB','#80DEEA','#4DD0E1'
+    ];
+    const SPRING_23 = [
+      '#FFC0CB','#FFB7C5','#FFD1DC','#F8BBD0','#F48FB1','#E6E6FA','#D1C4E9','#B39DDB',
+      '#C1E1C1','#A5D6A7','#81C784','#DCEDC8','#FFF8DC','#FFF9C4','#FFF59D','#FFECB3',
+      '#87CEFA','#90CAF9','#64B5F6','#B3E5FC','#81D4FA','#80DEEA','#A7FFEB'
+    ];
+
+    const PALETTES = [
+      { key:'default', name:'Default',          colors: DEFAULT_64, icon:'☯️' },
+      { key:'autumn',  name:'New-York Autumn',  colors: AUTUMN_23,  icon:'🍂' },
+      { key:'summer',  name:'Brazilian Summer', colors: SUMMER_23,  icon:'☀️' },
+      { key:'winter',  name:'Icelandic Winter', colors: WINTER_23,  icon:'🌧️' },
+      { key:'spring',  name:'Japanese Spring',  colors: SPRING_23,  icon:'🌸' }
+    ];
+    function activePalette(){ return PALETTES[currentPaletteIndex].colors; }
+
+    /* ===== State ===== */
+    let n = 5;                           // דיפולט 5×5
+    let currentPaletteIndex = 0;
+
+    const boardEl = document.getElementById('board');
+    const btnResetGold = document.getElementById('btnResetGold');
+    const btnRandom    = document.getElementById('btnRandom');
+    const btnPalette   = document.getElementById('btnPalette');
+    const btnResize    = document.getElementById('btnResize');
+    const btnSave      = document.getElementById('btnSave');
+    const dragHL       = document.getElementById('dragHighlight');
+
+    let cells = [], tileEls = [], colorIndex = [];
+
+    /* לחיצה ארוכה */
+    const HOLD_START_MS = 200;
+    const CYCLE_MS = 80;
+    const holdTimeout = [], holdInterval = [], holdActive = [], suppressClickUntil = [];
+
+    /* גרירה */
+    const DRAG_THRESHOLD = 8; // px
+    let drag = { active:false, srcIdx:null, srcColorIdx:0, startX:0, startY:0, targetIdx:null };
+
+    /* מקלדת: העתק/הדבק צבע */
+    let clipboardIndex = 0, pasteArmed = false;
+
+    /* ===== Utils ===== */
+    function updatePaletteButtonVisual(){
+      const meta = PALETTES[currentPaletteIndex];
+      btnPalette.textContent = meta.icon || '';
+      btnPalette.title = `פלטה פעילה: ${meta.name}`;
+      btnPalette.setAttribute('aria-label', `החלפת פלטה (נוכחית: ${meta.name})`);
+    }
+
+    /* ===== Rendering ===== */
+    function renderTile(idx){
+      const pal = activePalette();
+      const color = pal[colorIndex[idx] % pal.length];
+      tileEls[idx].style.backgroundColor = color;
+    }
+    function renderAll(){ for(let i=0;i<tileEls.length;i++) renderTile(i); }
+
+    /* ===== Board ===== */
+    function buildBoard(size){
+      n = size;
+      boardEl.style.setProperty('--n', n);
+      boardEl.innerHTML = '';
+      cells=[]; tileEls=[]; colorIndex = new Array(n*n).fill(0);
+      holdTimeout.length = holdInterval.length = holdActive.length = suppressClickUntil.length = 0;
+
+      for(let i=0;i<n*n;i++){
+        const cell = document.createElement('div');
+        cell.className = 'cell'; cell.tabIndex = 0; cell.dataset.idx = i.toString();
+
+        const tile = document.createElement('div'); tile.className = 'tile';
+        tile.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#FFD700';
+
+        cell.appendChild(tile);
+
+        cell.addEventListener('click', (e) => {
+          const idx = +cell.dataset.idx;
+          if (suppressClickUntil[idx] && Date.now() < suppressClickUntil[idx]) return;
+          if (drag.active) return;
+          stepColor(idx);
+        });
+
+        cell.addEventListener('mousedown', (e) => onPointerDown(e, +cell.dataset.idx));
+        cell.addEventListener('touchstart', (e) => onPointerDown(e, +cell.dataset.idx), {passive:false});
+
+        cell.addEventListener('keydown', (e) => onCellKeyDown(e, +cell.dataset.idx));
+        cell.addEventListener('keyup',   (e) => onCellKeyUp(e, +cell.dataset.idx));
+
+        boardEl.appendChild(cell);
+        cells.push(cell); tileEls.push(tile);
+      }
+      renderAll();
+      updatePaletteButtonVisual();
+    }
+
+    function stepColor(idx){
+      const pal = activePalette();
+      colorIndex[idx] = (colorIndex[idx] + 1) % pal.length;
+      renderTile(idx);
+    }
+
+    function setAllToGold(){
+      for(let i=0;i<tileEls.length;i++){
+        tileEls[i].style.backgroundColor = '#FFD700';
+        const pal = activePalette();
+        const idxInPal = pal.findIndex(c => c.toUpperCase() === '#FFD700');
+        colorIndex[i] = idxInPal >= 0 ? idxInPal : 0;
+      }
+    }
+
+    /* ===== Long-press (Hold) vs Drag ===== */
+    function onPointerDown(e, idx){
+      if (e.type === 'touchstart') e.preventDefault();
+
+      const point = getPoint(e);
+      drag.active = false; drag.srcIdx = idx;
+      drag.srcColorIdx = colorIndex[idx] || 0;
+      drag.startX = point.x; drag.startY = point.y; drag.targetIdx = null;
+
+      document.addEventListener('mousemove', onPointerMove, {passive:false});
+      document.addEventListener('mouseup', onPointerUp, {passive:false});
+      document.addEventListener('touchmove', onPointerMove, {passive:false});
+      document.addEventListener('touchend', onPointerUp, {passive:false});
+      document.addEventListener('touchcancel', onPointerUp, {passive:false});
+
+      startHold(e, idx);
+    }
+
+    function onPointerMove(e){
+      const point = getPoint(e);
+      const dx = point.x - drag.startX, dy = point.y - drag.startY;
+      const dist = Math.hypot(dx, dy);
+
+      if (!drag.active && dist > DRAG_THRESHOLD){
+        cancelHold(drag.srcIdx, /*suppressClick*/ true);
+        drag.active = true;
+      }
+      if (drag.active){
+        e.preventDefault();
+        const el = document.elementFromPoint(point.x, point.y);
+        const cell = el && el.closest ? el.closest('.cell') : null;
+        drag.targetIdx = cell ? +cell.dataset.idx : null;
+
+        if (cell){
+          const r = cell.getBoundingClientRect();
+          dragHL.style.display = 'block';
+          dragHL.style.left = (r.left + 3) + 'px';
+          dragHL.style.top  = (r.top  + 3) + 'px';
+          dragHL.style.width  = (r.width  - 6) + 'px';
+          dragHL.style.height = (r.height - 6) + 'px';
+        } else {
+          dragHL.style.display = 'none';
+        }
+      }
+    }
+
+    function onPointerUp(){
+      document.removeEventListener('mousemove', onPointerMove);
+      document.removeEventListener('mouseup', onPointerUp);
+      document.removeEventListener('touchmove', onPointerMove);
+      document.removeEventListener('touchend', onPointerUp);
+      document.removeEventListener('touchcancel', onPointerUp);
+
+      dragHL.style.display = 'none';
+
+      const idx = drag.srcIdx;
+      if (drag.active){
+        if (drag.targetIdx !== null && drag.targetIdx !== idx){
+          colorIndex[drag.targetIdx] = drag.srcColorIdx;
+          renderTile(drag.targetIdx);
+        }
+        suppressClickUntil[idx] = Date.now() + 250;
+        if (drag.targetIdx !== null) suppressClickUntil[drag.targetIdx] = Date.now() + 250;
+      }
+      cancelHold(idx, /*suppressClick*/ drag.active);
+      drag.active = false; drag.srcIdx = null; drag.targetIdx = null;
+    }
+
+    function getPoint(e){
+      if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    function startHold(e, idx){
+      if (holdActive[idx]) return;
+      clearTimeout(holdTimeout[idx]); clearInterval(holdInterval[idx]);
+      holdTimeout[idx] = setTimeout(() => {
+        holdActive[idx] = true;
+        holdInterval[idx] = setInterval(() => stepColor(idx), CYCLE_MS);
+      }, HOLD_START_MS);
+    }
+    function cancelHold(idx, suppress=false){
+      if (holdActive[idx]){
+        clearInterval(holdInterval[idx]); holdInterval[idx] = null; holdActive[idx] = false;
+        if (suppress) suppressClickUntil[idx] = Date.now() + 250;
+      }
+      clearTimeout(holdTimeout[idx]); holdTimeout[idx] = null;
+    }
+
+    function onCellKeyDown(e, idx){
+      if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); startHold(e, idx); }
+      if (e.key.toLowerCase() === 'c'){
+        clipboardIndex = colorIndex[idx] || 0;
+        pasteArmed = true;
+        boardEl.classList.add('kbd-paste-armed');
+      }
+      if (e.key.toLowerCase() === 'v' && pasteArmed){
+        colorIndex[idx] = clipboardIndex;
+        renderTile(idx);
+        pasteArmed = false;
+        boardEl.classList.remove('kbd-paste-armed');
+      }
+    }
+    function onCellKeyUp(e, idx){
+      if (e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        const wasActive = !!holdActive[idx];
+        cancelHold(idx);
+        if (!wasActive && !drag.active) stepColor(idx);
+      }
+      if (e.key === 'Escape' && pasteArmed){
+        pasteArmed = false; boardEl.classList.remove('kbd-paste-armed');
+      }
+    }
+
+    /* ===== Controls ===== */
+    function randomizeFromActivePalette(){
+      const pal = activePalette(), m = pal.length;
+      for(let i=0;i<tileEls.length;i++){
+        colorIndex[i] = Math.floor(Math.random() * m);
+      }
+      renderAll();
+    }
+
+    function resizeBoard(){
+      let val = prompt('הכנס מספר לגודל המטריצה (n):', n.toString());
+      if (val === null) return;
+      val = val.trim();
+      const newN = parseInt(val,10);
+      if (Number.isNaN(newN) || newN < 1){ alert('ערך לא תקין. הזן מספר שלם > 0.'); return; }
+      const capped = Math.min(newN, 50);
+      buildBoard(capped);
+      setAllToGold();
+    }
+
+    function switchPalette(){
+      const newIndex = (currentPaletteIndex + 1) % PALETTES.length;
+      const newPal = PALETTES[newIndex].colors, newLen = newPal.length;
+      for(let i=0;i<tileEls.length;i++){
+        colorIndex[i] = colorIndex[i] % newLen; // שימור דפוס (mod)
+      }
+      currentPaletteIndex = newIndex;
+      updatePaletteButtonVisual();
+      renderAll();
+    }
+
+    /* html2canvas לשמירה */
+    function ensureHtml2Canvas(){
+      return new Promise((resolve, reject) => {
+        if (window.html2canvas) return resolve(window.html2canvas);
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.onload = () => resolve(window.html2canvas);
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    async function savePNG(){
+      try{
+        const prevHLDisplay = dragHL.style.display;
+        dragHL.style.display = 'none';
+        const hadPasteClass = boardEl.classList.contains('kbd-paste-armed');
+        boardEl.classList.remove('kbd-paste-armed');
+
+        await ensureHtml2Canvas();
+        const canvas = await html2canvas(boardEl, { backgroundColor:'#000000', scale: window.devicePixelRatio || 1 });
+        const a = document.createElement('a');
+        a.download = 'board.png'; a.href = canvas.toDataURL('image/png'); a.click();
+
+        dragHL.style.display = prevHLDisplay;
+        if (hadPasteClass) boardEl.classList.add('kbd-paste-armed');
+      }catch(err){ alert('שמירה נכשלה'); console.error(err); }
+    }
+
+    /* אירועי כפתורים */
+    btnResetGold.addEventListener('click', setAllToGold);
+    btnRandom   .addEventListener('click', randomizeFromActivePalette);
+    btnPalette  .addEventListener('click', switchPalette);
+    btnResize   .addEventListener('click', resizeBoard);
+    btnSave     .addEventListener('click', savePNG);
+
+    /* נגישות לכפתורים */
+    [btnResetGold,btnRandom,btnPalette,btnResize,btnSave].forEach(btn=>{
+      btn.tabIndex=0;
+      btn.addEventListener('keydown',e=>{
+        if(e.key===' '||e.key==='Enter'){ e.preventDefault(); btn.click(); }
+      });
+    });
+
+    /* הפעלה ראשונית — 5×5, זהב */
+    buildBoard(5);
+  </script>
+</body>
+</html>
