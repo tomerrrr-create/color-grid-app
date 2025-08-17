@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Color Grid App</title>
+  <style>
+    :root{
+      --icon-size:26px;
+      --save-dot-size:12px;
+      --btn-size:50px;
+      --gap:3px;            /* מרווח ברירת מחדל בין אריחים */
+      --tile-radius:2px;
+      --sepIcon:3px;        /* עובי קווי האיקון של המפריד (מתעדכן דינמית) */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:#111;color:#eaeaea;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    .app{min-height:100%;display:grid;place-items:center;padding:24px}
+    .wrap{width:min(92vmin,720px)}
+    .board{
+      background:#000;
+      display:grid;
+      grid-template-columns:repeat(var(--n,8),1fr);
+      gap:var(--gap);
+      border:var(--gap) solid #000;     /* מתעדכן יחד עם המרווח */
+      border-width:max(1px, var(--gap));/* שומר 1px מינימום כשהמרווח 0 */
+      border-radius:6px;
+      user-select:none;
+      touch-action:none;
+    }
+    .tile{
+      aspect-ratio:1/1;
+      width:100%;
+      border-radius:var(--tile-radius);
+      outline:none;
+      box-shadow:0 0 0 0 rgba(255,255,255,0);
+    }
+    .tile:focus-visible{box-shadow:inset 0 0 0 3px rgba(255,255,255,0.9)}
+    .drag-target{box-shadow:inset 0 0 0 4px #fff,0 0 0 0 rgba(255,255,255,0)}
+
+    .controls{display:grid;justify-content:center;gap:14px;margin-top:44px}
+    .controls-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+    .btn{
+      width:var(--btn-size);height:var(--btn-size);
+      border-radius:14px;background:#1f1f1f;border:1px solid #2a2a2a;
+      display:grid;place-items:center;cursor:pointer;
+      transition:transform .05s ease, background .15s ease, border-color .15s ease;
+      outline:none;
+    }
+    .btn:hover{background:#232323}
+    .btn:active{transform:translateY(1px) scale(0.98)}
+    .btn:focus-visible{box-shadow:0 0 0 2px #fff3}
+    .glyph{position:relative;width:var(--icon-size);height:var(--icon-size);display:block}
+
+    /* icons */
+    .icon-reset::before{content:"";position:absolute;inset:0;background:#000;border:3px solid #FFD700;border-radius:3px}
+    .icon-random::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(90deg,#000 50%,#fff 50%);border:2px solid #222}
+    .palette-emoji{font-size:var(--icon-size);line-height:1}
+    .icon-resize svg{width:100%;height:100%;display:block}
+    .icon-save::before{content:"";position:absolute;width:var(--save-dot-size);height:var(--save-dot-size);border-radius:50%;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}
+    /* כפתור גרדיאנט: ריבוע חצי לבן חצי אפור */
+    .icon-gradient::before{content:"";position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,#ffffff 50%,#bdbdbd 50%);border:2px solid #222}
+
+    /* כפתור המפריד – שני קווים אופקיים, עובי נשלט ב--sepIcon */
+    .icon-sep::before,
+    .icon-sep::after{
+      content:"";position:absolute;left:10%;right:10%;
+      height:var(--sepIcon);
+      background:#eaeaea;border-radius:2px;
+    }
+    .icon-sep::before{top:30%}
+    .icon-sep::after{bottom:30%}
+
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,1px,1px);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="wrap">
+      <div id="board" class="board" aria-label="לוח צבעים" role="grid"></div>
+
+      <!-- שתי שורות בקרה -->
+      <div class="controls" aria-label="בקרות">
+        <!-- שורה עליונה: Randomize → Palette → Gradient -->
+        <div class="controls-row" id="controlsTop">
+          <button id="btnRandom" class="btn" aria-label="רנדומליות" title="Randomize (active palette)">
+            <span class="glyph icon-random" aria-hidden="true"></span>
+          </button>
+
+          <button id="btnPalette" class="btn" aria-label="החלפת פלטה" title="Palette">
+            <span id="paletteEmoji" class="palette-emoji" aria-hidden="true">🌓</span>
+            <span class="sr-only" id="paletteName">Default</span>
+          </button>
+
+          <button id="btnGradient" class="btn" aria-label="גרדיאנט שורות" title="Gradient Rows">
+            <span class="glyph icon-gradient" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <!-- שורה תחתונה: איפוס, שינוי גודל, מפריד, שמירה -->
+        <div class="controls-row" id="controlsBottom">
+          <button id="btnReset" class="btn" aria-label="איפוס לזהב + פלטת דיפולט" title="Reset to Gold + Default Palette">
+            <span class="glyph icon-reset" aria-hidden="true"></span>
+          </button>
+
+          <button id="btnResize" class="btn" aria-label="שינוי גודל" title="Resize (#)">
+            <span class="glyph icon-resize" aria-hidden="true">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#eaeaea" stroke-width="8" stroke-linecap="round">
+                <path d="M25 20v60M75 20v60M15 40h70M15 60h70"/>
+              </svg>
+            </span>
+          </button>
+
+          <!-- כפתור המפריד החדש -->
+          <button id="btnSeparator" class="btn" aria-label="מפריד: עובי המפריד בין אריחים" title="מפריד: 3px">
+            <span class="glyph icon-sep" aria-hidden="true"></span>
+            <span class="sr-only" id="sepValue">3px</span>
+          </button>
+
+          <button id="btnSave" class="btn" aria-label="שמור PNG" title="Save PNG">
+            <span class="glyph icon-save" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ספריית יצוא ל-PNG -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <script>
+  (function(){
+    /*** Palettes — בדיוק לפי ה-Master List + הפלטה החדשה ***/
+    const PALETTES = [
+      {
+        name: 'Default', emoji: '🌓',
+        colors: [
+          '#FFD700','#FFC107','#FFEE58','#FDD835','#FBC02D','#FFE082','#FFCA28','#FFF176',
+          '#FF8C00','#FF9800','#FB8C00','#FFA726','#FF7043','#FF5722','#F4511E','#F57C00',
+          '#FF1744','#F44336','#E53935','#D32F2F','#C62828','#B71C1C','#FF5252','#EF5350',
+          '#E91E63','#F06292','#FF4081','#AD1457','#D81B60','#C2185B','#EC407A','#F48FB1',
+          '#9C27B0','#7B1FA2','#8E24AA','#AB47BC','#673AB7','#5E35B1','#3F51B5','#3949AB',
+          '#2196F3','#1976D2','#1E88E5','#42A5F5','#00BCD4','#26C6DA','#0097A7','#80DEEA',
+          '#4CAF50','#43A047','#2E7D32','#66BB6A','#8BC34A','#9CCC65','#CDDC39','#AFB42B',
+          '#FFFFFF','#F5F5F5','#E0E0E0','#BDBDBD','#9E9E9E','#757575','#424242','#000000'
+        ]
+      },
+      { name: 'New-York Autumn', emoji: '🍂', colors: [
+        '#8B3A3A','#A52A2A','#8B0000','#B22222','#D2691E','#FF8C00','#FF7F50','#F4A460',
+        '#CD853F','#C2A14A','#B8860B','#DAA520','#808000','#556B2F','#6B8E23','#8B4513',
+        '#5D4037','#4E342E','#3E2723','#2F4F4F','#37474F','#607D8B','#795548'
+      ]},
+      { name: 'Brazilian Summer', emoji: '☀️', colors: [
+        '#00FF7F','#1DE9B6','#00E676','#00C853','#2ECC71','#00A86B','#FFD700','#FFEB3B',
+        '#FFC107','#FDD835','#00BFFF','#1E90FF','#00B0FF','#18FFFF','#40E0D0','#FF1493',
+        '#FF69B4','#FF7F50','#FF5722','#F50057','#2962FF','#64DD17','#00C4FF'
+      ]},
+      { name: 'Icelandic Winter', emoji: '❄️', colors: [
+        '#E6F7FF','#E1F5FE','#B3E5FC','#81D4FA','#4FC3F7','#29B6F6','#03A9F4','#90A4AE',
+        '#B0BEC5','#CFD8DC','#ECEFF1','#FFFFFF','#F5F5F5','#BDBDBD','#9E9E9E','#78909C',
+        '#546E7A','#455A64','#37474F','#263238','#A7FFEB','#80DEEA','#4DD0E1'
+      ]},
+      { name: 'Japanese Spring', emoji: '🌸', colors: [
+        '#FFC0CB','#FFB7C5','#FFD1DC','#F8BBD0','#F48FB1','#E6E6FA','#D1C4E9','#B39DDB',
+        '#C1E1C1','#A5D6A7','#81C784','#DCEDC8','#FFF8DC','#FFF9C4','#FFF59D','#FFECB3',
+        '#87CEFA','#90CAF9','#64B5F6','#B3E5FC','#81D4FA','#80DEEA','#A7FFEB'
+      ]},
+      { name: 'Amazon Rainforest', emoji: '🌳', colors: [
+        '#013220','#145A32','#1E8449','#229954','#28B463','#2ECC71','#58D68D','#82E0AA',
+        '#A9DFBF','#196F3D','#27AE60','#52BE80','#239B56','#1D8348','#117A65','#0E6655',
+        '#73C6B6','#48C9B0','#16A085','#45B39D','#138D75','#117864','#0B5345'
+      ]},
+      { name: 'Sahara Desert', emoji: '🐪', colors: [
+        '#F4E1A1','#E2C275','#CDA434','#B68900','#E59866','#CA6F1E','#F5CBA7','#EDBB99',
+        '#E67E22','#D35400','#BA4A00','#A04000','#873600','#784212','#6E2C00','#935116',
+        '#B9770E','#9C640C','#7E5109','#5D6D7E','#34495E','#2C3E50','#212F3C'
+      ]},
+      { name: 'Cosmos', emoji: '🌌', colors: [
+        '#000000','#0B0C10','#1F2833','#263238','#37474F','#483D8B','#4B0082','#8A2BE2',
+        '#9370DB','#BA55D3','#DA70D6','#FF00FF','#FF69B4','#F8F8FF','#FFFFFF','#FFFACD',
+        '#E0FFFF','#B0E0E6','#40E0D0','#00BFFF','#1E90FF','#00008B','#191970'
+      ]},
+      { name: "Dreamer's Soul", emoji: '🦄', colors: [
+        '#F5F3FF','#EDE9FE','#DDD6FE','#C4B5FD','#A78BFA','#8B5CF6','#7C3AED',
+        '#FDF4FF','#FAF5FF','#D6BCFA','#B794F4','#9F7AEA',
+        '#FDF6E3','#FDE68A','#FACC15','#EAB308',
+        '#F8FAFC','#E2E8F0','#CBD5E1','#94A3B8','#64748B',
+        '#FFFFFF','#000000'
+      ]}
+    ];
+
+    // ---- State ----
+    let activePaletteIndex = 0; // Default
+    let n = 8;
+    const GOLD = '#FFD700';
+    let gradientActive = false;
+    let gradientOffset = -1;
+
+    // מפריד (כפתור מחזורי 0–8, דיפולט 3)
+    let separatorPx = 3;
+
+    // ---- Elements ----
+    const board = document.getElementById('board');
+    const paletteEmojiEl = document.getElementById('paletteEmoji');
+    const paletteNameEl = document.getElementById('paletteName');
+    const btnSeparator = document.getElementById('btnSeparator');
+    const sepValueEl = document.getElementById('sepValue');
+
+    function palette(){ return PALETTES[activePaletteIndex].colors; }
+
+    // ---- Tiles ----
+    let initialBuildGoldOverlay = true;
+    function createTile(idx=0){
+      const d=document.createElement('div');
+      d.className='tile';
+      d.setAttribute('role','gridcell');
+      d.setAttribute('tabindex','0');
+      setIndex(d,idx);
+      if(initialBuildGoldOverlay) applyGoldOverlay(d);
+      return d;
+    }
+    function setIndex(el,k){
+      el.dataset.k=String(k);
+      if(!el.dataset.goldOverlay){
+        const m=palette().length;
+        el.style.background = palette()[((k % m)+m)%m];
+      }
+    }
+    function getIndex(el){ return parseInt(el.dataset.k||'0',10); }
+    function applyGoldOverlay(el){ el.style.background=GOLD; el.dataset.goldOverlay='1'; }
+    function clearGoldOverlay(el){
+      if(el.dataset.goldOverlay){
+        delete el.dataset.goldOverlay;
+        const k=getIndex(el), m=palette().length;
+        el.style.background = palette()[k % m];
+      }
+    }
+
+    function buildBoard(size){
+      board.style.setProperty('--n', size);
+      board.innerHTML='';
+      const frag=document.createDocumentFragment();
+      for(let i=0;i<size*size;i++) frag.appendChild(createTile(0));
+      board.appendChild(frag);
+      const first=board.querySelector('.tile'); if(first) first.focus();
+    }
+
+    // ---- Palette header ----
+    function updatePaletteHeader(){
+      const pal = PALETTES[activePaletteIndex];
+      paletteEmojiEl.textContent = pal.emoji;
+      paletteNameEl.textContent = pal.name + ` (${activePaletteIndex+1}/${PALETTES.length})`;
+    }
+
+    // ---- Separator logic ----
+    function applySeparator(){
+      // מעדכן מרווח, מסגרת, ואייקון דינמי
+      board.style.setProperty('--gap', separatorPx + 'px');
+      // מסגרת מינימום 1px כש-0
+      board.style.borderWidth = Math.max(1, separatorPx) + 'px';
+      // אייקון: hairline ב-0, אחרת = separatorPx
+      const iconPx = Math.max(1, separatorPx);
+      btnSeparator.style.setProperty('--sepIcon', iconPx + 'px');
+      // טולטיפ/ARIA
+      btnSeparator.title = 'מפריד: ' + separatorPx + 'px';
+      btnSeparator.setAttribute('aria-label', 'מפריד: עובי המפריד בין אריחים ' + separatorPx + ' פיקסלים');
+      sepValueEl.textContent = separatorPx + 'px';
+    }
+
+    function cycleSeparator(forward=true){
+      const step = forward ? 1 : -1;
+      separatorPx = (separatorPx + step) % 9; // 0..8
+      if(separatorPx < 0) separatorPx += 9;
+      applySeparator();
+    }
+
+    // ---- Actions ----
+    function cycleTile(el,step=1){ clearGoldOverlay(el); setIndex(el, getIndex(el)+step); }
+    function randomizeAll(){
+      const m=palette().length;
+      board.querySelectorAll('.tile').forEach(el=>{
+        clearGoldOverlay(el);
+        setIndex(el, Math.floor(Math.random()*m));
+      });
+      gradientActive=false;
+    }
+    function resetToGoldAndDefaultPalette(){
+      activePaletteIndex = 0;
+      updatePaletteHeader();
+      board.querySelectorAll('.tile').forEach(el=>{
+        setIndex(el,0);
+        applyGoldOverlay(el);
+      });
+      gradientActive=false;
+      gradientOffset=-1;
+      // מאפס גם מפריד ל-3px
+      separatorPx = 3;
+      applySeparator();
+    }
+    function switchPalette(){
+      // מעבר פלטה משמר קומפוזיציה: ממפה את אותם indices לצבעי הפלטה הבאה
+      activePaletteIndex=(activePaletteIndex+1)%PALETTES.length;
+      const pal=PALETTES[activePaletteIndex];
+      updatePaletteHeader();
+      const m=pal.colors.length;
+      board.querySelectorAll('.tile').forEach(el=>{
+        if(!el.dataset.goldOverlay){
+          const k=getIndex(el);
+          el.style.background=pal.colors[((k % m)+m)%m];
+        }
+      });
+      // אין חישוב-מחדש של הגרדיאנט במעבר פלטה (שומר קומפוזיציה ועריכות ידניות)
+    }
+    function resizeGrid(){
+      const input=prompt('הכנס n (יבנה n×n ויאפס לזהב):', String(n));
+      if(input===null) return;
+      const value=parseInt(String(input).trim(),10);
+      if(!Number.isFinite(value) || value<=0) return;
+      n=value; initialBuildGoldOverlay=true; buildBoard(n);
+      if(gradientActive) applyGradientRows(false); // חישוב מחדש רק ב-Resize
+      // מפריד נשמר כפי שהוא
+      applySeparator();
+    }
+
+    // ---- Color utils ----
+    function hexToRgb(hex){
+      const s = hex.replace('#','');
+      const r = parseInt(s.length===3 ? s[0]+s[0] : s.slice(0,2),16);
+      const g = parseInt(s.length===3 ? s[1]+s[1] : s.slice(2,4),16);
+      const b = parseInt(s.length===3 ? s[2]+s[2] : s.slice(4,6),16);
+      return [r,g,b];
+    }
+    function toLinear(v){ v/=255; return v<=0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }
+    function luminance(hex){
+      const [r,g,b]=hexToRgb(hex);
+      const R=toLinear(r), G=toLinear(g), B=toLinear(b);
+      return 0.2126*R + 0.7152*G + 0.0722*B;
+    }
+    function rgbToHsl(hex){
+      let [r,g,b]=hexToRgb(hex);
+      r/=255; g/=255; b/=255;
+      const max=Math.max(r,g,b), min=Math.min(r,g,b);
+      let h,s,l=(max+min)/2;
+      if(max===min){ h=0; s=0; }
+      else{
+        const d=max-min;
+        s=l>0.5? d/(2-max-min) : d/(max+min);
+        switch(max){
+          case r: h=(g-b)/d + (g<b?6:0); break;
+          case g: h=(b-r)/d + 2; break;
+          case b: h=(r-g)/d + 4; break;
+        }
+        h*=60;
+      }
+      return {h, s, l};
+    }
+    function hueDistance(a,b){
+      let d=Math.abs(a-b);
+      return d>180 ? 360-d : d;
+    }
+
+    // ---- Gradient (משפחות גוונים) ----
+    const HUE_EPS = 15;      // מרחק Hue עבור אותה משפחה (°)
+    const SAT_GRAY = 0.10;   // סף רוויה לזיהוי אפורים/לבן/שחור
+
+    function buildShadeFamilyOrder(){
+      const cols = palette();
+      const meta = cols.map((c,i)=>{
+        const lum = luminance(c);
+        const hsl = rgbToHsl(c);
+        return {i, c, lum, h: hsl.h, s: hsl.s, l: hsl.l};
+      });
+
+      const remaining = new Set(meta.map(x=>x.i));
+      const get = (idx)=>meta.find(x=>x.i===idx);
+      const order = [];
+
+      while(remaining.size){
+        // בוחרים את הבהיר ביותר שנותר
+        let baseIdx = null, bestLum = -1;
+        remaining.forEach(i=>{ const L=get(i).lum; if(L>bestLum){ bestLum=L; baseIdx=i; }});
+        const base = get(baseIdx);
+
+        // בני המשפחה
+        let family = [];
+        if(base.s <= SAT_GRAY){
+          remaining.forEach(i=>{ if(get(i).s <= SAT_GRAY) family.push(get(i)); });
+        }else{
+          remaining.forEach(i=>{
+            const m=get(i);
+            if(m.s > SAT_GRAY && hueDistance(m.h, base.h) <= HUE_EPS) family.push(m);
+          });
+        }
+
+        // מהבהיר לכהה
+        family.sort((a,b)=>b.lum - a.lum);
+
+        family.forEach(m=>order.push(m.i));
+        family.forEach(m=>remaining.delete(m.i));
+      }
+
+      return order;
+    }
+
+    function applyGradientRows(incrementOffset=true){
+      const cols = palette();
+      const m = cols.length;
+      if(m===0) return;
+
+      if(incrementOffset){
+        gradientOffset = (gradientOffset + 1 + m) % m; // לחיצה ראשונה → 0
+      } else {
+        if(gradientOffset<0) gradientOffset = 0;
+      }
+
+      const seq = buildShadeFamilyOrder();
+      const total = seq.length;
+      const tiles = board.querySelectorAll('.tile');
+
+      // מסירים זהב לפני צביעה
+      tiles.forEach(el => { if(el.dataset.goldOverlay) clearGoldOverlay(el); });
+
+      // שורות: תחתונה = הבהירה ביותר של המשפחה הראשונה (+offset)
+      for(let row=0; row<n; row++){
+        const rowFromBottom = (n-1) - row; // 0 = תחתונה
+        const pos = (rowFromBottom + gradientOffset) % total;
+        const paletteIndex = seq[pos];
+
+        for(let col=0; col<n; col++){
+          const idx = row*n + col;
+          const el = tiles[idx];
+          clearGoldOverlay(el);
+          setIndex(el, paletteIndex);
+        }
+      }
+
+      gradientActive = true;
+    }
+
+    async function savePNG(){
+      const toStrip=Array.from(board.querySelectorAll('.drag-target'));
+      toStrip.forEach(el=>el.classList.remove('drag-target'));
+      try{
+        const canvas=await html2canvas(board,{backgroundColor:'#000000',scale:2});
+        const link=document.createElement('a');
+        link.download='board.png';
+        link.href=canvas.toDataURL('image/png');
+        link.click();
+      }finally{}
+    }
+
+    // ---- Pointer interactions ----
+    const HOLD_DELAY=200, CYCLE_INTERVAL=80, DRAG_THRESHOLD=8;
+    const pointerState = {id:null,downEl:null,downX:0,downY:0,longPressTimer:null,cyclingInterval:null,suppressClick:false,dragging:false,dragSource:null,currentTarget:null};
+
+    function onPointerDown(e){
+      const el=e.target.closest('.tile'); if(!el) return;
+      e.preventDefault(); el.setPointerCapture(e.pointerId);
+      pointerState.id=e.pointerId; pointerState.downEl=el;
+      pointerState.downX=e.clientX; pointerState.downY=e.clientY;
+      pointerState.suppressClick=false; pointerState.dragging=false;
+      pointerState.dragSource=null; pointerState.currentTarget=null;
+      pointerState.longPressTimer=setTimeout(()=>{
+        if(pointerState.dragging) return;
+        pointerState.cyclingInterval=setInterval(()=>cycleTile(el,1), CYCLE_INTERVAL);
+      }, HOLD_DELAY);
+    }
+    function enterDragMode(sourceEl){
+      pointerState.dragging=true; pointerState.dragSource=sourceEl;
+      pointerState.suppressClick=true;
+    }
+    function updateDragTarget(x,y){
+      const el=document.elementFromPoint(x,y);
+      const tile=el && el.closest ? el.closest('.tile') : null;
+      if(pointerState.currentTarget===tile) return;
+      if(pointerState.currentTarget) pointerState.currentTarget.classList.remove('drag-target');
+      pointerState.currentTarget=tile;
+      if(tile) tile.classList.add('drag-target');
+    }
+    function onPointerMove(e){
+      if(pointerState.id!==e.pointerId) return;
+      const dx=e.clientX-pointerState.downX;
+      const dy=e.clientY-pointerState.downY;
+      const dist=Math.hypot(dx,dy);
+      if(!pointerState.dragging && dist>=DRAG_THRESHOLD){
+        clearTimeout(pointerState.longPressTimer); pointerState.longPressTimer=null;
+        if(pointerState.cyclingInterval){ clearInterval(pointerState.cyclingInterval); pointerState.cyclingInterval=null; }
+        enterDragMode(pointerState.downEl);
+      }
+      if(pointerState.dragging) updateDragTarget(e.clientX,e.clientY);
+    }
+    function onPointerUp(e){
+      const tile=e.target.closest('.tile');
+      clearTimeout(pointerState.longPressTimer); pointerState.longPressTimer=null;
+      if(pointerState.cyclingInterval){ clearInterval(pointerState.cyclingInterval); pointerState.cyclingInterval=null; pointerState.suppressClick=true; }
+      if(pointerState.dragging){
+        if(pointerState.currentTarget){
+          clearGoldOverlay(pointerState.currentTarget);
+          const k=getIndex(pointerState.dragSource);
+          setIndex(pointerState.currentTarget, k);
+          pointerState.currentTarget.classList.remove('drag-target');
+        }
+        pointerState.dragging=false; pointerState.dragSource=null; pointerState.currentTarget=null;
+      } else if(!pointerState.suppressClick && tile){
+        cycleTile(tile,1);
+      }
+      pointerState.id=null; pointerState.downEl=null;
+    }
+    function onPointerCancel(){
+      clearTimeout(pointerState.longPressTimer); pointerState.longPressTimer=null;
+      if(pointerState.cyclingInterval){ clearInterval(pointerState.cyclingInterval); pointerState.cyclingInterval=null; }
+      if(pointerState.currentTarget) pointerState.currentTarget.classList.remove('drag-target');
+      pointerState.dragging=false; pointerState.dragSource=null; pointerState.currentTarget=null;
+      pointerState.id=null; pointerState.downEl=null;
+    }
+    board.addEventListener('pointerdown', onPointerDown);
+    board.addEventListener('pointermove', onPointerMove);
+    board.addEventListener('pointerup', onPointerUp);
+    board.addEventListener('pointercancel', onPointerCancel);
+
+    // ---- Buttons ----
+    document.getElementById('btnRandom').addEventListener('click', randomizeAll);
+    document.getElementById('btnGradient').addEventListener('click', ()=>applyGradientRows(true));
+    // Shift+Click על כפתור הפלטה → קפיצה ישירה ל-Dreamer's Soul
+    document.getElementById('btnPalette').addEventListener('click', (e)=>{
+      if(e.shiftKey){
+        const i = PALETTES.findIndex(p => p.name === "Dreamer's Soul");
+        if(i !== -1){
+          activePaletteIndex = (i - 1 + PALETTES.length) % PALETTES.length; // כדי ש-switchPalette יגיע בדיוק אליה
+        }
+      }
+      switchPalette();
+    });
+    document.getElementById('btnReset').addEventListener('click', resetToGoldAndDefaultPalette);
+    document.getElementById('btnResize').addEventListener('click', resizeGrid);
+    document.getElementById('btnSave').addEventListener('click', savePNG);
+
+    // כפתור המפריד – Click (קדימה) ו-Shift+Click (אחורה)
+    btnSeparator.addEventListener('click', (e)=>{
+      cycleSeparator(!e.shiftKey ? true : false);
+    });
+
+    // ---- Init ----
+    buildBoard(n);
+    updatePaletteHeader();
+    applySeparator(); // מיישם 3px דיפולט + מעדכן אייקון/טולטיפ
+  })();
+  </script>
+</body>
+</html>
