@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Grid App</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tomerrrr-create.github.io/color-grid-app/">
+  <meta property="og:title" content="Your power is your Intuition">
+  <meta property="og:description" content="----------------">
+  <meta property="og:image" content="https://raw.githubusercontent.com/tomerrrr-create/color-grid-app/refs/heads/main/og.PNG">
+  <meta property="og:locale" content="he_IL" />
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://tomerrrr-create.github.io/color-grid-app/">
+  <meta name="twitter:title" content="Your power is your Intuition">
+  <meta name="twitter:description" content="----------------">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/tomerrrr-create/color-grid-app/refs/heads/main/og.PNG">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    /* Custom properties for dynamic styling controlled by JS */
+    :root {
+      --grid-size: 8;
+      --gap-px: 3px; /* Default gap changed to 3px */
+      --tile-radius: 2px;
+      /* New design tokens */
+      --icon-size: 26px;
+      --save-dot-size: 10px;
+      --stroke: 3px;
+      --gold: #FFD700; /* Original Gold */
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-size), 1fr);
+      gap: var(--gap-px);
+      border-width: var(--gap-px);
+      border-radius: 6px;
+      -webkit-user-select: none; /* Prevents text selection in Safari (iOS) */
+      user-select: none;          /* Prevents text selection in modern browsers */
+    }
+    .tile {
+      border-radius: var(--tile-radius);
+      transition: background-color 0.4s ease, box-shadow 0.2s ease, border-radius 0.2s ease;
+    }
+    
+    /* --- CONTROL BUTTON STYLES --- */
+    #controls {
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
+      column-gap: 12px; /* Horizontal gap */
+      row-gap: 8px;     /* Vertical gap - Reduced */
+      width: fit-content; /* Ensure grid doesn't stretch */
+    }
+    .ctrl {
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+      background: transparent;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      touch-action: manipulation; /* Prevents double-tap to zoom on iOS */
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    /* שמירה על סגנון הפוקוס לנגישות בכל המכשירים */
+    .ctrl:focus-visible {
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+    }
+
+    /* החלת סגנון הריחוף רק במכשירים שיכולים לרחף (לא מכשירי מגע) */
+    @media (hover: hover) {
+      .ctrl:hover {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+      }
+    }
+
+    .ctrl:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+    .glyph {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      display: inline-block;
+      position: relative;
+    }
+    .ctrl svg {
+        width: var(--icon-size);
+        height: var(--icon-size);
+    }
+    .glyph-square-gold {
+      background: #000;
+      border: 2px solid var(--gold);
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+    .glyph-square-white {
+      background: #000;
+      border: 2px solid #fff;
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+    .glyph-random {
+      background: linear-gradient(90deg, #000 50%, #fff 50%);
+      border-radius: 50%;
+    }
+    .glyph-remix {
+      background: linear-gradient(90deg, #fff 50%, #000 50%);
+      border-radius: 50%;
+    }
+    .palette {
+      font-size: var(--icon-size);
+      line-height: 1;
+    }
+    .save { 
+        background: transparent; 
+        border: none; 
+        position: absolute;
+        left: 0;
+        top: 25px; /* Vertically centers with first row's center */
+        transform: translateY(-50%);
+    }
+    .save::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: var(--save-dot-size);
+      height: var(--save-dot-size);
+      margin-left: calc(var(--save-dot-size) / -2);
+      margin-top: calc(var(--save-dot-size) / -2);
+      background: #fff;
+      border-radius: 50%;
+    }
+    
+    /* Brush Mode Button Style */
+    #btnBrushMode svg path {
+        transition: fill 0.2s ease-in-out;
+    }
+    #btnBrushMode.brush-on svg path {
+        fill: #fff;
+    }
+
+    /* Tile Highlight Styles */
+    .tile.source-highlight {
+        box-shadow: 0 0 0 4px var(--gold) inset;
+    }
+    .tile.target-highlight {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8) inset;
+    }
+
+    /* Base size for the app shell */
+    .app-shell {
+      width: min(85vmin, 720px);
+    }
+    
+    /* --- Animation Overlay Style --- */
+    #boardOverlay {
+        transition: opacity 350ms ease-in-out;
+    }
+
+    /* --- Gentle Nudge Animation --- */
+    @keyframes glow-effect {
+      0%, 100% {
+        filter: drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 1));
+        transform: scale(1.1);
+      }
+    }
+    /* Apply animation to the icon (glyph) inside the button */
+    .glow-animation .glyph-random {
+      animation: glow-effect 2s ease-in-out 2;
+    }
+
+    /* --- Gentle Nudge Animation for Separator --- */
+    .glow-animation-separator svg {
+      animation: glow-effect 2s ease-in-out 2;
+    }
+
+    @media (max-width: 480px) {
+      .ctrl { width: 44px; height: 44px; }
+      #controls {
+        grid-template-columns: repeat(3, 44px);
+        grid-template-rows: repeat(3, 44px);
+      }
+      .save {
+          top: 22px; /* Adjust for smaller button size */
+      }
+    }
+    
+    /* Fix for html2canvas rendering gaps */
+    .board.no-gap-fix .tile {
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body class="bg-black text-[#eaeaea] font-sans">
+
+  <div class="min-h-screen flex flex-col items-center justify-start p-6 pt-10 sm:pt-12">
+    <div class="w-full max-w-[720px] mx-auto app-shell">
+      
+      <!-- Container for board and its animation overlay -->
+      <div class="relative">
+        <div id="board" class="board bg-black border-black touch-none" aria-label="לוח צבעים" role="grid"></div>
+        <div id="boardOverlay" class="absolute inset-0 bg-black opacity-0 pointer-events-none"></div>
+      </div>
+
+      <div id="controlsContainer" class="mt-11 relative">
+        <button id="btnSave" class="ctrl save" aria-label="Save" title="Save"></button>
+        <div id="controls" class="mx-auto" aria-label="Control buttons">
+            <button id="btnRandom" class="ctrl" aria-label="Randomize Palette" title="Randomize Palette">
+                <span class="glyph glyph-random" aria-hidden="true"></span>
+            </button>
+            <button id="btnPalette" class="ctrl palette" aria-label="Switch palette" title="Switch palette"></button>
+            <button id="btnRemix" class="ctrl" aria-label="Remix current Grid" title="Remix current Grid">
+                <span class="glyph glyph-remix" aria-hidden="true"></span>
+            </button>
+            
+            <button id="btnResetGold" class="ctrl" aria-label="Reset" title="Reset">
+                <span class="glyph glyph-square-gold" aria-hidden="true"></span>
+            </button>
+            <button id="btnGap" class="ctrl" aria-label="Grid Separator" title="Grid Separator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true">
+                  <path d="M8 3v18M16 3v18M3 8h18M3 16h18"/>
+                </svg>
+            </button>
+            <button id="btnResize" class="ctrl" aria-label="Resize" title="Resize">
+                <span class="glyph glyph-square-white" aria-hidden="true"></span>
+            </button>
+
+            <button id="btnUndo" class="ctrl" aria-label="Undo" title="Undo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 10v4c0 1.1.9 2 2 2h7"/>
+                    <path d="M3 10l4-4 4 4"/>
+                </svg>
+            </button>
+            <button id="btnBrushMode" class="ctrl" title="Mode: Drag to Copy">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#000" />
+                </svg>
+            </button>
+            <button id="btnRedo" class="ctrl" aria-label="Redo" title="Redo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10v4c0 1.1-.9 2-2 2h-7"/>
+                    <path d="M21 10l-4-4-4 4"/>
+                </svg>
+            </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- START: Save Modal HTML -->
+  <div id="saveModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-[#1c1c1c] rounded-lg p-6 max-w-sm w-full text-center relative">
+      <h3 class="text-xl font-bold mb-4">התמונה מוכנה</h3>
+      <img id="imagePreview" class="rounded-md mb-6 border-2 border-gray-600 max-w-full h-auto" src="" alt="Image Preview">
+      <div class="flex justify-center gap-4">
+        <button id="btnModalShare" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">שתף</button>
+        <button id="btnModalDownload" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">הורד</button>
+      </div>
+      <button id="btnModalClose" class="mt-6 text-gray-400 hover:text-white underline">סגור</button>
+    </div>
+  </div>
+  <!-- END: Save Modal HTML -->
+
+
+  <script>
+    (function() {
+      const PALETTES = [
+        { name: 'Default', emoji: '🌓', colors: ['#FFD700', '#424242', '#000000', '#2E7D32', '#F48FB1', '#AB47BC', '#FFFFFF', '#FFC107', '#FFEE58', '#FDD835', '#FBC02D', '#FFE082', '#FFCA28', '#FFF176', '#FF8C00', '#FF9800', '#FB8C00', '#FFA726', '#FF7043', '#FF5722', '#F4511E', '#F57C00', '#FF1744', '#F44336', '#E53935', '#D32F2F', '#C62828', '#B71C1C', '#FF5252', '#EF5350', '#E91E63', '#F06292', '#FF4081', '#AD1457', '#D81B60', '#C2185B', '#EC407A', '#9C27B0', '#7B1FA2', '#8E24AA', '#673AB7', '#5E35B1', '#3F51B5', '#3949AB', '#2196F3', '#1976D2', '#1E88E5', '#42A5F5', '#00BCD4', '#26C6DA', '#0097A7', '#80DEEA', '#4CAF50', '#43A047', '#66BB6A', '#8BC34A', '#9CCC65', '#CDDC39', '#AFB42B', '#F5F5F5', '#E0E0E0', '#BDBDBD', '#9E9E9E', '#757575'] },
+        { name: 'New-York Autumn', emoji: '🍂', colors: ['#8B3A3A','#A52A2A','#8B0000','#B22222','#D2691E','#FF8C00','#FF7F50','#F4A460','#CD853F','#C2A14A','#B8860B','#DAA520','#808000','#556B2F','#6B8E23','#8B4513','#5D4037','#4E342E','#3E2723','#2F4F4F','#37474F','#607D8B','#795548'] },
+        { name: 'Brazilian Summer', emoji: '☀️', colors: ['#00FF7F','#1DE9B6','#00E676','#00C853','#2ECC71','#00A86B','#FFD700','#FFEB3B','#FFC107','#FDD835','#00BFFF','#1E90FF','#00B0FF','#18FFFF','#40E0D0','#FF1493','#FF69B4','#FF7F50','#FF5722','#F50057','#2962FF','#64DD17','#00C4FF'] },
+        { name: 'Icelandic Winter', emoji: '❄️', colors: ['#E6F7FF','#E1F5FE','#B3E5FC','#81D4FA','#4FC3F7','#29B6F6','#03A9F4','#90A4AE','#B0BEC5','#CFD8DC','#ECEFF1','#FFFFFF','#F5F5F5','#BDBDBD','#9E9E9E','#78909C','#546E7A','#455A64','#37474F','#263238','#A7FFEB','#80DEEA','#4DD0E1'] },
+        { name: 'Japanese Spring', emoji: '🌸', colors: ['#FFC0CB','#FFB7C5','#FFD1DC','#F8BBD0','#F48FB1','#E6E6FA','#D1C4E9','#B39DDB','#C1E1C1','#A5D6A7','#81C784','#DCEDC8','#FFF8DC','#FFF9C4','#FFF59D','#FFECB3','#87CEFA','#90CAF9','#64B5F6','#B3E5FC','#81D4FA','#80DEEA','#A7FFEB'] },
+        { name: 'Amazon Rainforest', emoji: '🌳', colors: ['#013220','#145A32','#1E8449','#229954','#28B463','#2ECC71','#58D68D','#82E0AA','#A9DFBF','#196F3D','#27AE60','#52BE80','#239B56','#1D8348','#117A65','#0E6655','#73C6B6','#48C9B0','#16A085','#45B39D','#138D75','#117864','#0B5345'] },
+        { name: 'פריחת הדובדבן', emoji: '桜', iconHTML: '<span style="color: #FFB6C1;">桜</span>', colors: ['#D4A3A3', '#E1B5B5', '#EECBCB', '#F4DEDE', '#F8E9E9', '#E6DCE5', '#DCD0E2', '#C9B7D4', '#B59ECB', '#A284C2', '#8F6AAD', '#FFDDE1', '#FFC4D0', '#E0BBE4', '#FFD1DC', '#FBC4AB', '#D8BFD8', '#C3B1E1', '#BDB0D0', '#D6CADD', '#BC8F8F', '#C0A9BD', '#A389A4', '#86688B', '#69476E'] },
+        { name: 'מעמקי הים', emoji: '🌊', colors: ['#000080', '#00008B', '#191970', '#0000CD', '#0000FF', '#008080', '#008B8B', '#2F4F4F', '#5F9EA0', '#66CDAA', '#000000', '#0B0C10', '#1C1C1C', '#252525', '#36454F', '#00FFFF', '#7FFFD4', '#40E0D0', '#20B2AA', '#483D8B', '#6A5ACD', '#8A2BE2', '#9370DB', '#9932CC', '#BA55D3'] },
+        { name: 'מדבר בזריחה', emoji: '🐪', colors: ['#FAD6A5', '#F8CBA6', '#F6BFA8', '#F3B4A9', '#F1A8AB', '#EE9CAC', '#E78B9A', '#E07A88', '#D86976', '#D15864', '#C94752', '#C23640', '#B3303A', '#A42A34', '#95242E', '#861E28', '#781822', '#69121C', '#5A0C16', '#4B0610', '#E6E6FA', '#D8BFD8', '#DDA0DD', '#C3B1E1', '#BDB0D0'] },
+        { name: 'ארמון קרח', emoji: '🏰', colors: ['#F0FFFF', '#E0FFFF', '#AFEEEE', '#7FFFD4', '#40E0D0', '#48D1CC', '#00CED1', '#5F9EA0', '#20B2AA', '#008B8B', '#008080', '#87CEEB', '#87CEFA', '#ADD8E6', '#B0E0E6', '#00BFFF', '#1E90FF', '#6495ED', '#4682B4', '#5F9EA0', '#B0C4DE', '#CAE1FF', '#ACD6FF', '#6CACFF', '#4A708B'] },
+        { name: 'Cosmos', emoji: '🌌', colors: ['#000000','#0B0C10','#1F2833','#263238','#37474F','#483D8B','#4B0082','#8A2BE2','#9370DB','#BA55D3','#DA70D6','#FF00FF','#FF69B4','#F8F8FF','#FFFFFF','#FFFACD','#E0FFFF','#B0E0E6','#40E0D0','#00BFFF','#1E90FF','#00008B','#191970'] }
+      ];
+
+      // ---- State ----
+      let activePaletteIndex = 0;
+      let n = 5; // Default size changed to 5
+      const GOLD = '#FFD700'; // Original Gold
+      let separatorPx = 3;
+      let isBrushModeOn = true; 
+      let hasPerformedInitialAutofill = false; 
+      let hasTriggeredFirstNudge = false;
+      let hasUsedRandomize = false;
+      let hasTriggeredSeparatorNudge = false; // Flag for the new animation
+
+      // ---- Undo/Redo State ----
+      const HISTORY_LIMIT = 5;
+      let history = [];
+      let future = [];
+
+      // ---- Elements ----
+      const appShell = document.querySelector('.app-shell');
+      const controlsContainer = document.getElementById('controlsContainer');
+      const board = document.getElementById('board');
+      const boardOverlay = document.getElementById('boardOverlay');
+      const btnRandom = document.getElementById('btnRandom');
+      const btnPalette = document.getElementById('btnPalette');
+      const btnGap = document.getElementById('btnGap');
+      const btnUndo = document.getElementById('btnUndo');
+      const btnRedo = document.getElementById('btnRedo');
+      const btnRemix = document.getElementById('btnRemix');
+      const btnBrushMode = document.getElementById('btnBrushMode');
+      const root = document.documentElement;
+      const tileClasses = 'tile aspect-square w-full outline-none focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-white/90';
+
+      // ---- START: New Save Modal Elements and State ----
+      const saveModal = document.getElementById('saveModal');
+      const imagePreview = document.getElementById('imagePreview');
+      const btnModalShare = document.getElementById('btnModalShare');
+      const btnModalDownload = document.getElementById('btnModalDownload');
+      const btnModalClose = document.getElementById('btnModalClose');
+      let generatedImageFile = null;
+      // ---- END: New Save Modal Elements and State ----
+
+      function palette() { return PALETTES[activePaletteIndex].colors; }
+
+      // ---- History Management ----
+      function getCurrentState() {
+        const tiles = Array.from(board.querySelectorAll('.tile')).map(el => ({
+            k: getIndex(el),
+            isGold: !!el.dataset.goldOverlay
+        }));
+        return { n, activePaletteIndex, separatorPx, tiles };
+      }
+
+      function areStatesEqual(stateA, stateB) {
+        if (!stateA || !stateB) return false;
+        if (stateA.n !== stateB.n ||
+            stateA.activePaletteIndex !== stateB.activePaletteIndex ||
+            stateA.separatorPx !== stateB.separatorPx ||
+            stateA.tiles.length !== stateB.tiles.length) {
+          return false;
+        }
+        for (let i = 0; i < stateA.tiles.length; i++) {
+          if (stateA.tiles[i].k !== stateB.tiles[i].k || stateA.tiles[i].isGold !== stateB.tiles[i].isGold) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function applyState(state) {
+        activePaletteIndex = state.activePaletteIndex;
+        separatorPx = state.separatorPx;
+        updatePaletteHeader();
+        applySeparator();
+
+        if (n !== state.n) {
+            n = state.n;
+            buildBoard(n, false);
+        }
+
+        const tileElements = board.querySelectorAll('.tile');
+        state.tiles.forEach((tileState, i) => {
+            if (tileElements[i]) {
+                const el = tileElements[i];
+                if (tileState.isGold) {
+                    applyGoldOverlay(el);
+                } else {
+                    delete el.dataset.goldOverlay;
+                    setIndex(el, tileState.k);
+                }
+            }
+        });
+      }
+
+      function pushHistory(state) {
+        history.push(state);
+        if (history.length > HISTORY_LIMIT) {
+            history.shift();
+        }
+        future = [];
+        updateUndoRedoButtons();
+      }
+
+      function performAction(actionFn) {
+        const beforeState = getCurrentState();
+        actionFn();
+        const afterState = getCurrentState();
+        if (!areStatesEqual(beforeState, afterState)) {
+            pushHistory({ before: beforeState, after: afterState });
+            hasPerformedInitialAutofill = true;
+        }
+      }
+      
+      function undo() {
+        if (history.length === 0) return;
+        const lastAction = history.pop();
+        future.push(lastAction);
+        applyState(lastAction.before);
+        clearAllHighlights();
+        updateUndoRedoButtons();
+      }
+
+      function redo() {
+        if (future.length === 0) return;
+        const nextAction = future.pop();
+        history.push(nextAction);
+        applyState(nextAction.after);
+        clearAllHighlights();
+        updateUndoRedoButtons();
+      }
+
+      function updateUndoRedoButtons() {
+        btnUndo.disabled = history.length === 0;
+        btnRedo.disabled = future.length === 0;
+      }
+
+      // ---- Tiles & Highlights ----
+      function createTile(idx = 0) {
+        const d = document.createElement('div');
+        d.className = tileClasses;
+        d.setAttribute('role', 'gridcell');
+        d.setAttribute('tabindex', '0');
+        setIndex(d, idx);
+        return d;
+      }
+      function setIndex(el, k) {
+        el.dataset.k = String(k);
+        if (!el.dataset.goldOverlay) {
+          const m = palette().length;
+          el.style.background = palette()[((k % m) + m) % m];
+        }
+      }
+      function getIndex(el) { return parseInt(el.dataset.k || '0', 10); }
+      function applyGoldOverlay(el) { el.style.background = GOLD; el.dataset.goldOverlay = '1'; }
+      function clearGoldOverlay(el) {
+        if (el.dataset.goldOverlay) {
+          delete el.dataset.goldOverlay;
+          const k = getIndex(el), m = palette().length;
+          el.style.background = palette()[k % m];
+        }
+      }
+      function clearAllHighlights() {
+        board.querySelectorAll('.source-highlight, .target-highlight').forEach(el => {
+            el.classList.remove('source-highlight', 'target-highlight');
+        });
+      }
+
+      function isBoardAllGold() {
+        const tiles = board.querySelectorAll('.tile');
+        if (tiles.length === 0) return false;
+        return Array.from(tiles).every(el => !!el.dataset.goldOverlay);
+      }
+
+      function buildBoard(size, applyGold = true) {
+        root.style.setProperty('--grid-size', size);
+        board.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < size * size; i++) {
+            const tile = createTile(0);
+            if(applyGold) applyGoldOverlay(tile);
+            frag.appendChild(tile);
+        }
+        board.appendChild(frag);
+        if (applyGold) {
+            hasPerformedInitialAutofill = false;
+        }
+      }
+      
+      function updatePaletteHeader() {
+        const pal = PALETTES[activePaletteIndex];
+        if (pal.iconHTML) {
+          btnPalette.innerHTML = pal.iconHTML;
+        } else {
+          btnPalette.innerHTML = ''; // Clear previous innerHTML
+          btnPalette.textContent = pal.emoji;
+        }
+        const label = `Switch palette: ${pal.name} (${activePaletteIndex + 1}/${PALETTES.length})`;
+        btnPalette.title = label;
+        btnPalette.setAttribute('aria-label', label);
+      }
+
+      function applySeparator() {
+        root.style.setProperty('--gap-px', separatorPx + 'px');
+        root.style.setProperty('--tile-radius', (separatorPx === 0 ? '0px' : '2px'));
+        const label = `Grid Separator`;
+        btnGap.title = label;
+        btnGap.setAttribute('aria-label', label);
+      }
+
+      // ---- Animation ----
+      const T_IN = 350;
+      const T_HOLD = 50;
+      const T_OUT = 350;
+      let isAnimating = false;
+
+      async function animateBoardTransition(actionFn) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        // Fade-in
+        boardOverlay.style.opacity = '1';
+        await new Promise(resolve => setTimeout(resolve, T_IN));
+
+        // Hold & Perform Action
+        actionFn();
+        await new Promise(resolve => setTimeout(resolve, T_HOLD));
+
+        // Fade-out
+        boardOverlay.style.opacity = '0';
+        await new Promise(resolve => setTimeout(resolve, T_OUT));
+
+        isAnimating = false;
+      }
+
+      // ---- Actions ----
+      function cycleSeparator() {
+          performAction(() => {
+            const separatorSequence = [6, 5, 3, 2, 0];
+            let currentIndex = separatorSequence.indexOf(separatorPx);
+
+            if (currentIndex === -1) {
+                const closest = separatorSequence.reduce((prev, curr) => {
+                    return (Math.abs(curr - separatorPx) < Math.abs(prev - separatorPx) ? curr : prev);
+                });
+                currentIndex = separatorSequence.indexOf(closest);
+            }
+
+            const nextIndex = (currentIndex + 1) % separatorSequence.length;
+            separatorPx = separatorSequence[nextIndex];
+            applySeparator();
+          });
+      }
+
+      function fillRandom() {
+        const m = palette().length;
+        board.querySelectorAll('.tile').forEach(el => {
+          clearGoldOverlay(el);
+          setIndex(el, Math.floor(Math.random() * m));
+        });
+      }
+
+      function randomizeAll() {
+        performAction(fillRandom);
+        hasUsedRandomize = true;
+      }
+
+      function remixGrid() {
+        performAction(() => {
+            const tiles = Array.from(board.querySelectorAll('.tile'));
+            let tileStates = tiles.map(el => ({
+                k: getIndex(el),
+                isGold: !!el.dataset.goldOverlay
+            }));
+            for (let i = tileStates.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tileStates[i], tileStates[j]] = [tileStates[j], tileStates[i]];
+            }
+            tiles.forEach((el, i) => {
+                const newState = tileStates[i];
+                if (newState.isGold) {
+                    applyGoldOverlay(el);
+                } else {
+                    clearGoldOverlay(el);
+                    setIndex(el, newState.k);
+                }
+            });
+        });
+      }
+      
+      function resetToGoldAndDefaultPalette() {
+        performAction(() => {
+            activePaletteIndex = 0;
+            separatorPx = 3;
+            n = 5; // Reset size is now 5
+            
+            updatePaletteHeader();
+            applySeparator();
+            buildBoard(n, true); 
+
+            // Color the center tile on reset
+            const tiles = board.querySelectorAll('.tile');
+            const centerIndex = Math.floor((n * n) / 2);
+            if (tiles[centerIndex]) {
+                const centerTile = tiles[centerIndex];
+                clearGoldOverlay(centerTile);
+                setIndex(centerTile, 1);
+            }
+        });
+      }
+
+      function switchPalette(backwards = false) {
+        const shouldTriggerNudge = !hasUsedRandomize && !hasTriggeredFirstNudge;
+
+        performAction(() => {
+            const len = PALETTES.length;
+            const nextPaletteIndex = (activePaletteIndex + (backwards ? -1 : 1) + len) % len;
+            
+            activePaletteIndex = nextPaletteIndex;
+            updatePaletteHeader();
+
+            if (!hasPerformedInitialAutofill) {
+                const tiles = board.querySelectorAll('.tile');
+                tiles.forEach((el, i) => {
+                    clearGoldOverlay(el);
+                    setIndex(el, 0); 
+                });
+            } else {
+                const m = palette().length;
+                board.querySelectorAll('.tile').forEach(el => {
+                    const k = getIndex(el);
+                    if (el.dataset.goldOverlay) {
+                        delete el.dataset.goldOverlay;
+                    }
+                    el.style.background = palette()[((k % m) + m) % m];
+                });
+            }
+        });
+
+        if (shouldTriggerNudge) {
+            hasTriggeredFirstNudge = true;
+            btnRandom.classList.add('glow-animation');
+            setTimeout(() => {
+                btnRandom.classList.remove('glow-animation');
+            }, 4000); // Animation lasts 4 seconds (2s * 2 iterations)
+        }
+      }
+
+      function resizeGrid(increase = false) {
+        performAction(() => {
+            const oldTiles = Array.from(board.querySelectorAll('.tile'));
+            const oldTileStates = oldTiles.map(el => ({
+                k: getIndex(el),
+                isGold: !!el.dataset.goldOverlay
+            }));
+            const oldSize = n;
+
+            const resizeSequence = [50, 35, 20, 15, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+            let currentIndex = resizeSequence.indexOf(n);
+
+            if (currentIndex === -1) {
+                const closest = resizeSequence.reduce((prev, curr) => {
+                    return (Math.abs(curr - n) < Math.abs(prev - n) ? curr : prev);
+                });
+                currentIndex = resizeSequence.indexOf(closest);
+            }
+
+            const len = resizeSequence.length;
+
+            if (increase) {
+                currentIndex = (currentIndex - 1 + len) % len;
+            } else {
+                currentIndex = (currentIndex + 1) % len;
+            }
+            n = resizeSequence[currentIndex];
+
+            // --- START: New Nudge Logic for Separator Button ---
+            if (n === 50 && !hasTriggeredSeparatorNudge) {
+                hasTriggeredSeparatorNudge = true; // Set flag to prevent re-triggering
+                btnGap.classList.add('glow-animation-separator');
+                setTimeout(() => {
+                    btnGap.classList.remove('glow-animation-separator');
+                }, 4000); // Animation duration is 4s (2s * 2 iterations)
+            }
+            // --- END: New Nudge Logic ---
+            
+            buildBoard(n, false); 
+            const newTiles = Array.from(board.querySelectorAll('.tile'));
+
+            if (n < oldSize) {
+                for (let i = oldTileStates.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [oldTileStates[i], oldTileStates[j]] = [oldTileStates[j], oldTileStates[i]];
+                }
+                newTiles.forEach((el, i) => {
+                    const newState = oldTileStates[i];
+                    if (newState && newState.isGold) {
+                        applyGoldOverlay(el);
+                    } else if (newState) {
+                        clearGoldOverlay(el);
+                        setIndex(el, newState.k);
+                    }
+                });
+            } else {
+                fillRandom(); 
+            }
+        });
+      }
+
+      function toggleBrushMode() {
+        isBrushModeOn = !isBrushModeOn;
+        btnBrushMode.classList.toggle('brush-on', isBrushModeOn);
+        const newTitle = isBrushModeOn ? "Mode: Drag to Paint" : "Mode: Drag to Copy";
+        btnBrushMode.title = newTitle;
+        btnBrushMode.setAttribute('aria-label', newTitle);
+        clearAllHighlights();
+        if (pointerState.dragSource) pointerState.dragSource = null;
+      }
+
+      // ---- START: UPDATED savePNG function ----
+      async function savePNG() {
+        const btnSave = document.getElementById('btnSave');
+        btnSave.disabled = true; // Disable button to prevent multiple clicks
+
+        clearAllHighlights();
+        board.querySelectorAll('.ring-inset, .ring-4, .ring-white').forEach(el => el.classList.remove('ring-inset', 'ring-4', 'ring-white', 'ring-white/90'));
+
+        if (separatorPx === 0) {
+            board.classList.add('no-gap-fix');
+        }
+
+        try {
+            const boardCanvas = await html2canvas(board, { backgroundColor: null, scale: 2 });
+            const padding = 25 * 2;
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = boardCanvas.width + padding;
+            finalCanvas.height = boardCanvas.height + padding;
+            const ctx = finalCanvas.getContext('2d');
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+            ctx.drawImage(boardCanvas, padding / 2, padding / 2);
+
+            finalCanvas.toBlob(async (blob) => {
+                if (!blob) {
+                    console.error('Conversion to Blob failed');
+                    btnSave.disabled = false;
+                    return;
+                }
+
+                generatedImageFile = new File([blob], 'board.png', { type: 'image/png' });
+                const imageUrl = URL.createObjectURL(blob);
+                
+                imagePreview.src = imageUrl;
+
+                // Show/hide the share button based on browser support
+                const shareData = { files: [generatedImageFile] };
+                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                    btnModalShare.classList.remove('hidden');
+                } else {
+                    btnModalShare.classList.add('hidden');
+                }
+
+                saveModal.classList.remove('hidden');
+                btnSave.disabled = false;
+            }, 'image/png');
+
+        } catch (err) {
+            console.error("Failed to save PNG:", err);
+            btnSave.disabled = false; // Re-enable on error
+        } finally {
+            if (separatorPx === 0) {
+                board.classList.remove('no-gap-fix');
+            }
+        }
+      }
+      // ---- END: UPDATED savePNG function ----
+
+      // ---- Pointer interactions ----
+      const HOLD_DELAY = 200, CYCLE_INTERVAL = 80, DRAG_THRESHOLD = 8;
+      const pointerState = { id: null, downEl: null, downX: 0, downY: 0, longPressTimer: null, cyclingInterval: null, suppressClick: false, isDragging: false, dragSource: null, currentTarget: null, beforeState: null };
+
+      function onPointerDown(e) {
+        const el = e.target.closest('.tile'); if (!el) return;
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+
+        Object.assign(pointerState, { 
+            id: e.pointerId, 
+            downEl: el, 
+            suppressClick: false, 
+            isDragging: false, 
+            dragSource: null, 
+            currentTarget: null, 
+            cyclingInterval: null, 
+            beforeState: getCurrentState() 
+        });
+
+        pointerState.longPressTimer = setTimeout(() => {
+            if (pointerState.isDragging) return;
+            pointerState.cyclingInterval = setInterval(() => {
+                clearGoldOverlay(el); 
+                setIndex(el, getIndex(el) + 1);
+                hasPerformedInitialAutofill = true;
+            }, CYCLE_INTERVAL);
+        }, HOLD_DELAY);
+
+        if (isBrushModeOn) {
+            pointerState.downX = e.clientX;
+            pointerState.downY = e.clientY;
+        } else { // Copy mode
+            clearAllHighlights();
+            el.classList.add('source-highlight');
+            pointerState.dragSource = el;
+        }
+      }
+
+      function onPointerMove(e) {
+        if (pointerState.id !== e.pointerId) return;
+
+        if (isBrushModeOn) {
+            const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
+            if (!pointerState.isDragging && dist >= DRAG_THRESHOLD) {
+                clearTimeout(pointerState.longPressTimer);
+                clearInterval(pointerState.cyclingInterval);
+                pointerState.longPressTimer = null;
+                pointerState.cyclingInterval = null;
+                pointerState.isDragging = true;
+                pointerState.dragSource = pointerState.downEl;
+                pointerState.suppressClick = true;
+                clearGoldOverlay(pointerState.dragSource);
+            }
+            if (pointerState.isDragging) {
+                const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('.tile');
+                if (targetEl && pointerState.currentTarget !== targetEl) {
+                    pointerState.currentTarget?.classList.remove('ring-4', 'ring-white');
+                    pointerState.currentTarget = targetEl;
+                    clearGoldOverlay(targetEl);
+                    setIndex(targetEl, getIndex(pointerState.dragSource));
+                    targetEl.classList.add('ring-4', 'ring-white');
+                }
+            }
+        } else { // Copy mode logic
+            if (!pointerState.dragSource) return;
+             const dist = Math.hypot(e.clientX - pointerState.downEl.getBoundingClientRect().left, e.clientY - pointerState.downEl.getBoundingClientRect().top);
+            if (dist > DRAG_THRESHOLD) {
+                pointerState.isDragging = true;
+                clearTimeout(pointerState.longPressTimer);
+            }
+            
+            if (pointerState.isDragging) {
+                const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('.tile');
+
+                // Check if the target has changed
+                if (targetEl !== pointerState.currentTarget) {
+                    // Remove highlight from the previous target if it exists
+                    if (pointerState.currentTarget) {
+                        pointerState.currentTarget.classList.remove('target-highlight');
+                    }
+
+                    // If the new target is a valid tile (and not the source), highlight it
+                    if (targetEl && targetEl !== pointerState.dragSource) {
+                        targetEl.classList.add('target-highlight');
+                        pointerState.currentTarget = targetEl;
+                    } else {
+                        // If there's no valid target, clear the current target
+                        pointerState.currentTarget = null;
+                    }
+                }
+            }
+        }
+      }
+
+      function onPointerUp(e) {
+        clearTimeout(pointerState.longPressTimer);
+        if (pointerState.cyclingInterval) {
+            clearInterval(pointerState.cyclingInterval);
+            pointerState.cyclingInterval = null;
+            pointerState.suppressClick = true;
+        }
+
+        const beforeState = pointerState.beforeState;
+
+        if (pointerState.isDragging) {
+            if (!isBrushModeOn && pointerState.currentTarget) {
+                const sourceEl = pointerState.dragSource;
+                const targetEl = pointerState.currentTarget;
+                if (!!sourceEl.dataset.goldOverlay) {
+                    applyGoldOverlay(targetEl);
+                } else {
+                    clearGoldOverlay(targetEl);
+                    setIndex(targetEl, getIndex(sourceEl));
+                }
+            }
+        } else if (!pointerState.suppressClick && e.target.closest('.tile')) {
+            const tile = e.target.closest('.tile');
+            clearGoldOverlay(tile);
+            setIndex(tile, getIndex(tile) + 1);
+        }
+
+        const afterState = getCurrentState();
+        if (beforeState && !areStatesEqual(beforeState, afterState)) {
+             pushHistory({ before: beforeState, after: afterState });
+             hasPerformedInitialAutofill = true;
+        }
+        
+        clearAllHighlights();
+        pointerState.currentTarget?.classList.remove('ring-4', 'ring-white', 'target-highlight');
+        Object.assign(pointerState, { id: null, downEl: null, isDragging: false, dragSource: null, currentTarget: null, beforeState: null });
+      }
+      
+      // ---- Layout Management ----
+      function updateLayout() {
+        // This function will only run its logic on wider screens.
+        // On mobile, the default CSS behavior is perfect.
+        if (window.innerWidth < 768) {
+            // On small screens, reset any dynamic styles to let CSS take over.
+            appShell.style.width = '';
+            return;
+        }
+
+        // 1. Measure the exact height of the controls area.
+        const controlsHeight = controlsContainer.offsetHeight;
+        
+        // 2. Get the total available viewport height.
+        const viewportHeight = window.innerHeight;
+
+        // 3. Calculate the available height for the board.
+        // We also subtract some padding for top/bottom margins.
+        const topMargin = parseInt(window.getComputedStyle(appShell.parentElement).paddingTop, 10);
+        const availableHeight = viewportHeight - controlsHeight - (topMargin * 2);
+
+        // 4. Determine the max width based on CSS values.
+        const currentMaxWidth = 720; // from max-w-[720px]
+        const vminWidth = window.innerWidth * 0.85; // from 85vmin
+
+        // 5. The new width should be the smallest of all constraints.
+        const newWidth = Math.min(currentMaxWidth, vminWidth, availableHeight);
+
+        // 6. Apply the calculated width to the app shell.
+        appShell.style.width = `${newWidth}px`;
+      }
+
+      board.addEventListener('pointerdown', onPointerDown);
+      board.addEventListener('pointermove', onPointerMove);
+      board.addEventListener('pointerup', onPointerUp);
+      board.addEventListener('pointercancel', onPointerUp);
+
+      // ---- Buttons ----
+      document.getElementById('btnRandom').addEventListener('click', randomizeAll);
+      btnRemix.addEventListener('click', remixGrid);
+      btnPalette.addEventListener('click', () => switchPalette());
+      document.getElementById('btnResetGold').addEventListener('click', () => animateBoardTransition(resetToGoldAndDefaultPalette));
+      document.getElementById('btnResize').addEventListener('click', (e) => {
+        const resizeAction = () => resizeGrid(e.shiftKey);
+        animateBoardTransition(resizeAction);
+      });
+      document.getElementById('btnSave').addEventListener('click', savePNG);
+      btnGap.addEventListener('click', cycleSeparator);
+      btnBrushMode.addEventListener('click', toggleBrushMode);
+      btnUndo.addEventListener('click', undo);
+      btnRedo.addEventListener('click', redo);
+
+      // ---- START: New Event Listeners for Modal ----
+      btnModalShare.addEventListener('click', async () => {
+          if (!generatedImageFile) return;
+          const shareData = { files: [generatedImageFile], title: 'My Color Grid' };
+          try {
+              await navigator.share(shareData);
+          } catch (err) {
+              if (err.name !== 'AbortError') {
+                  console.error('Share API error:', err);
+              }
+          }
+      });
+
+      btnModalDownload.addEventListener('click', () => {
+          if (!generatedImageFile) return;
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(generatedImageFile);
+          link.download = 'board.png';
+          link.click();
+          URL.revokeObjectURL(link.href);
+      });
+
+      btnModalClose.addEventListener('click', () => {
+          saveModal.classList.add('hidden');
+          if (imagePreview.src) {
+              URL.revokeObjectURL(imagePreview.src);
+          }
+          imagePreview.src = '';
+          generatedImageFile = null;
+      });
+      // ---- END: New Event Listeners for Modal ----
+
+
+      // ---- Init ----
+      buildBoard(n, true); // Build board and apply gold to all tiles
+
+      // Color the center tile on initial load
+      const initialTiles = board.querySelectorAll('.tile');
+      const centerIndex = Math.floor((n * n) / 2);
+      if (initialTiles[centerIndex]) {
+          const centerTile = initialTiles[centerIndex];
+          clearGoldOverlay(centerTile);
+          setIndex(centerTile, 1); // Set to the second color in the palette (grey)
+          hasPerformedInitialAutofill = true; // Mark that a change has been made
+      }
+      
+      updatePaletteHeader();
+      applySeparator();
+      updateUndoRedoButtons();
+      toggleBrushMode(); toggleBrushMode();
+
+      // Set initial layout and add listener for window resize.
+      updateLayout();
+      window.addEventListener('resize', updateLayout);
+    })();
+  </script>
+</body>
+</html>
