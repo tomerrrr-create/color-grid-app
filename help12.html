@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Grid App</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tomerrrr-create.github.io/color-grid-app/">
+  <meta property="og:title" content="Follow Your Intuition">
+  <meta property="og:description" content="----------------">
+  <meta property="og:image" content="https://raw.githubusercontent.com/tomerrrr-create/color-grid-app/refs/heads/main/welcomeimage.png">
+  <meta property="og:locale" content="he_IL" />
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://tomerrrr-create.github.io/color-grid-app/">
+  <meta name="twitter:title" content="Follow Your Intuition">
+  <meta name="twitter:description" content="----------------">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/tomerrrr-create/color-grid-app/refs/heads/main/welcomeimage.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    /* Custom properties for dynamic styling controlled by JS */
+    :root {
+      --grid-size: 8;
+      --gap-px: 3px;
+      --tile-radius: 2px;
+      --icon-size: 26px;
+      --save-dot-size: 10px;
+      --reset-dot-size: 8px; 
+      --stroke: 3px;
+      --gold: #FFD700;
+    }
+    body {
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+      /* --- FIX: Disable text selection globally --- */
+      -webkit-user-select: none; /* Safari */
+      -ms-user-select: none; /* IE 10+ */
+      user-select: none; /* Standard syntax */
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-size), 1fr);
+      gap: var(--gap-px);
+      border-width: var(--gap-px);
+      border-radius: 6px;
+      transition: gap 0.3s ease-in-out;
+    }
+    .tile {
+      border-radius: var(--tile-radius);
+      transition: background-color 0.4s ease, box-shadow 0.2s ease, border-radius 0.6s ease-in-out;
+    }
+    
+    /* --- CONTROL BUTTON STYLES --- */
+    #controls {
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
+      column-gap: 12px;
+      row-gap: 8px;
+      width: fit-content;
+    }
+    .ctrl {
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      outline: none;
+      background: transparent;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      touch-action: manipulation;
+      transition: opacity 0.2s ease-in-out, transform 150ms ease-out;
+    }
+    .ctrl * {
+      pointer-events: none;
+    }
+    .ctrl:focus-visible {
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+    }
+    @media (hover: hover) {
+      .ctrl:hover {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+      }
+    }
+    .ctrl:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+    .glyph {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      display: inline-block;
+      position: relative;
+    }
+    .ctrl svg {
+        width: var(--icon-size);
+        height: var(--icon-size);
+    }
+    .glyph-square-gold {
+      background: #000;
+      border: 2px solid var(--gold);
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+    .glyph-square-white {
+      background: #000;
+      border: 2px solid #fff;
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+    .glyph-random {
+      background: linear-gradient(90deg, #000 50%, #fff 50%);
+      border-radius: 50%;
+    }
+    .glyph-remix {
+      background: linear-gradient(90deg, #fff 50%, #000 50%);
+      border-radius: 50%;
+    }
+    .palette {
+      font-size: var(--icon-size);
+      line-height: 1;
+    }
+    .save { 
+        background: transparent; 
+        border: none; 
+        position: absolute;
+        left: 0;
+        top: 25px;
+        transform: translateY(-50%);
+    }
+    .save::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: var(--save-dot-size);
+      height: var(--save-dot-size);
+      margin-left: calc(var(--save-dot-size) / -2);
+      margin-top: calc(var(--save-dot-size) / -2);
+      background: #fff;
+      border-radius: 50%;
+    }
+    .reset-board {
+        background: transparent;
+        border: none;
+        position: absolute;
+        right: 0;
+        top: 25px;
+        transform: translateY(-50%);
+    }
+    .reset-board::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: var(--reset-dot-size);
+      height: var(--reset-dot-size);
+      margin-left: calc(var(--reset-dot-size) / -2);
+      margin-top: calc(var(--reset-dot-size) / -2);
+      background: #fff;
+      border-radius: 50%;
+    }
+    #btnBrushMode svg path {
+        transition: fill 0.2s ease-in-out;
+    }
+    #btnBrushMode.brush-on svg path {
+        fill: #fff;
+    }
+    .tile.source-highlight {
+        box-shadow: 0 0 0 4px var(--gold) inset;
+    }
+    .tile.target-highlight {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8) inset;
+    }
+    .app-shell {
+      width: min(85vmin, 720px);
+    }
+    #boardOverlay {
+        transition: opacity 350ms ease-in-out;
+    }
+    @keyframes glow-effect {
+      0%, 100% {
+        filter: drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 1));
+        transform: scale(1.1);
+      }
+    }
+    .glow-animation .glyph-random {
+      animation: glow-effect 2s ease-in-out 2;
+    }
+    .glow-animation-separator svg {
+      animation: glow-effect 2s ease-in-out 2;
+    }
+    #saveModal {
+      transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
+      visibility: hidden;
+      opacity: 0;
+    }
+    #saveModal.modal-visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* --- START: Visual Long Press Feature Styles --- */
+    #longPressOverlay {
+      background-color: rgba(0, 0, 0, 0.95);
+      opacity: 0;
+      transition: opacity 350ms ease-in-out;
+    }
+    #longPressDisplay {
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 350ms ease-in-out, transform 350ms ease-in-out;
+    }
+    #longPressDisplay > * {
+      opacity: 0;
+      transition: opacity 250ms ease-in-out;
+    }
+    #longPressOverlay.visible, #longPressDisplay.visible {
+      opacity: 1;
+    }
+    #longPressDisplay.visible {
+        transform: scale(1);
+    }
+    /* --- END: Visual Long Press Feature Styles --- */
+
+    @media (max-width: 480px) {
+      .ctrl { width: 44px; height: 44px; }
+      #controls {
+        grid-template-columns: repeat(3, 44px);
+        grid-template-rows: repeat(3, 44px);
+      }
+      .save, .reset-board {
+          top: 22px;
+      }
+    }
+    .board.no-gap-fix .tile {
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body class="bg-black text-[#eaeaea] font-sans">
+
+  <div class="min-h-screen flex flex-col items-center justify-start p-6 pt-10 sm:pt-12">
+    <div class="w-full max-w-[720px] mx-auto app-shell">
+      
+      <div class="relative">
+        <div id="board" class="board bg-black border-black touch-none" aria-label="לוח צבעים" role="grid"></div>
+        <div id="boardOverlay" class="absolute inset-0 bg-black opacity-0 pointer-events-none"></div>
+
+        <!-- --- START: Visual Long Press Feature HTML --- -->
+        <div id="longPressOverlay" class="absolute inset-0 pointer-events-none"></div>
+        <div id="longPressDisplay" class="absolute inset-0 flex flex-col items-center justify-center gap-8 sm:gap-12 pointer-events-none">
+            <!-- Dynamic content will be injected here by JS -->
+        </div>
+        <!-- --- END: Visual Long Press Feature HTML --- -->
+      </div>
+
+      <div id="controlsContainer" class="mt-11 relative">
+        <button id="btnSave" class="ctrl save" aria-label="Save" title="Save"></button>
+        <button id="btnResetBoard" class="ctrl reset-board" aria-label="Reset Board" title="Reset Board"></button>
+        
+        <div id="controls" class="mx-auto" aria-label="Control buttons">
+            <button id="btnRandom" class="ctrl" aria-label="Randomize Palette" title="Shuffle">
+                <span class="glyph glyph-random" aria-hidden="true"></span>
+            </button>
+            <button id="btnPalette" class="ctrl palette" aria-label="Switch palette" title="Switch palette"></button>
+            <button id="btnRemix" class="ctrl" aria-label="Remix current Grid" title="Remix current Grid">
+                <span class="glyph glyph-remix" aria-hidden="true"></span>
+            </button>
+            
+            <button id="btnResizeUp" class="ctrl" aria-label="Increase Grid Size" title="size up">
+                <span class="glyph glyph-square-gold" aria-hidden="true"></span>
+            </button>
+            <button id="btnGap" class="ctrl" aria-label="Grid Separator" title="Grid Separator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true">
+                  <path d="M8 3v18M16 3v18M3 8h18M3 16h18"/>
+                </svg>
+            </button>
+            <button id="btnResizeDown" class="ctrl" aria-label="Decrease Grid Size" title="size down">
+                <span class="glyph glyph-square-white" aria-hidden="true"></span>
+            </button>
+
+            <button id="btnUndo" class="ctrl" aria-label="Undo" title="Undo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 10v4c0 1.1.9 2 2 2h7"/>
+                    <path d="M3 10l4-4 4 4"/>
+                </svg>
+            </button>
+            <button id="btnBrushMode" class="ctrl" title="Mode: Drag to Copy">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#000" />
+                </svg>
+            </button>
+            <button id="btnRedo" class="ctrl" aria-label="Redo" title="Redo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10v4c0 1.1-.9 2-2 2h-7"/>
+                    <path d="M21 10l-4-4-4 4"/>
+                </svg>
+            </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="saveModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+    <div class="bg-[#1c1c1c] rounded-lg p-6 max-w-sm w-full text-center relative">
+      <button id="btnModalClose" class="absolute top-3 right-3 text-gray-400 hover:text-white" title="Close">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      <img id="imagePreview" class="rounded-md mb-4 border-2 border-gray-600 max-w-full h-auto" src="" alt="Image Preview">
+      <div class="mb-6 text-left" dir="ltr">
+        <label for="fileNameInput" class="block text-sm font-medium text-gray-300 mb-1">feels like</label>
+        <input type="text" id="fileNameInput" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Journey">
+      </div>
+      <div class="flex justify-center gap-4">
+        <button id="btnModalShare" title="Share" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path></svg>
+        </button>
+        <button id="btnModalDownload" title="Download" class="bg-gray-600 hover:bg-gray-700 text-white font-bold p-3 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const PALETTES = [
+        { name: 'Default', emoji: '🌓', colors: ['#FFD700', '#424242', '#000000', '#2E7D32', '#F48FB1', '#AB47BC', '#FFFFFF', '#FFC107', '#FFEE58', '#FDD835', '#FBC02D', '#FFE082', '#FFCA28', '#FFF176', '#FF8C00', '#FF9800', '#FB8C00', '#FFA726', '#FF7043', '#FF5722', '#F4511E', '#F57C00', '#FF1744', '#F44336', '#E53935', '#D32F2F', '#C62828', '#B71C1C', '#FF5252', '#EF5350', '#E91E63', '#F06292', '#FF4081', '#AD1457', '#D81B60', '#C2185B', '#EC407A', '#9C27B0', '#7B1FA2', '#8E24AA', '#673AB7', '#5E35B1', '#3F51B5', '#3949AB', '#2196F3', '#1976D2', '#1E88E5', '#42A5F5', '#00BCD4', '#26C6DA', '#0097A7', '#80DEEA', '#4CAF50', '#43A047', '#66BB6A', '#8BC34A', '#9CCC65', '#CDDC39', '#AFB42B', '#F5F5F5', '#E0E0E0', '#BDBDBD', '#9E9E9E', '#757575'] },
+        { name: 'New-York Autumn', emoji: '🍂', colors: ['#8B3A3A','#A52A2A','#8B0000','#B22222','#D2691E','#FF8C00','#FF7F50','#F4A460','#CD853F','#C2A14A','#B8860B','#DAA520','#808000','#556B2F','#6B8E23','#8B4513','#5D4037','#4E342E','#3E2723','#2F4F4F','#37474F','#607D8B','#795548'] },
+        { name: 'Brazilian Summer', emoji: '☀️', colors: ['#00FF7F','#1DE9B6','#00E676','#00C853','#2ECC71','#00A86B','#FFD700','#FFEB3B','#FFC107','#FDD835','#00BFFF','#1E90FF','#00B0FF','#18FFFF','#40E0D0','#FF1493','#FF69B4','#FF7F50','#FF5722','#F50057','#2962FF','#64DD17','#00C4FF'] },
+        { name: 'Icelandic Winter', emoji: '❄️', colors: ['#E6F7FF','#E1F5FE','#B3E5FC','#81D4FA','#4FC3F7','#29B6F6','#03A9F4','#90A4AE','#B0BEC5','#CFD8DC','#ECEFF1','#FFFFFF','#F5F5F5','#BDBDBD','#9E9E9E','#78909C','#546E7A','#455A64','#37474F','#263238','#A7FFEB','#80DEEA','#4DD0E1'] },
+        { name: 'Japanese Spring', emoji: '🌸', colors: ['#FFC0CB','#FFB7C5','#FFD1DC','#F8BBD0','#F48FB1','#E6E6FA','#D1C4E9','#B39DDB','#C1E1C1','#A5D6A7','#81C784','#DCEDC8','#FFF8DC','#FFF9C4','#FFF59D','#FFECB3','#87CEFA','#90CAF9','#64B5F6','#B3E5FC','#81D4FA','#80DEEA','#A7FFEB'] },
+        { name: 'Amazon Rainforest', emoji: '🌳', colors: ['#013220','#145A32','#1E8449','#229954','#28B463','#2ECC71','#58D68D','#82E0AA','#A9DFBF','#196F3D','#27AE60','#52BE80','#239B56','#1D8348','#117A65','#0E6655','#73C6B6','#48C9B0','#16A085','#45B39D','#138D75','#117864','#0B5345'] },
+        { name: 'Desert Sunrise', emoji: '🐪', colors: ['#FAD6A5', '#F8CBA6', '#F6BFA8', '#F3B4A9', '#F1A8AB', '#EE9CAC', '#E78B9A', '#E07A88', '#D86976', '#D15864', '#C94752', '#C23640', '#B330A', '#A42A34', '#95242E', '#861E28', '#781822', '#69121C', '#5A0C16', '#4B0610', '#E6E6FA', '#D8BFD8', '#DDA0DD', '#C3B1E1', '#BDB0D0'] },
+        { name: 'Cherry Blossom', emoji: '桜', iconHTML: '<span style="color: #FFB6C1;">桜</span>', colors: ['#D4A3A3', '#E1B5B5', '#EECBCB', '#F4DEDE', '#F8E9E9', '#E6DCE5', '#DCD0E2', '#C9B7D4', '#B59ECB', '#A284C2', '#8F6AAD', '#FFDDE1', '#FFC4D0', '#E0BBE4', '#FFD1DC', '#FBC4AB', '#D8BFD8', '#C3B1E1', '#BDB0D0', '#D6CADD', '#BC8F8F', '#C0A9BD', '#A389A4', '#86688B', '#69476E'] },
+        { name: 'Deep Sea', emoji: '🌊', colors: ['#000080', '#00008B', '#191970', '#0000CD', '#0000FF', '#008080', '#008B8B', '#2F4F4F', '#5F9EA0', '#66CDAA', '#000000', '#0B0C10', '#1C1C1C', '#252525', '#36454F', '#00FFFF', '#7FFFD4', '#40E0D0', '#20B2AA', '#483D8B', '#6A5ACD', '#8A2BE2', '#9370DB', '#9932CC', '#BA55D3'] },
+        { name: 'Ice Palace', emoji: '🏰', colors: ['#F0FFFF', '#E0FFFF', '#AFEEEE', '#7FFFD4', '#40E0D0', '#48D1CC', '#00CED1', '#5F9EA0', '#20B2AA', '#008B8B', '#008080', '#87CEEB', '#87CEFA', '#ADD8E6', '#B0E0E6', '#00BFFF', '#1E90FF', '#6495ED', '#4682B4', '#5F9EA0', '#B0C4DE', '#CAE1FF', '#ACD6FF', '#6CACFF', '#4A708B'] },
+        { name: 'Cosmos', emoji: '🌌', colors: ['#000000','#0B0C10','#1F2833','#263238','#37474F','#483D8B','#4B0082','#8A2BE2','#9370DB','#BA55D3','#DA70D6','#FF00FF','#FF69B4','#F8F8FF','#FFFFFF','#FFFACD','#E0FFFF','#B0E0E6','#40E0D0','#00BFFF','#1E90FF','#00008B','#191970'] },
+        { name: 'healing flow', emoji: '✨', colors: ['#F5FFFA', '#FAFAD2', '#FFFACD', '#E6E6FA', '#D8BFD8', '#C1E1C1', '#B0E0E6', '#AFEEEE', '#87CEFA', '#ADD8E6', '#98FB98', '#90EE90', '#66CDAA', '#20B2AA', '#3CB371', '#2E8B57', '#FFDAB9', '#FFE4C4', '#F0FFF0', '#F5F5DC', '#DCDCDC', '#C0C0C0', '#A9A9A9', '#708090', '#6A5ACD'] }
+      ];
+
+      // ---- State ----
+      let activePaletteIndex = 0;
+      let n = 5;
+      const GOLD = '#FFD700';
+      let separatorPx = 3;
+      let isBrushModeOn = true; 
+      let hasPerformedInitialAutofill = false; 
+      let hasTriggeredFirstNudge = false;
+      let hasUsedRandomize = false;
+      let hasTriggeredSeparatorNudge = false;
+      let isAnimating = false;
+
+      // ---- Undo/Redo State ----
+      const HISTORY_LIMIT = 5;
+      let history = [];
+      let future = [];
+
+      // ---- Elements ----
+      const appShell = document.querySelector('.app-shell');
+      const controlsContainer = document.getElementById('controlsContainer');
+      const board = document.getElementById('board');
+      const boardOverlay = document.getElementById('boardOverlay');
+      const btnRandom = document.getElementById('btnRandom');
+      const btnPalette = document.getElementById('btnPalette');
+      const btnGap = document.getElementById('btnGap');
+      const btnUndo = document.getElementById('btnUndo');
+      const btnRedo = document.getElementById('btnRedo');
+      const btnRemix = document.getElementById('btnRemix');
+      const btnBrushMode = document.getElementById('btnBrushMode');
+      const root = document.documentElement;
+      const tileClasses = 'tile aspect-square w-full outline-none focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-white/90';
+
+      // ---- Save Modal Elements ----
+      const saveModal = document.getElementById('saveModal');
+      const imagePreview = document.getElementById('imagePreview');
+      const btnModalShare = document.getElementById('btnModalShare');
+      const btnModalDownload = document.getElementById('btnModalDownload');
+      const btnModalClose = document.getElementById('btnModalClose');
+      const fileNameInput = document.getElementById('fileNameInput');
+      let generatedImageFile = null;
+      
+      // ---- Visual Long Press Elements ----
+      const longPressOverlay = document.getElementById('longPressOverlay');
+      const longPressDisplay = document.getElementById('longPressDisplay');
+      let longPressTimer = null;
+      let wasLongPress = false;
+
+      function palette() { return PALETTES[activePaletteIndex].colors; }
+
+      // ---- History Management ----
+      function getCurrentState() {
+        const tiles = Array.from(board.querySelectorAll('.tile')).map(el => ({ k: getIndex(el), isGold: !!el.dataset.goldOverlay }));
+        return { n, activePaletteIndex, separatorPx, tiles };
+      }
+      function areStatesEqual(stateA, stateB) {
+        if (!stateA || !stateB) return false;
+        if (stateA.n !== stateB.n || stateA.activePaletteIndex !== stateB.activePaletteIndex || stateA.separatorPx !== stateB.separatorPx || stateA.tiles.length !== stateB.tiles.length) return false;
+        for (let i = 0; i < stateA.tiles.length; i++) {
+          if (stateA.tiles[i].k !== stateB.tiles[i].k || stateA.tiles[i].isGold !== stateB.tiles[i].isGold) return false;
+        }
+        return true;
+      }
+      function applyState(state) {
+        activePaletteIndex = state.activePaletteIndex;
+        separatorPx = state.separatorPx;
+        updatePaletteHeader();
+        applySeparator();
+        if (n !== state.n) {
+            n = state.n;
+            buildBoard(n, false);
+        }
+        const tileElements = board.querySelectorAll('.tile');
+        state.tiles.forEach((tileState, i) => {
+            if (tileElements[i]) {
+                const el = tileElements[i];
+                if (tileState.isGold) { applyGoldOverlay(el); } 
+                else { delete el.dataset.goldOverlay; setIndex(el, tileState.k); }
+            }
+        });
+      }
+      function pushHistory(state) {
+        history.push(state);
+        if (history.length > HISTORY_LIMIT) { history.shift(); }
+        future = [];
+        updateUndoRedoButtons();
+      }
+      function performAction(actionFn) {
+        const beforeState = getCurrentState();
+        actionFn();
+        const afterState = getCurrentState();
+        if (!areStatesEqual(beforeState, afterState)) {
+            pushHistory({ before: beforeState, after: afterState });
+            hasPerformedInitialAutofill = true;
+        }
+      }
+      function undo() {
+        if (history.length === 0) return;
+        const lastAction = history.pop();
+        future.push(lastAction);
+        applyState(lastAction.before);
+        clearAllHighlights();
+        updateUndoRedoButtons();
+      }
+      function redo() {
+        if (future.length === 0) return;
+        const nextAction = future.pop();
+        history.push(nextAction);
+        applyState(nextAction.after);
+        clearAllHighlights();
+        updateUndoRedoButtons();
+      }
+      function updateUndoRedoButtons() {
+        btnUndo.disabled = history.length === 0;
+        btnRedo.disabled = future.length === 0;
+      }
+
+      // ---- Tiles & Board ----
+      function createTile(idx = 0) {
+        const d = document.createElement('div');
+        d.className = tileClasses;
+        d.setAttribute('role', 'gridcell');
+        d.setAttribute('tabindex', '0');
+        setIndex(d, idx);
+        return d;
+      }
+      function setIndex(el, k) {
+        el.dataset.k = String(k);
+        if (!el.dataset.goldOverlay) {
+          const m = palette().length;
+          el.style.background = palette()[((k % m) + m) % m];
+        }
+      }
+      function getIndex(el) { return parseInt(el.dataset.k || '0', 10); }
+      function applyGoldOverlay(el) { el.style.background = GOLD; el.dataset.goldOverlay = '1'; }
+      function clearGoldOverlay(el) {
+        if (el.dataset.goldOverlay) {
+          delete el.dataset.goldOverlay;
+          const k = getIndex(el), m = palette().length;
+          el.style.background = palette()[k % m];
+        }
+      }
+      function clearAllHighlights() {
+        board.querySelectorAll('.source-highlight, .target-highlight').forEach(el => {
+            el.classList.remove('source-highlight', 'target-highlight');
+        });
+      }
+      function buildBoard(size, applyGold = true) {
+        root.style.setProperty('--grid-size', size);
+        board.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < size * size; i++) {
+            const tile = createTile(0);
+            if(applyGold) applyGoldOverlay(tile);
+            frag.appendChild(tile);
+        }
+        board.appendChild(frag);
+        if (applyGold) { hasPerformedInitialAutofill = false; }
+      }
+      function updatePaletteHeader() {
+        const pal = PALETTES[activePaletteIndex];
+        if (pal.iconHTML) { btnPalette.innerHTML = pal.iconHTML; } 
+        else { btnPalette.innerHTML = ''; btnPalette.textContent = pal.emoji; }
+        const label = `Switch palette: ${pal.name} (${activePaletteIndex + 1}/${PALETTES.length})`;
+        btnPalette.title = label;
+        btnPalette.setAttribute('aria-label', label);
+      }
+      function applySeparator() {
+        root.style.setProperty('--gap-px', separatorPx + 'px');
+        root.style.setProperty('--tile-radius', (separatorPx === 0 ? '0px' : '2px'));
+        btnGap.title = `Grid Separator`;
+        btnGap.setAttribute('aria-label', `Grid Separator`);
+      }
+
+      // ---- Board Animation ----
+      async function animateBoardTransition(actionFn) {
+        if (isAnimating) return;
+        isAnimating = true;
+        boardOverlay.style.opacity = '1';
+        await new Promise(resolve => setTimeout(resolve, 350));
+        actionFn();
+        await new Promise(resolve => setTimeout(resolve, 50));
+        boardOverlay.style.opacity = '0';
+        await new Promise(resolve => setTimeout(resolve, 350));
+        isAnimating = false;
+      }
+      
+      // ---- Actions ----
+      function cycleSeparator() {
+          performAction(() => {
+            const seq = [6, 5, 3, 2, 0];
+            let idx = seq.indexOf(separatorPx);
+            if (idx === -1) { idx = seq.indexOf(seq.reduce((p, c) => (Math.abs(c - separatorPx) < Math.abs(p - separatorPx) ? c : p))); }
+            separatorPx = seq[(idx + 1) % seq.length];
+            applySeparator();
+          });
+      }
+      function fillRandom() {
+        const m = palette().length;
+        board.querySelectorAll('.tile').forEach(el => {
+          clearGoldOverlay(el);
+          setIndex(el, Math.floor(Math.random() * m));
+        });
+      }
+      function randomizeAll() {
+        performAction(fillRandom);
+        hasUsedRandomize = true;
+      }
+      function remixGrid() {
+        performAction(() => {
+            let states = Array.from(board.querySelectorAll('.tile')).map(el => ({ k: getIndex(el), isGold: !!el.dataset.goldOverlay }));
+            for (let i = states.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [states[i], states[j]] = [states[j], states[i]]; }
+            board.querySelectorAll('.tile').forEach((el, i) => {
+                if (states[i].isGold) { applyGoldOverlay(el); } 
+                else { clearGoldOverlay(el); setIndex(el, states[i].k); }
+            });
+        });
+      }
+      
+      // ---- Reverted Reset Function ----
+      function resetToGoldAndDefaultPalette() {
+        performAction(() => {
+            activePaletteIndex = 0;
+            separatorPx = 3;
+            n = 5;
+            updatePaletteHeader();
+            applySeparator();
+            buildBoard(n, false); 
+            const tiles = board.querySelectorAll('.tile');
+            const centerIndex = Math.floor((n * n) / 2);
+            tiles.forEach((tile, index) => {
+              if (index === centerIndex) { applyGoldOverlay(tile); } 
+              else { setIndex(tile, 1); }
+            });
+            hasPerformedInitialAutofill = true;
+        });
+        setBrushMode(true);
+      }
+
+      function switchPalette(backwards = false) {
+        const shouldTriggerNudge = !hasUsedRandomize && !hasTriggeredFirstNudge;
+        performAction(() => {
+            const len = PALETTES.length;
+            activePaletteIndex = (activePaletteIndex + (backwards ? -1 : 1) + len) % len;
+            updatePaletteHeader();
+            if (!hasPerformedInitialAutofill) {
+                board.querySelectorAll('.tile').forEach(el => { clearGoldOverlay(el); setIndex(el, 0); });
+            } else {
+                const m = palette().length;
+                board.querySelectorAll('.tile').forEach(el => {
+                    if (el.dataset.goldOverlay) { delete el.dataset.goldOverlay; }
+                    el.style.background = palette()[((getIndex(el) % m) + m) % m];
+                });
+            }
+        });
+        if (shouldTriggerNudge) {
+            hasTriggeredFirstNudge = true;
+            btnRandom.classList.add('glow-animation');
+            setTimeout(() => { btnRandom.classList.remove('glow-animation'); }, 4000);
+        }
+      }
+      function resizeGrid(increase = false) {
+        performAction(() => {
+            const oldStates = Array.from(board.querySelectorAll('.tile')).map(el => ({ k: getIndex(el), isGold: !!el.dataset.goldOverlay }));
+            const oldSize = n;
+            const seq = [50, 35, 20, 15, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+            let idx = seq.indexOf(n);
+            if (idx === -1) { idx = seq.indexOf(seq.reduce((p, c) => (Math.abs(c - n) < Math.abs(p - n) ? c : p))); }
+            idx = (idx + (increase ? -1 : 1) + seq.length) % seq.length;
+            n = seq[idx];
+            if (n === 50 && !hasTriggeredSeparatorNudge) {
+                hasTriggeredSeparatorNudge = true; 
+                btnGap.classList.add('glow-animation-separator');
+                setTimeout(() => { btnGap.classList.remove('glow-animation-separator'); }, 4000); 
+            }
+            buildBoard(n, false); 
+            const newTiles = Array.from(board.querySelectorAll('.tile'));
+            if (n < oldSize) { 
+                for (let i = oldStates.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [oldStates[i], oldStates[j]] = [oldStates[j], oldStates[i]]; }
+                newTiles.forEach((el, i) => {
+                    if (oldStates[i]) {
+                        if (oldStates[i].isGold) { applyGoldOverlay(el); } 
+                        else { clearGoldOverlay(el); setIndex(el, oldStates[i].k); }
+                    }
+                });
+            } else if (n > oldSize) { 
+                const newRandomStates = Array.from({ length: (n*n) - (oldSize*oldSize) }, () => ({ k: Math.floor(Math.random() * palette().length), isGold: false }));
+                let combined = [...oldStates, ...newRandomStates];
+                for (let i = combined.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [combined[i], combined[j]] = [combined[j], combined[i]]; }
+                newTiles.forEach((el, i) => {
+                    if (combined[i].isGold) { applyGoldOverlay(el); } 
+                    else { clearGoldOverlay(el); setIndex(el, combined[i].k); }
+                });
+            }
+        });
+      }
+      function setBrushMode(isBrushOn) {
+          isBrushModeOn = isBrushOn;
+          btnBrushMode.classList.toggle('brush-on', isBrushModeOn);
+          const newTitle = isBrushModeOn ? "Brush (full)" : "Drag to COPY to 1 cell (empty)";
+          btnBrushMode.title = newTitle;
+          btnBrushMode.setAttribute('aria-label', newTitle);
+          clearAllHighlights();
+          if (pointerState.dragSource) pointerState.dragSource = null;
+      }
+      function toggleBrushMode() {
+          setBrushMode(!isBrushModeOn);
+      }
+      function openModal() { saveModal.classList.add('modal-visible'); }
+      function closeModal() {
+        saveModal.classList.remove('modal-visible');
+        if (imagePreview.src) { URL.revokeObjectURL(imagePreview.src); }
+        imagePreview.src = '';
+        generatedImageFile = null;
+      }
+      async function savePNG() {
+        const btnSave = document.getElementById('btnSave');
+        btnSave.disabled = true;
+        clearAllHighlights();
+        board.querySelectorAll('.ring-inset, .ring-4, .ring-white').forEach(el => el.classList.remove('ring-inset', 'ring-4', 'ring-white', 'ring-white/90'));
+        if (separatorPx === 0) { board.classList.add('no-gap-fix'); }
+        try {
+            const boardCanvas = await html2canvas(board, { backgroundColor: null, scale: 2 });
+            const padding = 50;
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = boardCanvas.width + padding;
+            finalCanvas.height = boardCanvas.height + padding;
+            const ctx = finalCanvas.getContext('2d');
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+            ctx.drawImage(boardCanvas, padding / 2, padding / 2);
+            finalCanvas.toBlob(async (blob) => {
+                if (!blob) { console.error('Blob creation failed'); btnSave.disabled = false; return; }
+                generatedImageFile = new File([blob], 'board.png', { type: 'image/png' });
+                imagePreview.src = URL.createObjectURL(blob);
+                fileNameInput.value = PALETTES[activePaletteIndex]?.name || 'Journey';
+                const shareData = { files: [generatedImageFile] };
+                btnModalShare.classList.toggle('hidden', !(navigator.share && navigator.canShare && navigator.canShare(shareData)));
+                openModal();
+                btnSave.disabled = false;
+            }, 'image/png');
+        } catch (err) {
+            console.error("Failed to save PNG:", err);
+            btnSave.disabled = false;
+        } finally {
+            if (separatorPx === 0) { board.classList.remove('no-gap-fix'); }
+        }
+      }
+      function getSanitizedFileName() {
+        let fileName = fileNameInput.value.trim() || PALETTES[activePaletteIndex]?.name || 'Journey';
+        return fileName.replace(/[<>:"/\\|?*]/g, '_') + '.png';
+      }
+
+      // ---- Pointer interactions on Board ----
+      const pointerState = { id: null, downEl: null, downX: 0, downY: 0, longPressTimer: null, cyclingInterval: null, suppressClick: false, isDragging: false, dragSource: null, currentTarget: null, beforeState: null };
+      function onPointerDown(e) {
+        const el = e.target.closest('.tile'); if (!el) return;
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+        Object.assign(pointerState, { id: e.pointerId, downEl: el, suppressClick: false, isDragging: false, dragSource: null, currentTarget: null, cyclingInterval: null, beforeState: getCurrentState() });
+        pointerState.longPressTimer = setTimeout(() => {
+            if (pointerState.isDragging) return;
+            pointerState.cyclingInterval = setInterval(() => { clearGoldOverlay(el); setIndex(el, getIndex(el) + 1); hasPerformedInitialAutofill = true; }, 80);
+        }, 200);
+        if (isBrushModeOn) { pointerState.downX = e.clientX; pointerState.downY = e.clientY; } 
+        else { clearAllHighlights(); el.classList.add('source-highlight'); pointerState.dragSource = el; }
+      }
+      function onPointerMove(e) {
+        if (pointerState.id !== e.pointerId) return;
+        const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
+        if (!pointerState.isDragging && dist >= 8) {
+            clearTimeout(pointerState.longPressTimer); clearInterval(pointerState.cyclingInterval);
+            pointerState.longPressTimer = null; pointerState.cyclingInterval = null;
+            pointerState.isDragging = true; pointerState.suppressClick = true;
+            if (isBrushModeOn) { pointerState.dragSource = pointerState.downEl; clearGoldOverlay(pointerState.dragSource); }
+        }
+        if (pointerState.isDragging) {
+            const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('.tile');
+            if (targetEl && pointerState.currentTarget !== targetEl) {
+                if (isBrushModeOn) {
+                    pointerState.currentTarget?.classList.remove('ring-4', 'ring-white');
+                    pointerState.currentTarget = targetEl;
+                    clearGoldOverlay(targetEl); setIndex(targetEl, getIndex(pointerState.dragSource));
+                    targetEl.classList.add('ring-4', 'ring-white');
+                } else {
+                    pointerState.currentTarget?.classList.remove('target-highlight');
+                    if (targetEl !== pointerState.dragSource) {
+                        targetEl.classList.add('target-highlight');
+                        pointerState.currentTarget = targetEl;
+                    } else { pointerState.currentTarget = null; }
+                }
+            }
+        }
+      }
+      function onPointerUp(e) {
+        clearTimeout(pointerState.longPressTimer);
+        if (pointerState.cyclingInterval) { clearInterval(pointerState.cyclingInterval); pointerState.suppressClick = true; }
+        const beforeState = pointerState.beforeState;
+        if (pointerState.isDragging) {
+            if (!isBrushModeOn && pointerState.currentTarget) {
+                const sourceEl = pointerState.dragSource; const targetEl = pointerState.currentTarget;
+                if (!!sourceEl.dataset.goldOverlay) { applyGoldOverlay(targetEl); } 
+                else { clearGoldOverlay(targetEl); setIndex(targetEl, getIndex(sourceEl)); }
+            }
+        } else if (!pointerState.suppressClick && e.target.closest('.tile')) {
+            const tile = e.target.closest('.tile');
+            clearGoldOverlay(tile); setIndex(tile, getIndex(tile) + 1);
+        }
+        const afterState = getCurrentState();
+        if (beforeState && !areStatesEqual(beforeState, afterState)) {
+             pushHistory({ before: beforeState, after: afterState }); hasPerformedInitialAutofill = true;
+        }
+        clearAllHighlights();
+        pointerState.currentTarget?.classList.remove('ring-4', 'ring-white', 'target-highlight');
+        Object.assign(pointerState, { id: null, downEl: null, isDragging: false, dragSource: null, currentTarget: null, beforeState: null });
+      }
+      function updateLayout() {
+        if (window.innerWidth < 768) { appShell.style.width = ''; return; }
+        const controlsHeight = controlsContainer.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        const topMargin = parseInt(window.getComputedStyle(appShell.parentElement).paddingTop, 10);
+        const availableHeight = viewportHeight - controlsHeight - (topMargin * 2);
+        const newWidth = Math.min(720, window.innerWidth * 0.85, availableHeight);
+        appShell.style.width = `${newWidth}px`;
+      }
+      board.addEventListener('pointerdown', onPointerDown);
+      board.addEventListener('pointermove', onPointerMove);
+      board.addEventListener('pointerup', onPointerUp);
+      board.addEventListener('pointercancel', onPointerUp);
+
+      // ---- Button Clicks ----
+      function handleCtrlClick(e, actionFn) {
+        if (wasLongPress) {
+          wasLongPress = false;
+          return;
+        }
+        actionFn();
+      }
+      document.getElementById('btnRandom').addEventListener('click', (e) => handleCtrlClick(e, randomizeAll));
+      btnRemix.addEventListener('click', (e) => handleCtrlClick(e, remixGrid));
+      btnPalette.addEventListener('click', (e) => handleCtrlClick(e, () => switchPalette()));
+      document.getElementById('btnResetBoard').addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(resetToGoldAndDefaultPalette)));
+      document.getElementById('btnResizeUp').addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(() => resizeGrid(true))));
+      document.getElementById('btnResizeDown').addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(() => resizeGrid(false))));
+      document.getElementById('btnSave').addEventListener('click', (e) => handleCtrlClick(e, savePNG));
+      btnGap.addEventListener('click', (e) => handleCtrlClick(e, cycleSeparator));
+      btnBrushMode.addEventListener('click', (e) => handleCtrlClick(e, toggleBrushMode));
+      btnUndo.addEventListener('click', (e) => handleCtrlClick(e, undo));
+      btnRedo.addEventListener('click', (e) => handleCtrlClick(e, redo));
+
+      // ---- Modal Listeners ----
+      btnModalShare.addEventListener('click', async () => {
+          if (!generatedImageFile) return;
+          const fileToShare = new File([generatedImageFile], getSanitizedFileName(), { type: generatedImageFile.type });
+          try { await navigator.share({ files: [fileToShare], title: 'My Color Grid' }); } 
+          catch (err) { if (err.name !== 'AbortError') { console.error('Share API error:', err); } }
+      });
+      btnModalDownload.addEventListener('click', () => {
+          if (!generatedImageFile) return;
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(generatedImageFile);
+          link.download = getSanitizedFileName();
+          link.click();
+          URL.revokeObjectURL(link.href);
+          closeModal();
+      });
+      btnModalClose.addEventListener('click', closeModal);
+
+      // ---- Visual Long Press Logic ----
+      function hideLongPressDisplay() {
+          clearTimeout(longPressTimer);
+          longPressOverlay.classList.remove('visible');
+          longPressDisplay.classList.remove('visible');
+          setTimeout(() => { longPressDisplay.innerHTML = ''; }, 350);
+      }
+      function handlePointerDownCtrl(e) {
+          const btn = e.currentTarget;
+          longPressTimer = setTimeout(() => {
+              wasLongPress = true;
+              
+              if (btn.id === 'btnBrushMode') {
+                  const customHTML = `
+                      <div class="flex flex-col items-center justify-center gap-4 text-lg text-gray-300">
+                          <div class="flex items-center gap-4">
+                              <svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);">
+                                  <path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#fff" />
+                              </svg>
+                              <span>Brush</span>
+                          </div>
+                          <div class="flex items-center gap-4">
+                              <svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);">
+                                  <path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#000" />
+                              </svg>
+                              <span>Drag and Copy</span>
+                          </div>
+                      </div>
+                  `;
+                  longPressDisplay.innerHTML = customHTML;
+              } else {
+                  let iconElement;
+                  if (btn.classList.contains('save') || btn.classList.contains('reset-board')) {
+                      iconElement = document.createElement('div');
+                      iconElement.style.backgroundColor = 'white';
+                      iconElement.style.borderRadius = '50%';
+                      const size = btn.classList.contains('save') ? 'var(--save-dot-size)' : 'var(--reset-dot-size)';
+                      iconElement.style.width = size;
+                      iconElement.style.height = size;
+                  } else if (btn.classList.contains('palette')) {
+                      iconElement = btn.cloneNode(true);
+                      iconElement.style.background = 'transparent';
+                      iconElement.style.border = 'none';
+                  } else {
+                      iconElement = btn.querySelector('.glyph, svg');
+                  }
+
+                  if (!iconElement) return;
+
+                  const clonedIcon = iconElement.cloneNode(true);
+                  
+                  const baseIconSize = parseInt(getComputedStyle(root).getPropertyValue('--icon-size'));
+                  const targetIconSize = baseIconSize * 2;
+
+                  if (btn.classList.contains('palette')) {
+                    clonedIcon.style.fontSize = `${targetIconSize}px`;
+                  } else {
+                    clonedIcon.style.width = `${targetIconSize}px`;
+                    clonedIcon.style.height = `${targetIconSize}px`;
+                  }
+
+                  const textElement = document.createElement('p');
+                  
+                  if (btn.id === 'btnResizeUp') {
+                      textElement.textContent = "Grid Up";
+                  } else if (btn.id === 'btnGap') {
+                      textElement.textContent = "Toggle Gap";
+                  } else if (btn.id === 'btnResizeDown') {
+                      textElement.textContent = "Grid Down";
+                  } else if (btn.id === 'btnRandom') {
+                    textElement.textContent = "Explore this set";
+                  } else if (btn.id === 'btnPalette') {
+                    textElement.textContent = activePaletteIndex === 0 ? "The Journey" : PALETTES[activePaletteIndex].name;
+                  } else {
+                    textElement.textContent = btn.title;
+                  }
+
+                  textElement.className = 'text-lg text-gray-300 text-center px-4';
+                  
+                  longPressDisplay.innerHTML = '';
+                  longPressDisplay.appendChild(clonedIcon);
+                  longPressDisplay.appendChild(textElement);
+              }
+              
+              longPressOverlay.classList.add('visible');
+              longPressDisplay.classList.add('visible');
+              
+              setTimeout(() => {
+                  const icon = longPressDisplay.children[0];
+                  if (icon) icon.style.opacity = 1;
+              }, 150); 
+
+              setTimeout(() => {
+                  const text = longPressDisplay.children[1];
+                  if (text) text.style.opacity = 1;
+              }, 200);
+
+          }, 400);
+      }
+      document.querySelectorAll('.ctrl').forEach(btn => {
+          btn.addEventListener('pointerdown', handlePointerDownCtrl);
+          btn.addEventListener('pointerup', hideLongPressDisplay);
+          // --- FIX: Differentiate between pointerup and pointerleave ---
+          btn.addEventListener('pointerleave', () => {
+            hideLongPressDisplay();
+            wasLongPress = false; // Reset flag immediately on leave
+          });
+      });
+
+      // ---- Init ----
+      buildBoard(n, false); 
+      const initialTiles = board.querySelectorAll('.tile');
+      const centerIndex = Math.floor((n * n) / 2);
+      initialTiles.forEach((tile, index) => {
+        if (index === centerIndex) { applyGoldOverlay(tile); } 
+        else { setIndex(tile, 1); }
+      });
+      hasPerformedInitialAutofill = true;
+      updatePaletteHeader();
+      applySeparator();
+      updateUndoRedoButtons();
+      setBrushMode(true);
+      updateLayout();
+      window.addEventListener('resize', updateLayout);
+      window.addEventListener('contextmenu', e => e.preventDefault());
+    })();
+  </script>
+</body>
+</html>
