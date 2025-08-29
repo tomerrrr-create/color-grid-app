@@ -1,0 +1,4909 @@
+{
+  "n": 35,
+  "activePaletteIndex": 10,
+  "paletteName": "Cosmos",
+  "separatorPx": 0,
+  "symmetryMode": "mandala",
+  "tiles": [
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 15,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 13,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 12,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 2,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 0,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 17,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 10,
+      "isGold": false
+    },
+    {
+      "k": 21,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 4,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 20,
+      "isGold": false
+    },
+    {
+      "k": 11,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 16,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 14,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 6,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 9,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 8,
+      "isGold": false
+    },
+    {
+      "k": 3,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 1,
+      "isGold": false
+    },
+    {
+      "k": 18,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 22,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 23,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 5,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 7,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    },
+    {
+      "k": 19,
+      "isGold": false
+    }
+  ]
+}
