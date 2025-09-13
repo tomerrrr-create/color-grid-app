@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<!-- The document direction is set to LTR to preserve the original button layout. -->
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>Color Grid App</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tomerrrr-create.github.io/color-grid-app/">
+  <meta property="og:title" content="Follow Your Intuition">
+  <meta property="og:description" content="----------------">
+  <meta property="og:image" content="https://raw.githubusercontent.com/tomerrrr-create/color-grid-app/refs/heads/main/og.PNG">
+  <meta property="og:locale" content="en_US" />
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://tomerrrr-create.github.io/color-grid-app/">
+  <meta name="twitter:title" content="Follow Your Intuition">
+  <meta name="twitter:description" content="----------------">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/tomerrrr-create/color-grid-app/refs/heads/main/og.PNG">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    /* Custom properties for dynamic styling controlled by JS */
+    :root {
+      --grid-size: 8;
+      --gap-px: 3px;
+      --tile-radius: 2px;
+      --icon-size: 26px;
+      --side-icon-size: 20px; /* MODIFIED: Smaller side icons */
+      --save-dot-size: 10px;
+      --reset-dot-size: 7px;  /* MODIFIED: Smaller reset dot */
+      --stroke: 3px;
+      --gold: #FFD700; 
+      --glow-color: var(--gold);
+    }
+    
+    /* --- MOBILE STABILITY FIXES --- */
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+    #appContainer {
+      touch-action: none;
+    }
+    
+    body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; /* Safari */
+      -ms-user-select: none; /* IE 10+ */
+      user-select: none; /* Standard syntax */
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-size), 1fr);
+      gap: var(--gap-px);
+      border-width: var(--gap-px);
+      border-radius: 6px;
+      transition: gap 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      position: relative;
+    }
+    .tile {
+      border-radius: var(--tile-radius);
+      transition: background-color 0.4s ease, box-shadow 0.2s ease, border-radius 0.6s ease-in-out;
+    }
+    
+    /* --- CONTROL BUTTON STYLES --- */
+    #controls {
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
+      column-gap: 12px;
+      row-gap: 8px;
+    }
+    .side-controls {
+      display: grid;
+      grid-template-columns: 50px;
+      grid-template-rows: repeat(4, 50px);
+      row-gap: 8px; /* Match main controls */
+    }
+
+    #controlsContainer {
+        position: relative;
+    }
+    
+    #controlsContainer.controls-hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .ctrl {
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      outline: none;
+      background: transparent;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      touch-action: manipulation;
+      transition: opacity 0.2s ease-in-out, transform 150ms ease-out, background-color 0.3s ease-in-out;
+    }
+    .ctrl * {
+      pointer-events: none;
+    }
+    .ctrl:focus-visible {
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+    }
+    @media (hover: hover) {
+      .ctrl:hover {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+      }
+    }
+    .ctrl:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+    .glyph {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      display: inline-block;
+      position: relative;
+    }
+    .ctrl svg {
+        width: var(--icon-size);
+        height: var(--icon-size);
+    }
+    #btnResizeUp svg, #btnResizeDown svg, #btnShowBreatheMenu svg, #btnGap svg, #btnBrushMode svg {
+        width: var(--side-icon-size);
+        height: var(--side-icon-size);
+    }
+    .glyph-square-gold {
+      background: #000;
+      border: 2px solid var(--gold);
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+    .glyph-square-white {
+      background: #000;
+      border: 2px solid #fff;
+      box-sizing: border-box;
+      border-radius: 2px;
+    }
+    .glyph-random {
+      background: linear-gradient(90deg, #000 50%, #fff 50%);
+      border-radius: 50%;
+    }
+    .glyph-invert {
+      background: linear-gradient(90deg, #fff 50%, #000 50%);
+      border-radius: 50%;
+    }
+    .palette {
+      font-size: var(--icon-size);
+      line-height: 1;
+    }
+    
+    .glyph-save, .glyph-reset, .glyph-special-reset, .glyph-dark {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    .glyph-save::after {
+      content: '';
+      width: var(--save-dot-size);
+      height: var(--save-dot-size);
+      border-radius: 50%;
+      background: #FFFFFF;
+    }
+    
+    .glyph-reset::after {
+      content: '';
+      width: var(--reset-dot-size);
+      height: var(--reset-dot-size);
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .glyph-dark::after {
+      content: '';
+      width: var(--reset-dot-size);
+      height: var(--reset-dot-size);
+      background: #424242; /* Dark Gray */
+      border-radius: 50%;
+    }
+
+    .glyph-special-reset {
+        width: 8px;
+        height: 8px;
+        background-color: var(--gold);
+        border-radius: 50%;
+    }
+
+    #btnBrushMode svg path {
+        transition: fill 0.2s ease-in-out;
+    }
+    #btnBrushMode.brush-on svg path {
+        fill: #fff;
+    }
+    .tile.source-highlight {
+        box-shadow: 0 0 0 4px var(--gold) inset;
+    }
+    .tile.target-highlight {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8) inset;
+    }
+    .app-shell {
+      width: min(85vmin, 720px);
+    }
+    #boardOverlay {
+        transition: opacity 350ms ease-in-out;
+    }
+    @keyframes glow-effect {
+      0%, 100% {
+        filter: drop-shadow(0 0 0px var(--gold));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 8px var(--gold));
+        transform: scale(1.1);
+      }
+    }
+    .glow-animation .glyph-random, .glow-animation .glyph-invert, .glow-animation.palette, .glow-animation svg, .glow-animation .glyph-special-reset {
+      animation: glow-effect 2s ease-in-out infinite;
+    }
+    .glow-animation-separator svg {
+      animation: glow-effect 2s ease-in-out infinite;
+    }
+    #saveModal, #breatheModal, #colorPickerModal, #helpModal, #resizeModal {
+      transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
+      visibility: hidden;
+      opacity: 0;
+    }
+    #saveModal.modal-visible, #breatheModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    #longPressOverlay {
+      background-color: rgba(0, 0, 0, 0.95);
+      opacity: 0;
+      transition: opacity 200ms ease-out;
+    }
+    #longPressDisplay {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 200ms ease-out 50ms, transform 200ms ease-out 50ms;
+    }
+    #longPressOverlay.visible, #longPressDisplay.visible {
+      opacity: 1;
+    }
+    #longPressDisplay.visible {
+        transform: scale(1);
+    }
+
+    @media (max-width: 480px) {
+      .ctrl { width: 44px; height: 44px; }
+      .side-controls {
+        grid-template-columns: 44px;
+        grid-template-rows: repeat(4, 44px);
+      }
+       #controls {
+        grid-template-columns: repeat(3, 44px);
+        grid-template-rows: repeat(3, 44px);
+      }
+      #controlsContainer {
+        justify-content: space-between;
+      }
+    }
+    .board.no-gap-fix .tile {
+      transform: scale(1.02);
+    }
+    
+    #btnSymmetry .part {
+        transition: stroke 0.3s ease-in-out;
+    }
+
+    #tutorialContainer {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        display: none; /* Initially hidden */
+        transition: opacity 300ms ease-in-out;
+        pointer-events: none; /* Allow clicks to pass through to active elements */
+    }
+    #tutorialContainer > * {
+        pointer-events: auto; /* Re-enable pointer events for children */
+    }
+    .tutorial-active-button {
+        position: relative;
+        z-index: 1000;
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        cursor: pointer !important;
+    }
+    #skipTutorialBtn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+        background-color: rgba(60, 60, 60, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        font-size: 14px;
+    }
+    #finalMessageModal {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1002;
+        color: white;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms ease-in-out;
+    }
+    #finalMessageModal.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    #finalMessageModal .msg-part,
+    #finalMessageModal #startCreatingBtn {
+      opacity: 0;
+      transition: opacity 500ms ease-in-out;
+    }
+
+    #startCreatingBtn {
+        margin-top: 24px;
+        background-color: var(--gold);
+        color: black;
+        font-weight: bold;
+        padding: 12px 24px;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+    
+    #tutorialText {
+        position: fixed;
+        color: white;
+        font-size: 18px;
+        line-height: 1.4;
+        opacity: 0;
+        transition: opacity 300ms ease-in-out;
+        pointer-events: none;
+        text-align: center;
+        max-width: 280px;
+        white-space: normal;
+        background-color: rgba(0,0,0,0.8);
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    #tutorialText.visible {
+        opacity: 1;
+    }
+
+    @keyframes breathe {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(0.4); }
+    }
+    .breathing-tile {
+      animation: breathe 4s infinite;
+    }
+
+    #breatheExitContainer {
+      position: absolute;
+      bottom: 82px; 
+      left: 0;
+      right: 0;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    #btnExitBreathe {
+      width: 50px;
+      height: 50px;
+      background-color: black;
+      border: 2px solid #383838;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.5s ease-in-out;
+    }
+
+    #btnExitBreathe.visible {
+      opacity: 0.7;
+      pointer-events: auto;
+    }
+
+    #btnExitBreathe::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background-color: #4a4a4a;
+      border-radius: 50%;
+    }
+
+    #splashScreen {
+        transition: opacity 2s linear;
+    }
+    #splashText {
+      letter-spacing: 1.5px;
+      word-spacing: 6px;
+    }
+    .splash-tutorial-focus {
+        z-index: 1001;
+        position: relative;
+    }
+    @keyframes fadeInText {
+      0%   { color: black; opacity: 0; }
+      100% { color: var(--gold); opacity: 1; }
+    }
+    @keyframes fadeOutText {
+      from { color: var(--gold); opacity: 1; }
+      to { color: black; opacity: 0; }
+    }
+
+    .breathe-option-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        width: 120px;
+        height: 120px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, transform 0.2s ease-out;
+    }
+    .breathe-option-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-4px);
+    }
+    
+    .save-tile {
+      width: 90px;
+      height: 90px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+    .save-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .save-tile svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    #colorPickerModal .color-swatch {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+        border: 2px solid transparent;
+        box-sizing: border-box;
+    }
+    #colorPickerModal .color-swatch:hover {
+        transform: scale(1.1);
+    }
+    #colorPickerPagination .pagination-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #4a4a4a;
+        margin: 0 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+    #colorPickerPagination .pagination-dot.active {
+        background-color: #eaeaea;
+    }
+    #colorPickerModal .color-swatch-inner {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+    }
+
+    #helpModalContent::-webkit-scrollbar { width: 6px; }
+    #helpModalContent::-webkit-scrollbar-track { background: #2d2d2d; border-radius: 3px; }
+    #helpModalContent::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+    #helpModalContent::-webkit-scrollbar-thumb:hover { background: #777; }
+    .help-item-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .help-item-icon-wrapper .glyph,
+    .help-item-icon-wrapper svg {
+      width: var(--icon-size);
+      height: var(--icon-size);
+    }
+    .help-item-icon-wrapper .palette { font-size: var(--icon-size); }
+    .help-item-icon-wrapper #btnResizeUp svg, 
+    .help-item-icon-wrapper #btnResizeDown svg, 
+    .help-item-icon-wrapper #btnShowBreatheMenu svg, 
+    .help-item-icon-wrapper #btnGap svg,
+    .help-item-icon-wrapper #btnBrushMode svg {
+        width: var(--side-icon-size);
+        height: var(--side-icon-size);
+    }
+    
+    #resizeInput:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.4);
+        outline: none;
+    }
+    #btnConfirmResize {
+        background-color: var(--gold);
+        transition: background-color 0.2s;
+    }
+    #btnConfirmResize:hover {
+        background-color: #e6c200;
+    }
+    .help-category-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--gold);
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid #444;
+        padding-bottom: 0.25rem;
+    }
+    .help-intro-text {
+        font-style: italic;
+        color: #ccc;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    /* --- Glowing Border for Selected Color --- */
+    .board.glowing-border {
+      animation: glow-border 3s infinite;
+    }
+    .board.glowing-border-rainbow {
+       animation: glow-border-rainbow 5s infinite;
+    }
+    
+    @keyframes glow-border {
+      50% {
+        box-shadow: 0 0 12px 4px var(--glow-color);
+      }
+    }
+    @keyframes glow-border-rainbow {
+      0% { box-shadow: 0 0 12px 4px #ff0000; }
+      16% { box-shadow: 0 0 12px 4px #ff7f00; }
+      33% { box-shadow: 0 0 12px 4px #ffff00; }
+      50% { box-shadow: 0 0 12px 4px #00ff00; }
+      66% { box-shadow: 0 0 12px 4px #0000ff; }
+      83% { box-shadow: 0 0 12px 4px #4b0082; }
+      100% { box-shadow: 0 0 12px 4px #8f00ff; }
+    }
+
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 0 0px rgba(255, 215, 0, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+      100% { box-shadow: 0 0 0 0px rgba(255, 215, 0, 0); }
+    }
+    .tutorial-board-pulse {
+      animation: pulse-border 2s infinite;
+    }
+
+    .rtl-mode {
+      direction: rtl;
+    }
+
+  </style>
+</head>
+<body class="bg-black text-[#eaeaea] font-sans">
+
+  <!-- Splash Screen -->
+  <div id="splashScreen" class="fixed inset-0 bg-black flex items-center justify-center z-[1000]">
+    <h1 id="splashText" class="text-3xl" style="color: black; opacity: 0;"></h1>
+  </div>
+
+  <div id="tutorialContainer">
+    <button id="skipTutorialBtn"></button>
+    <div id="tutorialText"></div>
+  </div>
+
+  <div id="appContainer" class="min-h-screen flex flex-col items-center justify-start p-6 pt-10 sm:pt-12">
+    <div class="w-full max-w-[720px] mx-auto app-shell">
+      
+      <div class="relative">
+        <div id="board" class="board bg-black border-black" aria-label="Color Grid" role="grid">
+            <!-- Tiles will be generated by JS -->
+        </div>
+        <div id="boardOverlay" class="absolute inset-0 bg-black opacity-0 pointer-events-none"></div>
+        
+        <div id="finalMessageModal">
+          <p class="text-2xl">
+            <span id="finalMsgPart1" class="msg-part"></span>
+          </p>
+          <p id="finalMsgHint" class="text-lg mt-2 text-gray-400 msg-part"></p>
+          <button id="startCreatingBtn"></button>
+        </div>
+
+        <div id="longPressOverlay" class="absolute inset-0 pointer-events-none"></div>
+        <div id="longPressDisplay" class="absolute inset-0 flex flex-col items-center justify-center gap-8 sm:gap-12 pointer-events-none">
+        </div>
+      </div>
+
+      <!-- Layout is preserved by using LTR directionality for the whole page -->
+      <div id="controlsContainer" class="mt-11 flex justify-between items-start">
+        
+        <div class="side-controls">
+            <button id="btnShowBreatheMenu" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 12 C3 9 9 9 12 12 S 15 15 21 12"></path>
+                </svg>
+            </button>
+             <button id="btnDark" class="ctrl">
+                <span class="glyph-dark"></span>
+            </button>
+            <button id="btnSave" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 4v12"></path>
+                    <path d="m16 12-4 4-4-4"></path>
+                </svg>
+            </button>
+            <button id="btnTutorial" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <text x="12" y="17.5" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold; font-size: 11px;">WTF</text>
+                </svg>
+            </button>
+        </div>
+        
+        <div id="controls" aria-label="Control buttons">
+            <button id="btnInvert" class="ctrl">
+                <span class="glyph glyph-invert" aria-hidden="true"></span>
+            </button>
+            <button id="btnPalette" class="ctrl palette"></button>
+            <button id="btnRandom" class="ctrl">
+                <span class="glyph glyph-random" aria-hidden="true"></span>
+            </button>
+            
+            <button id="btnColorPicker" class="ctrl">
+                <svg viewBox="0 0 24 24" stroke-width="2">
+                    <circle cx="12" cy="12" r="8"></circle>
+                </svg>
+            </button>
+            <button id="btnSymmetry" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" fill="none" stroke="#424242" />
+                    <path class="part top" d="M3 3 H 21" stroke="transparent" />
+                    <path class="part bottom" d="M3 21 H 21" stroke="transparent" />
+                    <path class="part left" d="M3 3 V 21" stroke="transparent" />
+                    <path class="part right" d="M21 3 V 21" stroke="transparent" />
+                </svg>
+            </button>
+            <button id="btnBrushMode" class="ctrl">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#000" />
+                </svg>
+            </button>
+
+            <button id="btnRedo" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10v4c0 1.1-.9 2-2 2h-7"/>
+                    <path d="M21 10l-4-4-4 4"/>
+                </svg>
+            </button>
+            <button id="btnSpecialReset" class="ctrl">
+                <span class="glyph-special-reset"></span>
+            </button>
+            <button id="btnUndo" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 10v4c0 1.1.9 2 2 2h7"/>
+                    <path d="M3 10l4-4 4 4"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="side-controls">
+            <button id="btnResizeUp" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                </svg>
+            </button>
+            <button id="btnResizeDown" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                </svg>
+            </button>
+            <button id="btnGap" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true">
+                  <path d="M8 3v18M16 3v18M3 8h18M3 16h18"/>
+                </svg>
+            </button>
+            <button id="btnResetBoard" class="ctrl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="6" r="3"></circle>
+                    <line x1="12" y1="9" x2="12" y2="15"></line>
+                    <line x1="12" y1="11" x2="7" y2="8"></line>
+                    <line x1="12" y1="11" x2="17" y2="8"></line>
+                    <line x1="12" y1="15" x2="9" y2="21"></line>
+                    <line x1="12" y1="15" x2="15" y2="21"></line>
+                </svg>
+            </button>
+        </div>
+      </div>
+      
+      <div id="breatheExitContainer">
+        <button id="btnExitBreathe"></button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="saveModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+    <div class="bg-[#1c1c1c] rounded-lg p-6 max-w-sm w-full text-center relative">
+      <button id="btnModalClose" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      <img id="imagePreview" class="rounded-md mb-4 border-2 border-gray-600 max-w-full h-auto" src="" alt="Image Preview">
+      <div class="mb-6 text-right">
+        <label id="fileNameLabel" for="fileNameInput" class="block text-sm font-medium text-gray-300 mb-1"></label>
+        <input type="text" id="fileNameInput" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+      </div>
+      
+      <div class="flex justify-center gap-4">
+        <button id="btnSaveImage" class="save-tile" style="background-color: #D2691E;">
+            <svg viewBox="0 0 24 24" stroke="black" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+        </button>
+        <button id="btnSaveProjectIdea" class="save-tile" style="background-color: #CD853F;">
+            <svg viewBox="0 0 24 24" stroke="black" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18h6M10 22h4M12 2a5 5 0 0 0-5 5c0 2.4 1.2 4.5 3 5.7V17a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4.3c1.8-1.2 3-3.3 3-5.7a5 5 0 0 0-5-5Z"></path>
+            </svg>
+        </button>
+        <button id="btnLoadProjectIdea" class="save-tile" style="background-color: #8B3A3A;">
+            <svg viewBox="0 0 24 24" fill="#B22222" stroke="black" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        </button>
+      </div>
+
+      <input type="file" id="projectFileInput" accept=".json, .cga" style="display: none;" />
+    </div>
+  </div>
+
+  <div id="breatheModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+    <div class="bg-[#1c1c1c] rounded-lg p-6 max-w-xs w-full text-center relative">
+        <button id="btnBreatheModalClose" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <button id="btnStartSoloBreathe" class="breathe-option-btn">
+               <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 C3 6 9 6 12 12 S 15 18 21 12"></path></svg>
+               <span id="breatheSoloLabel" class="text-sm mt-2 text-gray-300"></span>
+            </button>
+            <button id="btnStartGroupBreathe" class="breathe-option-btn">
+              <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 C3 4 9 4 12 10 S 15 16 21 10"></path><path d="M3 14 C3 8 9 8 12 14 S 15 20 21 14"></path></svg>
+              <span id="breatheGroupLabel" class="text-sm mt-2 text-gray-300"></span>
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <div id="colorPickerModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+    <div class="bg-black border border-gray-700 rounded-lg p-6 w-full max-w-xs sm:max-w-sm text-center relative flex flex-col">
+        <div id="colorPickerHeader" class="flex items-center justify-center w-full mb-4">
+            <button id="btnPrevPalette" class="p-2 rounded-full hover:bg-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <h2 id="colorPickerPaletteName" class="text-lg font-semibold mx-4 text-center flex-1 whitespace-nowrap overflow-hidden text-ellipsis flex justify-center"></h2>
+            <button id="btnNextPalette" class="p-2 rounded-full hover:bg-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+        </div>
+        <div id="colorPickerSwatches" class="grid grid-cols-5 gap-3 justify-center"></div>
+        <div id="colorPickerPagination" class="flex justify-center items-center h-8 mt-4"></div>
+    </div>
+  </div>
+
+  <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
+    <div id="helpModalContentWrapper" class="relative bg-[#1c1c1c] rounded-lg p-6 w-full max-w-md max-h-[80vh] flex flex-col">
+       <button id="btnLangToggle" class="absolute top-3 left-3 text-gray-400 hover:text-white text-sm font-bold"></button>
+       <button id="btnHelpModalClose" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      <div id="helpModalInnerContainer" class="flex flex-col min-h-0">
+        <h2 id="helpModalTitle" class="text-xl font-bold text-center mb-4 text-gray-200"></h2>
+        <p id="helpIntroText" class="text-base text-gray-400 italic text-center mb-6"></p>
+        <button id="btnStartTutorialFromModal" class="mb-4 w-full bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-400 transition-colors"></button>
+        <div id="helpModalContent" class="overflow-y-auto space-y-4 pr-2 border-t border-gray-700 pt-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="resizeModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+    <div class="bg-[#1c1c1c] rounded-lg p-6 max-w-xs w-full text-center relative">
+        <button id="btnResizeModalClose" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <h2 id="resizeModalTitle" class="text-lg font-semibold mb-4"></h2>
+        <p id="resizeModalPrompt" class="text-sm text-gray-400 mb-4"></p>
+        <input type="number" id="resizeInput" class="bg-gray-700 border border-gray-600 text-white text-lg text-center rounded-lg focus:ring-gold-500 focus:border-gold-500 block w-full p-2.5" placeholder="5">
+        <button id="btnConfirmResize" class="mt-6 w-full text-black font-bold py-2 px-4 rounded-lg"></button>
+    </div>
+  </div>
+
+
+  <script>
+    (function() {
+      // ---- I18N Translations Object ----
+      const translations = {
+        splashTitle: { en: "Follow Your Intuition", he: "היום יצרתי" },
+        splashHint1: { en: "We are tiles, tap on us :)", he: "אנחנו אריחים, ומגיבים למגע :-)" },
+        splashHint2: { en: "Long-press any button for a hint", he: "לחיצה ארוכה על כל כפתור תספר עוד" },
+        startCreating: { en: "Start Creating", he: "יצירה" },
+        skip: { en: "Skip", he: "דלגו" },
+        saveModal_feelsLike: { en: "feels like", he: "שם היצירה" },
+        saveModal_defaultFilename: { en: "Journey", he: "מסע" },
+        saveModal_close: { en: "Close", he: "סגור" },
+        saveModal_saveImage: { en: "Save Image", he: "שמירה כתמונה" },
+        saveModal_saveIdea: { en: "Save Idea", he: "שמירה כרעיון" },
+        saveModal_loadIdea: { en: "Load Idea", he: "טעינת רעיון" },
+        breatheModal_solo: { en: "Solo", he: "תא תא" },
+        breatheModal_group: { en: "Group", he: "צבע צבע" },
+        resizeModal_title: { en: "Set Grid Size", he: "גודל הלוח החדש:" },
+        resizeModal_prompt: { en: "Enter a number between 1 and 50.", he: "בין 1 ל-50" },
+        resizeModal_confirm: { en: "Set Size", he: "קבע גודל" },
+        colorPicker_rainbow: { en: "Select rainbow brush", he: "מברשת קשת" },
+        colorPicker_select: { en: "Select color:", he: "בחר צבע:" },
+        tooltip_invert: { en: "Invert Colors", he: "היפוך צבעים" },
+        tooltip_palette: { en: "Switch palette", he: "עבור לפלטת הצבעים הבאה" },
+        tooltip_random: { en: "Explore Mood", he: "ערבוב כל פלטת הצבעים" },
+        tooltip_colorPicker: { en: "Choose Color", he: "בחירת צבע" },
+        tooltip_symmetry: { en: "Symmetry Mode", he: "סימטריה" },
+        tooltip_brushMode: { en: "Mode: Drag to Copy", he: "גרירה והעתקה" },
+        tooltip_redo: { en: "Redo", he: "בצע שוב" },
+        tooltip_undo: { en: "Undo", he: "בטל" },
+        tooltip_dark: { en: "Go dark", he: "לוח כהה" },
+        tooltip_specialReset: { en: "Visit somewhere", he: "אל הלא נודע" },
+        tooltip_resetBoard: { en: "Restart", he: "נקודת התחלה" },
+        tooltip_resizeUp: { en: "Rise up!", he: "הגדלת הלוח" },
+        tooltip_resizeDown: { en: "Go minimal", he: "הקטנת הלוח" },
+        tooltip_gap: { en: "Grid Separator", he: "מרווח בין אריחים" },
+        tooltip_save: { en: "Capture", he: "שמירה" },
+        tooltip_breathe: { en: "Breathe", he: "נשימה" },
+        tooltip_tutorial: { en: "Help Guide", he: "מדריך עזרה" },
+        help_title: { en: "Controls Guide", he: "מה כל כפתור עושה?" },
+        help_startTour: { en: "Start Guided Tour", he: "התחל סיור מודרך" },
+        help_intro: { en: "Everything starts with a touch. The best way to discover is to simply tap or drag on the tiles. These tools are here to help you explore.", he: "הכל מתחיל במגע. הדרך הטובה ביותר לגלות היא פשוט ללחוץ או לגרור את האצבע על האריחים ולראות מה קורה. הכלים כאן כדי לעזור לך לחקור." },
+        help_category_inspiration: { en: "Inspiration & Discovery", he: "השראה וגילוי" },
+        help_category_order: { en: "Order & Organization", he: "סדר וארגון" },
+        help_category_touch: { en: "Personal Touch", he: "מגע אישי" },
+        help_category_tools: { en: "Useful Tools", he: "כלים שימושיים" },
+        tutorial_intro: { en: "Welcome! Touch the screen to start, then let's meet the tools.", he: "ברוכים הבאים! געו במסך כדי להתחיל, ואז נכיר את הכלים." },
+        tutorial_touchToStart: { en: "Touch to begin", he: "געו כדי להתחיל" },
+        tutorial_random: { en: "Let's start with inspiration. Click here to mix the colors.", he: "נתחיל בהשראה. לחצו כאן כדי לערבב את הצבעים." },
+        tutorial_palette: { en: "Don't like the colors? Click here for a new palette.", he: "לא אוהבים את הצבעים? לחצו כאן לפלטה חדשה." },
+        tutorial_undo: { en: "Made a mistake? No problem. This button will undo it.", he: "טעות? לא נורא. הכפתור הזה מבטל כל פעולה." },
+        tutorial_resizeUp: { en: "Need more space? Click here to make the grid bigger.", he: "צריכים עוד מקום? לחצו כאן להגדלת הלוח." },
+        tutorial_gap: { en: "Change the spacing between tiles by clicking here.", he: "שנו את המרווחים בין האריחים בלחיצה כאן." },
+        tutorial_colorPicker: { en: "Want a specific color? This button opens the color picker.", he: "רוצה צבע ספציפי? הכפתור הזה פותח את בורר הצבעים." },
+        tutorial_brushMode: { en: "Click to switch between painting and copying colors.", he: "לחצו כדי לעבור בין ציור בגרירה להעתקת צבע." },
+        tutorial_symmetry: { en: "Let's create something special. Activate symmetry and draw.", he: "בואו ניצור משהו מיוחד. הפעילו סימטריה וציירו." },
+        tutorial_save: { en: "Love your creation? Click here to save it.", he: "אהבתם את היצירה? לחצו כאן כדי לשמור אותה." },
+        tutorial_breathe: { en: "Finally, click here to add animation to your work.", he: "לסיום, לחצו כאן כדי להוסיף אנימציה ליצירה." },
+        tutorial_outro1: { en: "You know the main tools. There are more surprises to discover.", he: "אתם מכירים את הכלים המרכזיים. יש עוד הפתעות." },
+        tutorial_outro2: { en: "Go ahead, let your intuition lead the way.", he: "צאו לדרך, ותנו לאינטואיציה להוביל." },
+        longPress_breathe: { en: "Start a calming animation.", he: "נשימה" },
+        brushMode_paint: { en: "Paint", he: "ציור" },
+        brushMode_copy: { en: "Copy", he: "העתקה" },
+        symmetry_off: { en: "Symmetry Off", he: "סימטריה: כבוי" },
+        symmetry_vertical: { en: "Vertical Symmetry", he: "סימטריה אנכית" },
+        symmetry_horizontal: { en: "Horizontal Symmetry", he: "סימטריה אופקית" },
+        symmetry_mandala: { en: "Mandala Mode", he: "מנדלה" },
+        palette_journey: { en: "The Journey", he: "מסע" },
+        paletteName_default: { en: "Default", he: "מסע" },
+        paletteName_autumn: { en: "New-York Autumn", he: "סתיו בניו יורק" },
+        paletteName_summer: { en: "Brazilian Summer", he: "קיץ ברזילאי" },
+        paletteName_winter: { en: "Icelandic Winter", he: "חורף איסלנדי" },
+        paletteName_spring: { en: "Japanese Spring", he: "אביב יפני" },
+        paletteName_rainforest: { en: "Amazon Rainforest", he: "אמזונס" },
+        paletteName_sunrise: { en: "Desert Sunrise", he: "זריחה במדבר" },
+        paletteName_cherry: { en: "Cherry Blossom", he: "פריחת הדובדבן" },
+        paletteName_sea: { en: "Deep Sea", he: "במעמקי הים" },
+        paletteName_noise: { en: "Brown Noise", he: "מטילי זהב" },
+        paletteName_cosmos: { en: "Cosmos", he: "הקיום" },
+        paletteName_jasmine: { en: "Jasmine Dream", he: "יסמין" },
+        help_invert: { en: 'Invert all colors to their opposite in the current palette.', he: 'הופך כל צבע על הלוח לצבע המשלים שלו בפלטה הנוכחית.' },
+        help_palette: { en: 'Cycle through available color palettes.', he: 'מעבר בין פלטות צבעים.' },
+        help_random: { en: 'Fill the entire grid with random colors from the current palette.', he: 'מילוי הלוח בצבעים אקראיים מהפלטה הנוכחית.' },
+        help_colorPicker: { en: 'Select a specific color to paint with. Tap again to deselect.', he: 'בחירת צבע ספציפי לציור. לחץ שוב לביטול הבחירה.' },
+        help_symmetry: { en: 'Cycle through symmetry modes: Off, Vertical, Horizontal, and Mandala.', he: 'מעבר בין מצבי סימטריה: כבוי, אנכי, אופקי ומנדלה.' },
+        help_brushMode: { en: 'Toggle between Paint mode (drag to paint) and Copy mode (tap source, then tap destination).', he: 'שינוי מצב בין ציור (גרירה) להעתקה (הקשה על מקור ואז על יעד).' },
+        help_redo: { en: 'Redo the last action that was undone.', he: 'ביצוע מחדש של הפעולה האחרונה שבוטלה.' },
+        help_undo: { en: 'Undo the last action.', he: 'ביטול הפעולה האחרונה.' },
+        help_dark: { en: 'Fill the entire grid with the darkest color from the current palette.', he: 'מילוי הלוח בצבע הכהה ביותר מהפלטה הנוכחית.' },
+        help_specialReset: { en: 'Generate a completely new grid with a random size, gap, and color palette.', he: 'יצירת לוח חדש לגמרי עם גודל, רווח ופלטת צבעים אקראיים.' },
+        help_resetBoard: { en: 'Restart the grid to its original "Journey" state.', he: 'איפוס הלוח למצב ההתחלתי של "מסע".' },
+        help_resizeUp: { en: 'Increase the number of tiles on the grid. Long-press to set a custom size.', he: 'הגדלת מספר האריחים בלוח. לחיצה ארוכה לקביעת גודל מותאם.' },
+        help_resizeDown: { en: 'Decrease the number of tiles on the grid. Long-press to set a custom size.', he: 'הקטנת מספר האריחים בלוח. לחיצה ארוכה לקביעת גודל מותאם.' },
+        help_gap: { en: 'Adjust the spacing between the tiles.', he: 'שינוי המרווחים בין האריחים.' },
+        help_save: { en: 'Open the save menu to export your creation as an image or project file.', he: 'פתיחת תפריט השמירה לייצוא היצירה כתמונה או כקובץ פרויקט.' },
+        help_breathe: { en: 'Start a calming, pulsing animation across the grid.', he: 'הפעלת אנימציית נשימה מרגיעה על הלוח.' },
+        help_tutorial: { en: 'Opens this guide.', he: 'פתיחת מדריך זה.' },
+        error_invalidFile: { en: 'Error: The selected file is not a valid project file.', he: 'שגיאה: הקובץ שנבחר אינו קובץ פרויקט תקין.' },
+        error_readFile: { en: 'Error: Could not read the project file. It might be corrupted.', he: 'שגיאה: לא ניתן לקרוא את קובץ הפרויקט. ייתכן שהוא פגום.' }
+      };
+
+      // ---- Language & State ----
+      let currentLang = 'en';
+      
+      const PALETTES = [
+        { name: translations.paletteName_default[currentLang], originalName: "Default", emoji: '🌓', colors: ["#000000", "#424242", "#7B1FA2", "#5E35B1", "#3949AB", "#673AB7", "#8E24AA", "#AD1457", "#3F51B5", "#B71C1C", "#9C27B0", "#C2185B", "#C62828", "#2E7D32", "#D32F2F", "#D81B60", "#AB47BC", "#757575", "#1976D2", "#E91E63", "#E53935", "#FF1744", "#EC407A", "#F44336", "#1E88E5", "#0097A7", "#EF5350", "#F4511E", "#FF4081", "#43A047", "#FF5252", "#FF5722", "#2196F3", "#F06292", "#4CAF50", "#FF7043", "#F57C00", "#9E9E9E", "#42A5F5", "#FB8C00", "#66BB6A", "#FF8C00", "#00BCD4", "#AFB42B", "#F48FB1", "#FF9800", "#8BC34A", "#26C6DA", "#FFA726", "#BDBDBD", "#9CCC65", "#FBC02D", "#CDDC39", "#FFE082", "#FFEE58", "#FFF176", "#FFD700", "#FDD835", "#F5F5F5", "#FFFFFF"] },
+        { name: translations.paletteName_autumn[currentLang], originalName: "New-York Autumn", emoji: '🍂', colors: ["#3E2723", "#4E342E", "#8B0000", "#37474F", "#5D4037", "#2F4F4F", "#8B3A3A", "#8B4513", "#A52A2A", "#B22222", "#795548", "#556B2F", "#607D8B", "#808000", "#6B8E23", "#D2691E", "#B8860B", "#CD853F", "#FF7F50", "#C2A14A", "#FF8C00", "#DAA520", "#F4A460"] },
+        { name: translations.paletteName_summer[currentLang], originalName: "Brazilian Summer", emoji: '☀️', colors: ["#2962FF", "#F50057", "#FF1493", "#1E90FF", "#FF5722", "#00A86B", "#FF69B4", "#FF7F50", "#00B0FF", "#00C853", "#00BFFF", "#2ECC71", "#00C4FF", "#64DD17", "#00E676", "#40E0D0", "#FFC107", "#1DE9B6", "#FFD700", "#FDD835", "#00FF7F", "#18FFFF", "#FFEB3B"] },
+        { name: translations.paletteName_winter[currentLang], originalName: "Icelandic Winter", emoji: '❄️', colors: ["#263238", "#37474F", "#455A64", "#546E7A", "#78909C", "#9E9E9E", "#03A9F4", "#90A4AE", "#29B6F6", "#4FC3F7", "#B0BEC5", "#BDBDBD", "#4DD0E1", "#81D4FA", "#80DEEA", "#CFD8DC", "#B3E5FC", "#A7FFEB", "#ECEFF1", "#E1F5FE", "#E6F7FF", "#F5F5F5", "#FFFFFF"] },
+        { name: translations.paletteName_spring[currentLang], originalName: "Japanese Spring", emoji: '🌸', colors: ["#B39DDB", "#F48FB1", "#64B5F6", "#81C784", "#90CAF9", "#87CEFA", "#81D4FA", "#A5D6A7", "#D1C4E9", "#FFB7C5", "#F8BBD0", "#80DEEA", "#FFC0CB", "#C1E1C1", "#FFD1DC", "#B3E5FC", "#DCEDC8", "#E6E6FA", "#FFECB3", "#A7FFEB", "#FFF59D", "#FFF9C4", "#FFF8DC"] },
+        { name: translations.paletteName_rainforest[currentLang], originalName: "Amazon Rainforest", emoji: '🌳', colors: ["#013220", "#0B5345", "#145A32", "#0E6655", "#196F3D", "#117864", "#117A65", "#1D8348", "#1E8449", "#138D75", "#229954", "#239B56", "#16A085", "#27AE60", "#28B463", "#45B39D", "#52BE80", "#2ECC71", "#48C9B0", "#73C6B6", "#58D68D", "#82E0AA", "#A9DFBF"] },
+        { name: translations.paletteName_sunrise[currentLang], originalName: "Desert Sunrise", emoji: '🐪', colors: ["#4B0610", "#5A0C16", "#69121C", "#781822", "#861E28", "#95242E", "#A42A34", "#B33A3A", "#C23640", "#C94752", "#D15864", "#D86976", "#E07A88", "#E78B9A", "#EE9CAC", "#DDA0DD", "#BDB0D0", "#C3B1E1", "#F1A8AB", "#F3B4A9", "#D8BFD8", "#F6BFA8", "#F8CBA6", "#FAD6A5", "#E6E6FA"] },
+        { name: translations.paletteName_cherry[currentLang], originalName: "Cherry Blossom", emoji: '桜', iconHTML: '<span style="color: #FFB6C1;">桜</span>', colors: ["#69476E", "#86688B", "#8F6AAD", "#A284C2", "#A389A4", "#BC8F8F", "#B59ECB", "#D4A3A3", "#C0A9BD", "#BDB0D0", "#C3B1E1", "#C9B7D4", "#E1B5B5", "#D8BFD8", "#E0BBE4", "#D6CADD", "#FBC4AB", "#EECBCB", "#FFC4D0", "#DCD0E2", "#FFD1DC", "#E6DCE5", "#F4DEDE", "#FFDDE1", "#F8E9E9"] },
+        { name: translations.paletteName_sea[currentLang], originalName: "Deep Sea", emoji: '🌊', colors: ["#000000", "#0B0C10", "#1C1C1C", "#000080", "#252525", "#00008B", "#191970", "#0000CD", "#36454F", "#483D8B", "#2F4F4F", "#0000FF", "#8A2BE2", "#9932CC", "#6A5ACD", "#008080", "#008B8B", "#BA55D3", "#9370DB", "#5F9EA0", "#20B2AA", "#66CDAA", "#40E0D0", "#00FFFF", "#7FFFD4"] },
+        { name: translations.paletteName_noise[currentLang], originalName: "Brown Noise", iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><polygon points="7,3 17,3 21,21 3,21" style="fill:#FFD700;" /></svg>', colors: ["#3E2F00", "#523F00", "#665000", "#7A6000", "#8E7000", "#A28000", "#B69000", "#CAA000", "#DEB000", "#F2C000", "#F4C306", "#F6C70C", "#F8CA12", "#FACC18", "#FCD01E", "#FED324", "#FFD52A", "#FFD700", "#FFD730", "#FFD936", "#FFDB3C", "#FFDD42", "#FFDF48", "#FFE14E", "#FFE354"] },
+        { name: translations.paletteName_cosmos[currentLang], originalName: "Cosmos", emoji: '🌌', colors: ["#000000", "#0B0C10", "#00008B", "#1F2833", "#191970", "#263238", "#4B0082", "#37474F", "#483D8B", "#8A2BE2", "#BA55D3", "#9370DB", "#1E90FF", "#FF00FF", "#DA70D6", "#FF69B4", "#00BFFF", "#40E0D0", "#B0E0E6", "#FFFACD", "#F8F8FF", "#E0FFFF", "#FFFFFF"] },
+        { name: translations.paletteName_jasmine[currentLang], originalName: "Jasmine Dream", iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', colors: ["#4B0082", "#5A189A", "#682A7A", "#6A1E97", "#7B1E8A", "#743993", "#804090", "#854772", "#8C4888", "#8F588C", "#986089", "#9B5AA3", "#A0636A", "#9E6F80", "#AB6BB7", "#A97585", "#A8769C", "#AE7E82", "#B97F62", "#B885B1", "#B39178", "#B59095", "#C4927E", "#C69A7B", "#D29B5A", "#C59EAA", "#C2AA8E", "#C9AD70", "#DEAE77", "#D2B7A3", "#E1B674", "#D0C187", "#E3BF68", "#E0CF9C", "#E5D680", "#F0E595"] }
+      ];
+
+      function getText(key) {
+        if (!translations[key]) {
+            console.warn(`Translation key not found: ${key}`);
+            return key;
+        }
+        return translations[key][currentLang];
+      }
+
+      let activePaletteIndex = 0;
+      let n = 11;
+      const GOLD = '#FFD700';
+      let separatorPx = 0;
+      let isBrushModeOn = true; 
+      let hasPerformedInitialAutofill = false; 
+      let hasTriggeredFirstNudge = false;
+      let hasUsedRandomize = false;
+      let hasTriggeredSeparatorNudge = false;
+      let isAnimating = false;
+      let isBreathing = false;
+      let selectedColor = null;
+      let isRainbowModeActive = false;
+      let selectedColorIndex = -1;
+      let colorPickerPage = 0;
+      const COLORS_PER_PAGE = 24;
+
+      const SYMMETRY_MODES = ['off', 'vertical', 'horizontal', 'mandala'];
+      let symmetryMode = 'off';
+      const SEPARATORS = [6, 5, 3, 2, 0];
+      const SIZES = [49, 35, 27, 21, 15, 11, 9, 7, 5, 3];
+      const LONG_PRESS_SHOW_MS = 400;
+      
+      const tiles = () => Array.from(board.querySelectorAll('.tile'));
+      const isGold = (el) => !!el.dataset.goldOverlay;
+      const paletteLen = () => palette().length;
+      const norm = (k, m = paletteLen()) => ((k % m) + m) % m;
+
+      const HISTORY_LIMIT = 5;
+      let history = [];
+      let future = [];
+
+      // ---- Element Cache ----
+      const appContainer = document.getElementById('appContainer');
+      const appShell = document.querySelector('.app-shell');
+      const controlsContainer = document.getElementById('controlsContainer');
+      const board = document.getElementById('board');
+      const boardOverlay = document.getElementById('boardOverlay');
+      const btnRandom = document.getElementById('btnRandom');
+      const btnPalette = document.getElementById('btnPalette');
+      const btnGap = document.getElementById('btnGap');
+      const btnUndo = document.getElementById('btnUndo');
+      const btnRedo = document.getElementById('btnRedo');
+      const btnInvert = document.getElementById('btnInvert');
+      const btnBrushMode = document.getElementById('btnBrushMode');
+      const btnSpecialReset = document.getElementById('btnSpecialReset');
+      const btnTutorial = document.getElementById('btnTutorial');
+      const btnDark = document.getElementById('btnDark');
+      const tutorialText = document.getElementById('tutorialText');
+      const root = document.documentElement;
+      const tileClasses = 'tile aspect-square w-full outline-none focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-white/90';
+      const btnShowBreatheMenu = document.getElementById('btnShowBreatheMenu');
+      const btnSymmetry = document.getElementById('btnSymmetry');
+      const btnColorPicker = document.getElementById('btnColorPicker');
+      const originalColorPickerIconHTML = btnColorPicker.innerHTML;
+      const btnExitBreathe = document.getElementById('btnExitBreathe');
+      const btnResetBoard = document.getElementById('btnResetBoard');
+      const btnResizeUp = document.getElementById('btnResizeUp');
+      const btnResizeDown = document.getElementById('btnResizeDown');
+      const btnSave = document.getElementById('btnSave');
+      const saveModal = document.getElementById('saveModal');
+      const imagePreview = document.getElementById('imagePreview');
+      const btnModalClose = document.getElementById('btnModalClose');
+      const fileNameInput = document.getElementById('fileNameInput');
+      let generatedImageFile = null;
+      const btnSaveImage = document.getElementById('btnSaveImage');
+      const btnSaveProjectIdea = document.getElementById('btnSaveProjectIdea');
+      const btnLoadProjectIdea = document.getElementById('btnLoadProjectIdea');
+      const projectFileInput = document.getElementById('projectFileInput');
+      const breatheModal = document.getElementById('breatheModal');
+      const btnBreatheModalClose = document.getElementById('btnBreatheModalClose');
+      const btnStartSoloBreathe = document.getElementById('btnStartSoloBreathe');
+      const btnStartGroupBreathe = document.getElementById('btnStartGroupBreathe');
+      const colorPickerModal = document.getElementById('colorPickerModal');
+      const colorPickerHeader = document.getElementById('colorPickerHeader');
+      const colorPickerPaletteName = document.getElementById('colorPickerPaletteName');
+      const colorPickerSwatches = document.getElementById('colorPickerSwatches');
+      const btnPrevPalette = document.getElementById('btnPrevPalette');
+      const btnNextPalette = document.getElementById('btnNextPalette');
+      const colorPickerPagination = document.getElementById('colorPickerPagination');
+      const helpModal = document.getElementById('helpModal');
+      const btnHelpModalClose = document.getElementById('btnHelpModalClose');
+      const btnStartTutorialFromModal = document.getElementById('btnStartTutorialFromModal');
+      const resizeModal = document.getElementById('resizeModal');
+      const btnResizeModalClose = document.getElementById('btnResizeModalClose');
+      const resizeInput = document.getElementById('resizeInput');
+      const btnConfirmResize = document.getElementById('btnConfirmResize');
+      const longPressOverlay = document.getElementById('longPressOverlay');
+      const longPressDisplay = document.getElementById('longPressDisplay');
+      let longPressTimer = null;
+      let wasLongPress = false;
+      const tutorialContainer = document.getElementById('tutorialContainer');
+      const finalMessageModal = document.getElementById('finalMessageModal');
+      const skipTutorialBtn = document.getElementById('skipTutorialBtn');
+      const startCreatingBtn = document.getElementById('startCreatingBtn');
+      const btnLangToggle = document.getElementById('btnLangToggle');
+      let currentTutorialStep = 0;
+      let isTutorialActive = false;
+      let tutorialInitialState = null; 
+      let tutorialStartHandler = null; 
+
+      function palette() { return PALETTES[activePaletteIndex].colors; }
+
+      function getCurrentState() {
+        return { 
+          n, 
+          activePaletteIndex, 
+          paletteName: PALETTES[activePaletteIndex].originalName, 
+          separatorPx, 
+          symmetryMode,
+          selectedColor,
+          isRainbowModeActive,
+          tiles: tiles().map(el => ({ k: getIndex(el), isGold: isGold(el) })) 
+        };
+      }
+      function areStatesEqual(stateA, stateB) {
+        if (!stateA || !stateB) return false;
+        if (stateA.n !== stateB.n || stateA.activePaletteIndex !== stateB.activePaletteIndex || stateA.separatorPx !== stateB.separatorPx || stateA.symmetryMode !== stateB.symmetryMode || stateA.selectedColor !== stateB.selectedColor || stateA.isRainbowModeActive !== stateB.isRainbowModeActive || stateA.tiles.length !== stateB.tiles.length) return false;
+        for (let i = 0; i < stateA.tiles.length; i++) {
+          if (stateA.tiles[i].k !== stateB.tiles[i].k || stateA.tiles[i].isGold !== stateB.tiles[i].isGold) return false;
+        }
+        return true;
+      }
+      function applyState(state) {
+        let paletteIdx = PALETTES.findIndex(p => p.originalName === state.paletteName);
+        if (paletteIdx === -1) {
+            paletteIdx = state.activePaletteIndex;
+        }
+        activePaletteIndex = paletteIdx >= 0 && paletteIdx < PALETTES.length ? paletteIdx : 0;
+        
+        separatorPx = state.separatorPx;
+        symmetryMode = state.symmetryMode || 'off';
+
+        selectedColor = state.selectedColor || null;
+        isRainbowModeActive = state.isRainbowModeActive || false;
+        if (selectedColor) {
+            selectedColorIndex = palette().indexOf(selectedColor);
+            if (selectedColorIndex === -1) {
+                selectedColor = null;
+            }
+        } else {
+            selectedColorIndex = -1;
+        }
+        updateGlowEffect();
+        updateColorPickerButtonUI();
+
+        updatePaletteHeader();
+        applySeparator();
+        updateSymmetryUI();
+        if (n !== state.n) {
+            n = state.n;
+            buildBoard(n, false);
+        }
+        const tileElements = tiles();
+        state.tiles.forEach((tileState, i) => {
+            if (tileElements[i]) {
+                const el = tileElements[i];
+                if (tileState.isGold) { applyGoldOverlay(el); } 
+                else { delete el.dataset.goldOverlay; setIndex(el, tileState.k); }
+            }
+        });
+      }
+      function pushHistory(state) {
+        if (isTutorialActive) return; 
+        history.push(state);
+        if (history.length > HISTORY_LIMIT) { history.shift(); }
+        future = [];
+        updateUndoRedoButtons();
+      }
+      function performAction(actionFn) {
+        const beforeState = getCurrentState();
+        actionFn();
+        const afterState = getCurrentState();
+        if (!areStatesEqual(beforeState, afterState)) {
+            pushHistory({ before: beforeState, after: afterState });
+            hasPerformedInitialAutofill = true;
+        }
+      }
+      function undo() {
+        if (history.length === 0) return;
+        const lastAction = history.pop();
+        future.push(lastAction);
+        applyState(lastAction.before);
+        clearAllHighlights();
+        updateUndoRedoButtons();
+      }
+      function redo() {
+        if (future.length === 0) return;
+        const nextAction = future.pop();
+        history.push(nextAction);
+        applyState(nextAction.after);
+        clearAllHighlights();
+        updateUndoRedoButtons();
+      }
+      function updateUndoRedoButtons() {
+        btnUndo.disabled = history.length === 0;
+        btnRedo.disabled = future.length === 0;
+      }
+
+      function getPaletteColor(k) { return palette()[norm(k)]; }
+      function createTile(idx = 0) {
+        const d = document.createElement('div');
+        d.className = tileClasses;
+        d.setAttribute('role', 'gridcell');
+        d.setAttribute('tabindex', '0');
+        setIndex(d, idx);
+        return d;
+      }
+      function setIndex(el, k) {
+        el.dataset.k = String(k);
+        if (!isGold(el)) {
+          el.style.background = getPaletteColor(k);
+        }
+      }
+      function getIndex(el) { return parseInt(el.dataset.k || '0', 10); }
+      function applyGoldOverlay(el) { el.style.background = GOLD; el.dataset.goldOverlay = '1'; }
+      function clearGoldOverlay(el) {
+        if (isGold(el)) {
+          delete el.dataset.goldOverlay;
+          el.style.background = getPaletteColor(getIndex(el));
+        }
+      }
+      function clearAllHighlights() {
+        tiles().forEach(el => {
+            el.classList.remove('source-highlight', 'target-highlight');
+        });
+      }
+      function buildBoard(size, applyGold = true) {
+        root.style.setProperty('--grid-size', size);
+        board.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < size * size; i++) {
+            const tile = createTile(0);
+            if(applyGold) applyGoldOverlay(tile);
+            frag.appendChild(tile);
+        }
+        board.appendChild(frag);
+        if (applyGold) { hasPerformedInitialAutofill = false; }
+      }
+      function updatePaletteHeader() {
+        const pal = PALETTES[activePaletteIndex];
+        if (pal.iconHTML) { btnPalette.innerHTML = pal.iconHTML; } 
+        else { btnPalette.innerHTML = ''; btnPalette.textContent = pal.emoji; }
+        const label = `${getText('tooltip_palette')}: ${pal.name} (${activePaletteIndex + 1}/${PALETTES.length})`;
+        btnPalette.title = getText('tooltip_palette');
+        btnPalette.setAttribute('aria-label', label);
+      }
+      function applySeparator() {
+        root.style.setProperty('--gap-px', separatorPx + 'px');
+        root.style.setProperty('--tile-radius', (separatorPx === 0 ? '0px' : '2px'));
+        btnGap.title = getText('tooltip_gap');
+        btnGap.setAttribute('aria-label', getText('tooltip_gap'));
+      }
+
+      async function animateBoardTransition(actionFn) {
+        if (isAnimating) return;
+        isAnimating = true;
+        boardOverlay.style.opacity = '1';
+        await new Promise(resolve => setTimeout(resolve, 350));
+        actionFn();
+        await new Promise(resolve => setTimeout(resolve, 50));
+        boardOverlay.style.opacity = '0';
+        await new Promise(resolve => setTimeout(resolve, 350));
+        isAnimating = false;
+      }
+      
+      function applyInitialPattern() {
+        const currentTiles = tiles();
+        if (n !== 11 || currentTiles.length !== 121) {
+          currentTiles.forEach(tile => setIndex(tile, 0));
+          return;
+        }
+        const BLACK = 0;
+        const DARK_GREY = 1;
+        const GREY = 17;
+        const GOLD_IDX = 57;
+        const initialPattern = [
+          [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
+          [BLACK, DARK_GREY, DARK_GREY, DARK_GREY, BLACK, BLACK, BLACK, DARK_GREY, DARK_GREY, DARK_GREY, BLACK],
+          [DARK_GREY, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, DARK_GREY],
+          [BLACK, DARK_GREY, GOLD_IDX, DARK_GREY, BLACK, BLACK, BLACK, DARK_GREY, GOLD_IDX, DARK_GREY, BLACK],
+          [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
+          [BLACK, BLACK, BLACK, BLACK, BLACK, DARK_GREY, BLACK, BLACK, BLACK, BLACK, BLACK],
+          [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
+          [BLACK, BLACK, DARK_GREY, BLACK, BLACK, BLACK, BLACK, BLACK, DARK_GREY, BLACK, BLACK],
+          [BLACK, BLACK, BLACK, DARK_GREY, DARK_GREY, DARK_GREY, DARK_GREY, DARK_GREY, BLACK, BLACK, BLACK],
+          [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
+          [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
+        ];
+        currentTiles.forEach((tile, index) => {
+          clearGoldOverlay(tile);
+          const row = Math.floor(index / n);
+          const col = index % n;
+          const colorIndex = initialPattern[row][col];
+          setIndex(tile, colorIndex);
+        });
+      }
+
+      function cycleSeparator() {
+          performAction(() => {
+            const seq = SEPARATORS;
+            let idx = seq.indexOf(separatorPx);
+            if (idx === -1) { idx = seq.indexOf(seq.reduce((p, c) => (Math.abs(c - separatorPx) < Math.abs(p - separatorPx) ? c : p))); }
+            separatorPx = seq[(idx + 1) % seq.length];
+            applySeparator();
+          });
+      }
+      function fillRandom() {
+        tiles().forEach(el => {
+          clearGoldOverlay(el);
+          setIndex(el, Math.floor(Math.random() * paletteLen()));
+        });
+      }
+      function randomizeAll() {
+        performAction(fillRandom);
+        hasUsedRandomize = true;
+      }
+
+      function getDarkestColorIndex(colors) {
+          let darkestIndex = 0;
+          let minLuminance = 1;
+          colors.forEach((hex, index) => {
+              if (!hex.startsWith('#') || hex.length < 7) return;
+              const r = parseInt(hex.slice(1, 3), 16) / 255;
+              const g = parseInt(hex.slice(3, 5), 16) / 255;
+              const b = parseInt(hex.slice(5, 7), 16) / 255;
+              const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              if (luminance < minLuminance) {
+                  minLuminance = luminance;
+                  darkestIndex = index;
+              }
+          });
+          return darkestIndex;
+      }
+
+      function goDark() {
+        const darkestIndex = getDarkestColorIndex(palette());
+        tiles().forEach(el => {
+          clearGoldOverlay(el);
+          setIndex(el, darkestIndex);
+        });
+      }
+
+      function goDarkAction() {
+        animateBoardTransition(() => performAction(goDark));
+      }
+      
+      function invertGrid() {
+        performAction(() => {
+            const len = paletteLen();
+            tiles().forEach(el => {
+                const currentIndex = getIndex(el);
+                const invertedIndex = (len - 1) - currentIndex;
+                setIndex(el, invertedIndex);
+            });
+        });
+      }
+      
+      function resetSelectedColor() {
+          selectedColor = null;
+          selectedColorIndex = -1;
+          isRainbowModeActive = false;
+          updateGlowEffect();
+          updateColorPickerButtonUI();
+      }
+
+      function resetToGoldAndDefaultPalette() {
+        performAction(() => {
+            activePaletteIndex = 0;
+            separatorPx = 0;
+            n = 11;
+            symmetryMode = 'off';
+            resetSelectedColor();
+            updatePaletteHeader();
+            applySeparator();
+            updateSymmetryUI();
+            buildBoard(n, false); 
+            applyInitialPattern();
+            hasPerformedInitialAutofill = true;
+        });
+        setBrushMode(true);
+      }
+
+      function specialReset() {
+        activePaletteIndex = Math.floor(Math.random() * PALETTES.length);
+        separatorPx = SEPARATORS[Math.floor(Math.random() * SEPARATORS.length)];
+        n = SIZES[Math.floor(Math.random() * SIZES.length)];
+        resetSelectedColor();
+        updatePaletteHeader();
+        applySeparator();
+        buildBoard(n, false);
+        fillRandom();
+        hasPerformedInitialAutofill = true;
+      }
+      
+      function handlePaletteSwitch(backwards = false) {
+        const len = PALETTES.length;
+        activePaletteIndex = (activePaletteIndex + (backwards ? -1 : 1) + len) % len;
+        resetSelectedColor();
+        updatePaletteHeader();
+        if (!hasPerformedInitialAutofill) {
+            tiles().forEach(el => { clearGoldOverlay(el); setIndex(el, 0); });
+        } else {
+            tiles().forEach(el => {
+                if (isGold(el)) { delete el.dataset.goldOverlay; }
+                el.style.background = palette()[norm(getIndex(el))];
+            });
+        }
+      }
+
+      function switchPalette(backwards = false) {
+        const shouldTriggerNudge = !hasUsedRandomize && !hasTriggeredFirstNudge;
+        performAction(() => handlePaletteSwitch(backwards));
+        if (shouldTriggerNudge) {
+            hasTriggeredFirstNudge = true;
+            btnRandom.classList.add('glow-animation');
+            setTimeout(() => { btnRandom.classList.remove('glow-animation'); }, 4000);
+        }
+      }
+      
+      function _performResize(newSize) {
+        const oldStates1D = tiles().map(el => ({ k: getIndex(el), isGold: isGold(el) }));
+        const oldSize = n;
+        const oldStates2D = [];
+        for (let i = 0; i < oldSize; i++) {
+            oldStates2D.push(oldStates1D.slice(i * oldSize, (i + 1) * oldSize));
+        }
+        n = newSize;
+        buildBoard(n, false);
+        const newTiles = tiles();
+        const diff = oldSize - newSize;
+        const offset = Math.floor(Math.abs(diff) / 2);
+        if (newSize < oldSize) {
+            for (let row = 0; row < newSize; row++) {
+                for (let col = 0; col < newSize; col++) {
+                    const newIndex = row * newSize + col;
+                    const oldRowInOldGrid = row + offset;
+                    const oldColInOldGrid = col + offset;
+                    if (oldRowInOldGrid < oldSize && oldColInOldGrid < oldSize) {
+                        const oldState = oldStates2D[oldRowInOldGrid][oldColInOldGrid];
+                        if (newTiles[newIndex] && oldState) {
+                            if (oldState.isGold) { applyGoldOverlay(newTiles[newIndex]); } 
+                            else { clearGoldOverlay(newTiles[newIndex]); setIndex(newTiles[newIndex], oldState.k); }
+                        }
+                    }
+                }
+            }
+        } else {
+            for (let row = 0; row < newSize; row++) {
+                for (let col = 0; col < newSize; col++) {
+                    const newIndex = row * newSize + col;
+                    const newTile = newTiles[newIndex];
+                    const oldRowInOldGrid = row - offset;
+                    const oldColInOldGrid = col - offset;
+                    const isWithinOldBounds = oldRowInOldGrid >= 0 && oldRowInOldGrid < oldSize && oldColInOldGrid >= 0 && oldColInOldGrid < oldSize;
+                    if (isWithinOldBounds) {
+                        const oldState = oldStates2D[oldRowInOldGrid][oldColInOldGrid];
+                        if (oldState) {
+                            if (oldState.isGold) { applyGoldOverlay(newTile); } 
+                            else { clearGoldOverlay(newTile); setIndex(newTile, oldState.k); }
+                        }
+                    } else {
+                        clearGoldOverlay(newTile);
+                        setIndex(newTile, 0);
+                    }
+                }
+            }
+        }
+      }
+
+      function resizeGrid(increase = false) {
+        const seq = SIZES;
+        let newSize;
+        if (increase) {
+            newSize = [...seq].reverse().find(size => size > n);
+            if (newSize === undefined) newSize = seq[0];
+        } else {
+            newSize = seq.find(size => size < n);
+            if (newSize === undefined) newSize = seq[seq.length - 1];
+        }
+        if (newSize === n) return;
+        animateBoardTransition(() => performAction(() => _performResize(newSize)));
+      }
+
+
+      function setBrushMode(isBrushOn) {
+          isBrushModeOn = isBrushOn;
+          btnBrushMode.classList.toggle('brush-on', isBrushOn);
+          const newTitle = isBrushOn ? getText('brushMode_paint') : getText('brushMode_copy');
+          btnBrushMode.title = newTitle;
+          btnBrushMode.setAttribute('aria-label', newTitle);
+          clearAllHighlights();
+          if (pointerState.dragSource) pointerState.dragSource = null;
+      }
+      function toggleBrushMode() {
+          setBrushMode(!isBrushModeOn);
+      }
+      function closeModal() {
+        saveModal.classList.remove('modal-visible');
+        if (imagePreview.src) { URL.revokeObjectURL(imagePreview.src); }
+        imagePreview.src = '';
+        generatedImageFile = null;
+      }
+      async function savePNG() {
+        btnSave.disabled = true;
+        clearAllHighlights();
+        tiles().forEach(el => el.classList.remove('ring-inset', 'ring-4', 'ring-white', 'ring-white/90'));
+        if (separatorPx === 0) { board.classList.add('no-gap-fix'); }
+        try {
+            const boardCanvas = await html2canvas(board, { backgroundColor: null, scale: 2 });
+            const padding = 50;
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = boardCanvas.width + padding;
+            finalCanvas.height = boardCanvas.height + padding;
+            const ctx = finalCanvas.getContext('2d');
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+            ctx.drawImage(boardCanvas, padding / 2, padding / 2);
+            finalCanvas.toBlob(async (blob) => {
+                if (!blob) { console.error('Blob creation failed'); btnSave.disabled = false; return; }
+                generatedImageFile = new File([blob], 'board.png', { type: 'image/png' });
+                imagePreview.src = URL.createObjectURL(blob);
+                fileNameInput.value = PALETTES[activePaletteIndex]?.originalName === 'Default' ? getText('saveModal_defaultFilename') : PALETTES[activePaletteIndex]?.name || getText('saveModal_defaultFilename');
+                saveModal.classList.add('modal-visible');
+                btnSave.disabled = false;
+            }, 'image/png');
+        } catch (err) {
+            console.error("Failed to save PNG:", err);
+            btnSave.disabled = false;
+        } finally {
+            if (separatorPx === 0) { board.classList.remove('no-gap-fix'); }
+        }
+      }
+      function getSanitizedFileName(extension) {
+        let defaultName = PALETTES[activePaletteIndex]?.originalName === 'Default' ? getText('saveModal_defaultFilename') : PALETTES[activePaletteIndex]?.name;
+        let fileName = fileNameInput.value.trim() || defaultName || 'Creation';
+        return fileName.replace(/[<>:"/\\|?*]/g, '_') + `.${extension}`;
+      }
+
+      function getSymmetricIndices(index) {
+          if (symmetryMode === 'off') return [index];
+          const row = Math.floor(index / n);
+          const col = index % n;
+          const N = n - 1;
+          const indices = new Set([index]);
+          if (symmetryMode === 'horizontal' || symmetryMode === 'mandala') {
+              const hCol = N - col;
+              if (hCol !== col) indices.add(row * n + hCol);
+          }
+          if (symmetryMode === 'vertical' || symmetryMode === 'mandala') {
+              const vRow = N - row;
+              if (vRow !== row) indices.add(vRow * n + col);
+          }
+          if (symmetryMode === 'mandala') {
+              const hCol = N - col;
+              const vRow = N - row;
+              if (hCol !== col && vRow !== row) indices.add(vRow * n + hCol);
+          }
+          return Array.from(indices);
+      }
+      
+      function updateSymmetryButtonUI() {
+          const parts = {
+              top: btnSymmetry.querySelector('.part.top'),
+              bottom: btnSymmetry.querySelector('.part.bottom'),
+              left: btnSymmetry.querySelector('.part.left'),
+              right: btnSymmetry.querySelector('.part.right'),
+          };
+          const activeColor = GOLD;
+          const inactiveColor = 'transparent';
+          Object.values(parts).forEach(p => { if(p) p.style.stroke = inactiveColor; });
+          if (symmetryMode === 'vertical') {
+              if(parts.top) parts.top.style.stroke = activeColor;
+              if(parts.bottom) parts.bottom.style.stroke = activeColor;
+          } else if (symmetryMode === 'horizontal') {
+              if(parts.left) parts.left.style.stroke = activeColor;
+              if(parts.right) parts.right.style.stroke = activeColor;
+          } else if (symmetryMode === 'mandala') {
+              Object.values(parts).forEach(p => { if(p) p.style.stroke = activeColor; });
+          }
+          let titleKey;
+          switch (symmetryMode) {
+              case 'vertical': titleKey = 'symmetry_vertical'; break;
+              case 'horizontal': titleKey = 'symmetry_horizontal'; break;
+              case 'mandala': titleKey = 'symmetry_mandala'; break;
+              default: titleKey = 'symmetry_off';
+          }
+          const title = getText(titleKey);
+          btnSymmetry.setAttribute('aria-label', title);
+          btnSymmetry.title = getText('tooltip_symmetry');
+      }
+      
+      function updateSymmetryUI() { updateSymmetryButtonUI(); }
+      function cycleSymmetryMode() {
+          performAction(() => {
+              const currentIndex = SYMMETRY_MODES.indexOf(symmetryMode);
+              symmetryMode = SYMMETRY_MODES[(currentIndex + 1) % SYMMETRY_MODES.length];
+              updateSymmetryUI();
+          });
+      }
+
+      const pointerState = { id: null, downEl: null, downX: 0, downY: 0, longPressTimer: null, suppressClick: false, isDragging: false, dragSource: null, currentTarget: null, beforeState: null, longPressTarget: null };
+      
+      function applyActionToTiles(indices, actionFn) {
+          const allTiles = tiles();
+          indices.forEach(idx => {
+              if (allTiles[idx]) {
+                  actionFn(allTiles[idx]);
+              }
+          });
+      }
+
+      function onPointerDown(e) {
+        if (isTutorialActive || isBreathing) return;
+        const el = e.target.closest('.tile'); if (!el) return;
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+        Object.assign(pointerState, { id: e.pointerId, downEl: el, downX: e.clientX, downY: e.clientY, suppressClick: false, isDragging: false, dragSource: null, currentTarget: null, beforeState: getCurrentState() });
+        
+        pointerState.longPressTimer = setTimeout(() => {
+            if (pointerState.isDragging) return;
+            pointerState.suppressClick = true;
+            if (selectedColor || isRainbowModeActive) {
+                performAction(resetSelectedColor);
+            } else {
+                openColorPickerModal(el);
+            }
+        }, LONG_PRESS_SHOW_MS);
+
+        if (!isBrushModeOn) { 
+            clearAllHighlights(); 
+            el.classList.add('source-highlight'); 
+            pointerState.dragSource = el; 
+        }
+      }
+
+      function onPointerMove(e) {
+        if (pointerState.id !== e.pointerId) return;
+        if (!pointerState.isDragging) {
+            const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
+            if (dist >= 8) {
+                clearTimeout(pointerState.longPressTimer);
+                pointerState.longPressTimer = null;
+                pointerState.isDragging = true;
+                pointerState.suppressClick = true;
+                if (isBrushModeOn && selectedColorIndex === -1) {
+                    pointerState.dragSource = pointerState.downEl;
+                    clearGoldOverlay(pointerState.dragSource);
+                }
+            }
+        }
+        if (!pointerState.isDragging) return;
+        const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('.tile');
+        if (!targetEl || targetEl === pointerState.currentTarget) return;
+        pointerState.currentTarget?.classList.remove('ring-4', 'ring-white', 'target-highlight');
+        pointerState.currentTarget = targetEl;
+        if (isBrushModeOn) {
+            if (isRainbowModeActive) {
+                const targetIndices = getSymmetricIndices(tiles().indexOf(targetEl));
+                applyActionToTiles(targetIndices, tile => {
+                    clearGoldOverlay(tile);
+                    const randomIndex = Math.floor(Math.random() * paletteLen());
+                    setIndex(tile, randomIndex);
+                });
+            } else if (selectedColorIndex !== -1) {
+                const targetIndices = getSymmetricIndices(tiles().indexOf(targetEl));
+                applyActionToTiles(targetIndices, tile => {
+                    clearGoldOverlay(tile);
+                    setIndex(tile, selectedColorIndex);
+                });
+            } else {
+                const sourceIndex = getIndex(pointerState.dragSource);
+                const targetIndices = getSymmetricIndices(tiles().indexOf(targetEl));
+                applyActionToTiles(targetIndices, tile => {
+                    clearGoldOverlay(tile);
+                    setIndex(tile, sourceIndex);
+                });
+                targetEl.classList.add('ring-4', 'ring-white');
+            }
+        } else {
+            if (targetEl !== pointerState.dragSource) {
+                targetEl.classList.add('target-highlight');
+            } else {
+                pointerState.currentTarget = null;
+            }
+        }
+      }
+
+      function onPointerUp(e) {
+        if (isTutorialActive || isBreathing) return;
+        clearTimeout(pointerState.longPressTimer);
+        const beforeState = pointerState.beforeState;
+        if (pointerState.isDragging) {
+            if (!isBrushModeOn && pointerState.currentTarget) {
+                const sourceEl = pointerState.dragSource; 
+                const targetEl = pointerState.currentTarget;
+                const targetIndices = getSymmetricIndices(tiles().indexOf(targetEl));
+                applyActionToTiles(targetIndices, tile => {
+                    if (isGold(sourceEl)) { applyGoldOverlay(tile); } 
+                    else { clearGoldOverlay(tile); setIndex(tile, getIndex(sourceEl)); }
+                });
+            }
+        } else if (!pointerState.suppressClick && e.target.closest('.tile')) {
+            const tile = e.target.closest('.tile');
+            if (isRainbowModeActive) {
+                const indices = getSymmetricIndices(tiles().indexOf(tile));
+                applyActionToTiles(indices, el => {
+                    clearGoldOverlay(el);
+                    const randomIndex = Math.floor(Math.random() * paletteLen());
+                    setIndex(el, randomIndex);
+                });
+            } else if (selectedColorIndex !== -1) {
+                const indices = getSymmetricIndices(tiles().indexOf(tile));
+                applyActionToTiles(indices, el => {
+                    clearGoldOverlay(el);
+                    setIndex(el, selectedColorIndex);
+                });
+            } else {
+                const indices = getSymmetricIndices(tiles().indexOf(tile));
+                applyActionToTiles(indices, el => {
+                    clearGoldOverlay(el); 
+                    setIndex(el, getIndex(el) + 1);
+                });
+            }
+        }
+        const afterState = getCurrentState();
+        if (beforeState && !areStatesEqual(beforeState, afterState)) {
+             pushHistory({ before: beforeState, after: afterState }); 
+             hasPerformedInitialAutofill = true;
+        }
+        clearAllHighlights();
+        pointerState.currentTarget?.classList.remove('ring-4', 'ring-white', 'target-highlight');
+        Object.assign(pointerState, { id: null, downEl: null, isDragging: false, dragSource: null, currentTarget: null, beforeState: null, longPressTarget: null });
+      }
+
+      function updateLayout() {
+        if (window.innerWidth < 768) { appShell.style.width = ''; return; }
+        const controlsHeight = controlsContainer.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        const topMargin = parseInt(window.getComputedStyle(appShell.parentElement).paddingTop, 10);
+        const availableHeight = viewportHeight - controlsHeight - (topMargin * 2);
+        const newWidth = Math.min(720, window.innerWidth * 0.85, availableHeight);
+        appShell.style.width = `${newWidth}px`;
+      }
+      board.addEventListener('pointerdown', onPointerDown);
+      board.addEventListener('pointermove', onPointerMove);
+      board.addEventListener('pointerup', onPointerUp);
+      board.addEventListener('pointercancel', onPointerUp);
+
+      function setAllControlsDisabled(disabled) {
+        document.querySelectorAll('.ctrl').forEach(btn => {
+            if (btn.id !== 'btnBreatheModalClose') {
+                btn.disabled = disabled;
+            }
+        });
+        if (breatheModal.classList.contains('modal-visible')) {
+            btnStartSoloBreathe.disabled = disabled;
+            btnStartGroupBreathe.disabled = disabled;
+        }
+      }
+
+      async function stopBreathingEffect() {
+        btnExitBreathe.classList.remove('visible');
+        const allTiles = tiles();
+        const fadeOutPromises = allTiles
+            .filter(tile => tile.classList.contains('breathing-tile'))
+            .map(tile => {
+                return new Promise(resolve => {
+                    tile.addEventListener('animationiteration', () => {
+                        tile.classList.remove('breathing-tile');
+                        tile.style.animationDelay = '';
+                        resolve();
+                    }, { once: true });
+                });
+            });
+        await Promise.all(fadeOutPromises);
+        controlsContainer.style.transition = 'opacity 1.2s linear';
+        controlsContainer.classList.remove('controls-hidden');
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        setAllControlsDisabled(false);
+        updateUndoRedoButtons();
+        isBreathing = false;
+        controlsContainer.style.transition = '';
+      }
+
+      async function startBreathingEffect(isGrouped = false) {
+          if (isBreathing || isTutorialActive) return;
+          isBreathing = true;
+          setAllControlsDisabled(true);
+          controlsContainer.style.transition = 'opacity 2s linear';
+          controlsContainer.classList.add('controls-hidden');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const allTiles = tiles();
+          if (isGrouped) {
+              const colorDelayMap = new Map();
+              const uniqueColors = [...new Set(allTiles.map(tile => {
+                  return isGold(tile) ? GOLD : tile.style.backgroundColor;
+              }))];
+              uniqueColors.forEach(color => {
+                  colorDelayMap.set(color, Math.random() * 3);
+              });
+              allTiles.forEach(tile => {
+                  const colorKey = isGold(tile) ? GOLD : tile.style.backgroundColor;
+                  const delay = colorDelayMap.get(colorKey);
+                  tile.style.animationDelay = `${delay}s`;
+                  tile.classList.add('breathing-tile');
+              });
+          } else {
+              allTiles.forEach(tile => {
+                  tile.style.animationDelay = `${Math.random() * 3}s`;
+                  tile.classList.add('breathing-tile');
+              });
+          }
+          setTimeout(() => {
+            if (isBreathing) {
+              btnExitBreathe.classList.add('visible');
+            }
+          }, 4000);
+          const exitHandler = () => { stopBreathingEffect(); };
+          appContainer.addEventListener('pointerdown', exitHandler, { once: true });
+      }
+
+      function openBreatheModal() {
+        if (isBreathing || isTutorialActive) return;
+        setAllControlsDisabled(true); 
+        breatheModal.classList.add('modal-visible');
+      }
+
+      function closeBreatheModal() {
+        breatheModal.classList.remove('modal-visible');
+        setAllControlsDisabled(false);
+        updateUndoRedoButtons(); 
+      }
+
+      function openResizeModal() {
+        if (isBreathing || isTutorialActive) return;
+        resizeInput.value = n; 
+        resizeModal.classList.add('modal-visible');
+        resizeInput.focus();
+        resizeInput.select();
+    }
+
+    function closeResizeModal() {
+        resizeModal.classList.remove('modal-visible');
+    }
+
+    function handleConfirmResize() {
+        let newSize = parseInt(resizeInput.value, 10);
+        if (isNaN(newSize) || newSize < 1 || newSize > 50) {
+            resizeInput.style.borderColor = 'red';
+            setTimeout(() => { resizeInput.style.borderColor = ''; }, 1000);
+            return;
+        }
+        closeResizeModal();
+        if (newSize !== n) {
+             animateBoardTransition(() => performAction(() => _performResize(newSize)));
+        }
+    }
+
+    function createRainbowIconSVG(currentPalette) {
+        const p = currentPalette || palette();
+        const c1 = p[0] || '#FFD700';
+        const c2 = p[Math.floor(p.length / 4)] || '#42A5F5';
+        const c3 = p[Math.floor(p.length / 2)] || '#F44336';
+        const c4 = p[Math.floor(p.length * 3 / 4)] || '#66BB6A';
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="none" style="width: var(--icon-size); height: var(--icon-size);">
+            <rect x="4" y="4" width="8" height="8" fill="${c1}" rx="1"/>
+            <rect x="12" y="4" width="8" height="8" fill="${c2}" rx="1"/>
+            <rect x="4" y="12" width="8" height="8" fill="${c3}" rx="1"/>
+            <rect x="12" y="12" width="8" height="8" fill="${c4}" rx="1"/>
+        </svg>`;
+    }
+    
+    function updateGlowEffect() {
+        if (isRainbowModeActive) {
+            board.classList.add('glowing-border-rainbow');
+            board.classList.remove('glowing-border');
+        } else if (selectedColor) {
+            root.style.setProperty('--glow-color', selectedColor);
+            board.classList.add('glowing-border');
+            board.classList.remove('glowing-border-rainbow');
+        } else {
+            board.classList.remove('glowing-border', 'glowing-border-rainbow');
+        }
+    }
+
+    function updateColorPickerButtonUI() {
+        if (!btnColorPicker.querySelector('circle') && !isRainbowModeActive) {
+            btnColorPicker.innerHTML = originalColorPickerIconHTML;
+        }
+        const colorPickerIconCircle = btnColorPicker.querySelector('svg circle');
+        if (isRainbowModeActive) {
+            btnColorPicker.innerHTML = createRainbowIconSVG();
+        } else if (selectedColor) {
+            if(colorPickerIconCircle) {
+                colorPickerIconCircle.style.fill = selectedColor;
+                colorPickerIconCircle.style.stroke = selectedColor === '#000000' ? '#424242' : selectedColor;
+            }
+        } else {
+             if(colorPickerIconCircle) {
+                colorPickerIconCircle.style.fill = '#000';
+                colorPickerIconCircle.style.stroke = '#fff';
+             }
+        }
+    }
+
+      function selectColorAndClose(color) {
+        const targetTile = pointerState.longPressTarget;
+        isRainbowModeActive = false;
+        selectedColor = color;
+        selectedColorIndex = palette().indexOf(color);
+        updateGlowEffect();
+        updateColorPickerButtonUI();
+        if (targetTile) {
+            performAction(() => {
+                const targetIndices = getSymmetricIndices(tiles().indexOf(targetTile));
+                applyActionToTiles(targetIndices, tile => {
+                    clearGoldOverlay(tile);
+                    setIndex(tile, selectedColorIndex);
+                });
+            });
+        }
+        closeColorPickerModal();
+      }
+
+      function selectRainbowAndClose() {
+        const targetTile = pointerState.longPressTarget;
+        isRainbowModeActive = true;
+        selectedColor = null;
+        selectedColorIndex = -1;
+        updateGlowEffect();
+        updateColorPickerButtonUI();
+        if (targetTile) {
+            performAction(() => {
+                const targetIndices = getSymmetricIndices(tiles().indexOf(targetTile));
+                applyActionToTiles(targetIndices, tile => {
+                    clearGoldOverlay(tile);
+                    const randomIndex = Math.floor(Math.random() * paletteLen());
+                    setIndex(tile, randomIndex);
+                });
+            });
+        }
+        closeColorPickerModal();
+    }
+
+      function renderColorPickerContent() {
+          const currentPalette = PALETTES[activePaletteIndex];
+          const colors = currentPalette.colors;
+          const totalPages = Math.ceil(colors.length / COLORS_PER_PAGE);
+          
+          if (colorPickerPage >= totalPages) {
+              colorPickerPage = 0;
+          }
+
+          if (totalPages > 1) {
+            colorPickerHeader.style.display = 'flex';
+          } else {
+            colorPickerHeader.style.display = 'none';
+          }
+
+          const displayIcon = currentPalette.iconHTML || currentPalette.emoji || '';
+          colorPickerPaletteName.innerHTML = displayIcon;
+          
+          colorPickerSwatches.innerHTML = '';
+          const frag = document.createDocumentFragment();
+
+          const rainbowSwatch = document.createElement('div');
+          rainbowSwatch.className = 'color-swatch';
+          const rainbowSwatchInner = document.createElement('div');
+          rainbowSwatchInner.className = 'color-swatch-inner';
+          rainbowSwatchInner.innerHTML = createRainbowIconSVG();
+          rainbowSwatch.appendChild(rainbowSwatchInner);
+          rainbowSwatch.setAttribute('aria-label', getText('colorPicker_rainbow'));
+          rainbowSwatch.addEventListener('click', () => selectRainbowAndClose());
+          frag.appendChild(rainbowSwatch);
+
+          const startIndex = colorPickerPage * COLORS_PER_PAGE;
+          const endIndex = startIndex + COLORS_PER_PAGE;
+          const pageColors = colors.slice(startIndex, endIndex);
+
+          pageColors.forEach((color) => {
+              const swatch = document.createElement('div');
+              swatch.className = 'color-swatch';
+              const swatchInner = document.createElement('div');
+              swatchInner.className = 'color-swatch-inner';
+              swatchInner.style.backgroundColor = color;
+              swatch.appendChild(swatchInner);
+              swatch.dataset.color = color;
+              swatch.setAttribute('aria-label', `${getText('colorPicker_select')} ${color}`);
+              swatch.addEventListener('click', () => selectColorAndClose(color));
+              frag.appendChild(swatch);
+          });
+          
+          const placeholdersNeeded = (COLORS_PER_PAGE + 1) - (pageColors.length + 1);
+          for (let i = 0; i < placeholdersNeeded; i++) {
+              const placeholder = document.createElement('div');
+              placeholder.className = 'color-swatch';
+              placeholder.style.pointerEvents = 'none';
+              placeholder.style.opacity = '0';
+              frag.appendChild(placeholder);
+          }
+
+          colorPickerSwatches.appendChild(frag);
+
+          colorPickerPagination.innerHTML = '';
+          if (totalPages > 1) {
+              for (let i = 0; i < totalPages; i++) {
+                  const dot = document.createElement('div');
+                  dot.className = 'pagination-dot' + (i === colorPickerPage ? ' active' : '');
+                  dot.dataset.page = i;
+                  dot.addEventListener('click', (e) => {
+                      colorPickerPage = parseInt(e.target.dataset.page, 10);
+                      renderColorPickerContent();
+                  });
+                  colorPickerPagination.appendChild(dot);
+              }
+          }
+      }
+
+      function openColorPickerModal(targetTile = null) {
+          if (isBreathing || isTutorialActive) return;
+          pointerState.longPressTarget = targetTile;
+          colorPickerPage = 0;
+          renderColorPickerContent();
+          colorPickerModal.classList.add('modal-visible');
+      }
+
+      function closeColorPickerModal() {
+          colorPickerModal.classList.remove('modal-visible');
+          pointerState.longPressTarget = null;
+      }
+      
+      function openHelpModal() { 
+        populateHelpModal();
+        helpModal.classList.add('modal-visible'); 
+      }
+      function closeHelpModal() { helpModal.classList.remove('modal-visible'); }
+
+      function handleCtrlClick(e, actionFn) {
+        if (isTutorialActive || isBreathing) return;
+        if (wasLongPress) {
+          wasLongPress = false;
+          return;
+        }
+        actionFn();
+      }
+
+      function handleColorPickerClick() {
+        if (selectedColor || isRainbowModeActive) {
+            performAction(resetSelectedColor);
+        } else {
+            openColorPickerModal();
+        }
+      }
+
+      function navigateColorPages(isNext) {
+        const totalPages = Math.ceil(PALETTES[activePaletteIndex].colors.length / COLORS_PER_PAGE);
+        if(totalPages <= 1) return;
+        if(isNext) {
+          colorPickerPage = (colorPickerPage + 1) % totalPages;
+        } else {
+          colorPickerPage = (colorPickerPage - 1 + totalPages) % totalPages;
+        }
+        renderColorPickerContent();
+      }
+      
+      let lastWheelTime = 0; let touchStartX = 0; let touchEndX = 0;
+      function handlePaletteWheel(e) { if (Date.now() - lastWheelTime < 200) return; e.preventDefault(); navigateColorPages(e.deltaY > 0); lastWheelTime = Date.now(); }
+      function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
+      function handleTouchEnd(e) { touchEndX = e.changedTouches[0].screenX; handleSwipeGesture(); }
+      function handleSwipeGesture() { if (touchEndX < touchStartX - 50) { navigateColorPages(true); } if (touchEndX > touchStartX + 50) { navigateColorPages(false); } }
+      
+      async function handleSaveImage() {
+        if (!generatedImageFile) return;
+        const isMobile = navigator.share && navigator.canShare;
+        const fileToSave = new File([generatedImageFile], getSanitizedFileName('png'), { type: generatedImageFile.type });
+        if (isMobile) { try { await navigator.share({ files: [fileToSave], title: 'My Creation' }); } catch (err) { if (err.name !== 'AbortError') { console.error('Share API error:', err); } } } else { const link = document.createElement('a'); link.href = URL.createObjectURL(fileToSave); link.download = fileToSave.name; link.click(); URL.revokeObjectURL(link.href); }
+        closeModal();
+      }
+      async function handleSaveProject() {
+          const state = getCurrentState();
+          const stateString = JSON.stringify(state, null, 2);
+          const blob = new Blob([stateString], { type: 'application/json' });
+          const fileName = getSanitizedFileName('json');
+          const projectFile = new File([blob], fileName, { type: 'application/json' });
+          const isMobile = navigator.share && navigator.canShare;
+          if (isMobile) { try { await navigator.share({ files: [projectFile], title: 'My Idea' }); } catch (err) { if (err.name !== 'AbortError') { console.error('Share API error:', err); } } } else { const link = document.createElement('a'); link.href = URL.createObjectURL(projectFile); link.download = fileName; link.click(); URL.revokeObjectURL(link.href); }
+          closeModal();
+      }
+      function handleLoadProject() { projectFileInput.click(); closeModal(); }
+      function onProjectFileSelected(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const state = JSON.parse(e.target.result);
+            if (state.n && state.tiles && typeof state.activePaletteIndex !== 'undefined') { animateBoardTransition(() => { applyState(state); history = []; future = []; updateUndoRedoButtons(); }); } 
+            else { alert(getText('error_invalidFile')); }
+          } catch (error) { console.error("Failed to load or parse project file:", error); alert(getText('error_readFile')); }
+        };
+        reader.readAsText(file);
+        event.target.value = null;
+      }
+      
+      function hideLongPressDisplay() {
+          clearTimeout(longPressTimer);
+          longPressOverlay.classList.remove('visible');
+          longPressDisplay.classList.remove('visible');
+          setTimeout(() => { longPressDisplay.innerHTML = ''; }, 250);
+      }
+      function handlePointerDownCtrl(e) {
+          if (isTutorialActive || isBreathing) return;
+          const btn = e.currentTarget;
+          longPressTimer = setTimeout(() => {
+              wasLongPress = true;
+              if (btn.id === 'btnResizeUp' || btn.id === 'btnResizeDown') {
+                  openResizeModal();
+                  return; 
+              }
+              if (btn.id === 'btnBrushMode') {
+                  const customHTML = `<div class="flex flex-col items-center justify-center gap-4 text-lg text-gray-300"><div class="flex items-center gap-4"><svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#fff" /></svg><span>${getText('brushMode_paint')}</span></div><div class="flex items-center gap-4"><svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 2 L2 22 L22 22 Z" stroke="#fff" stroke-width="2" fill="#000" /></svg><span>${getText('brushMode_copy')}</span></div></div>`;
+                  longPressDisplay.innerHTML = customHTML;
+              } else {
+                  let iconElement;
+                  if (btn.classList.contains('palette')) { iconElement = btn.cloneNode(true); iconElement.style.background = 'transparent'; iconElement.style.border = 'none'; } 
+                  else { iconElement = btn.querySelector('.glyph, svg, .glyph-save, .glyph-reset, .glyph-special-reset, .glyph-dark'); }
+                  if (!iconElement) return;
+                  const clonedIcon = iconElement.cloneNode(true);
+                  const baseIconSize = parseInt(getComputedStyle(root).getPropertyValue('--icon-size'));
+                  const targetIconSize = baseIconSize * 2;
+                  if (btn.classList.contains('palette')) { clonedIcon.style.fontSize = `${targetIconSize}px`; } 
+                  else { clonedIcon.style.width = `${targetIconSize}px`; clonedIcon.style.height = `${targetIconSize}px`; }
+                  const textElement = document.createElement('p');
+                  if (btn.id === 'btnPalette') { textElement.innerHTML = `${activePaletteIndex === 0 ? getText('palette_journey') : PALETTES[activePaletteIndex].name}`; } 
+                  else if (btn.id === 'btnSymmetry') { 
+                    let key;
+                    if (symmetryMode === 'vertical') key = 'symmetry_vertical';
+                    else if (symmetryMode === 'horizontal') key = 'symmetry_horizontal';
+                    else if (symmetryMode === 'mandala') key = 'symmetry_mandala';
+                    else key = 'symmetry_off';
+                    textElement.innerHTML = getText(key); 
+                  }
+                  else { textElement.innerHTML = btn.title || ""; }
+                  textElement.className = 'text-lg text-gray-300 text-center px-4';
+                  longPressDisplay.innerHTML = '';
+                  longPressDisplay.appendChild(clonedIcon);
+                  longPressDisplay.appendChild(textElement);
+              }
+              longPressOverlay.classList.add('visible');
+              longPressDisplay.classList.add('visible');
+          }, LONG_PRESS_SHOW_MS);
+      }
+      
+      let tutorialSteps = [];
+
+      function initializeTutorialSteps() {
+          tutorialSteps = [
+              { btnId: 'btnRandom', textKey: 'tutorial_random', animationClass: 'glow-animation', action: randomizeAll },
+              { btnId: 'btnPalette', textKey: 'tutorial_palette', animationClass: 'glow-animation', action: () => switchPalette() },
+              { btnId: 'btnUndo', textKey: 'tutorial_undo', animationClass: 'glow-animation', action: undo },
+              { btnId: 'btnResizeUp', textKey: 'tutorial_resizeUp', animationClass: 'glow-animation', action: () => resizeGrid(true) },
+              { btnId: 'btnGap', textKey: 'tutorial_gap', animationClass: 'glow-animation-separator', action: cycleSeparator },
+              { btnId: 'btnColorPicker', textKey: 'tutorial_colorPicker', animationClass: 'glow-animation', action: () => { openColorPickerModal(); setTimeout(closeColorPickerModal, 2000); } },
+              { btnId: 'btnBrushMode', textKey: 'tutorial_brushMode', animationClass: 'glow-animation', action: toggleBrushMode },
+              { btnId: 'btnSymmetry', textKey: 'tutorial_symmetry', animationClass: 'glow-animation', action: cycleSymmetryMode },
+              { btnId: 'btnSave', textKey: 'tutorial_save', animationClass: 'glow-animation', action: () => { savePNG(); setTimeout(closeModal, 2500); } },
+              { btnId: 'btnShowBreatheMenu', textKey: 'tutorial_breathe', animationClass: 'glow-animation', action: () => { openBreatheModal(); setTimeout(closeBreatheModal, 2000); } },
+              { isFinalScreen: true }
+          ];
+      }
+      
+      function populateHelpModal() {
+        const contentDiv = document.getElementById('helpModalContent');
+        contentDiv.innerHTML = ''; 
+
+        // The intro text is now a static element in the HTML, so it's not created here anymore.
+
+        const categories = {
+            inspiration: {
+                titleKey: 'help_category_inspiration',
+                buttons: ['btnRandom', 'btnPalette', 'btnSpecialReset', 'btnInvert', 'btnDark']
+            },
+            order: {
+                titleKey: 'help_category_order',
+                buttons: ['btnResizeUp', 'btnResizeDown', 'btnGap', 'btnResetBoard']
+            },
+            touch: {
+                titleKey: 'help_category_touch',
+                buttons: ['btnColorPicker', 'btnSymmetry', 'btnBrushMode']
+            },
+            tools: {
+                titleKey: 'help_category_tools',
+                buttons: ['btnUndo', 'btnRedo', 'btnSave', 'btnShowBreatheMenu']
+            }
+        };
+
+        const helpData = {
+          'btnInvert': getText('help_invert'), 'btnPalette': getText('help_palette'), 'btnRandom': getText('help_random'),
+          'btnColorPicker': getText('help_colorPicker'), 'btnSymmetry': getText('help_symmetry'), 'btnBrushMode': getText('help_brushMode'),
+          'btnRedo': getText('help_redo'), 'btnUndo': getText('help_undo'), 'btnDark': getText('help_dark'),
+          'btnSpecialReset': getText('help_specialReset'), 'btnResetBoard': getText('help_resetBoard'),
+          'btnResizeUp': getText('help_resizeUp'), 'btnResizeDown': getText('help_resizeDown'), 'btnGap': getText('help_gap'),
+          'btnSave': getText('help_save'), 'btnShowBreatheMenu': getText('help_breathe')
+        };
+
+        for (const categoryKey in categories) {
+            const category = categories[categoryKey];
+            
+            const titleEl = document.createElement('h3');
+            titleEl.className = 'help-category-title';
+            titleEl.textContent = getText(category.titleKey);
+            contentDiv.appendChild(titleEl);
+
+            category.buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (!btn || !helpData[btnId]) return;
+
+                const helpItem = document.createElement('div');
+                helpItem.className = 'flex items-center gap-4';
+
+                const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'help-item-icon-wrapper';
+                iconWrapper.innerHTML = btn.innerHTML;
+
+                const svg = iconWrapper.querySelector('svg');
+                if (svg && (btnId === 'btnBrushMode' || btnId === 'btnGap' || btnId === 'btnResizeUp' || btnId === 'btnResizeDown' || btnId === 'btnShowBreatheMenu')) {
+                    svg.style.width = 'var(--side-icon-size)';
+                    svg.style.height = 'var(--side-icon-size)';
+                }
+                
+                if (btn.id === 'btnSymmetry') {
+                    const originalPaths = btn.querySelectorAll('.part');
+                    const clonedPaths = iconWrapper.querySelectorAll('.part');
+                    originalPaths.forEach((part, index) => {
+                        if (clonedPaths[index]) {
+                            clonedPaths[index].style.stroke = part.style.stroke;
+                        }
+                    });
+                }
+                if (btn.id === 'btnBrushMode') {
+                    const path = iconWrapper.querySelector('svg path');
+                    if (path) {
+                        path.setAttribute('fill', isBrushModeOn ? '#fff' : '#000');
+                    }
+                }
+
+                const textWrapper = document.createElement('div');
+                textWrapper.textContent = helpData[btnId];
+                textWrapper.className = 'text-gray-300 text-sm';
+                
+                helpItem.appendChild(iconWrapper);
+                helpItem.appendChild(textWrapper);
+                contentDiv.appendChild(helpItem);
+            });
+        }
+      }
+
+      function setTextContent() {
+        const splashTextEl = document.getElementById('splashText');
+        if (splashTextEl) splashTextEl.textContent = getText('splashTitle');
+        if (skipTutorialBtn) skipTutorialBtn.textContent = getText('skip');
+        const finalMsgPart1El = document.getElementById('finalMsgPart1');
+        if (finalMsgPart1El) finalMsgPart1El.textContent = getText('splashHint1');
+        const finalMsgHintEl = document.getElementById('finalMsgHint');
+        if (finalMsgHintEl) finalMsgHintEl.textContent = getText('splashHint2');
+        if (startCreatingBtn) startCreatingBtn.textContent = getText('startCreating');
+        const fileNameLabelEl = document.getElementById('fileNameLabel');
+        if (fileNameLabelEl) fileNameLabelEl.textContent = getText('saveModal_feelsLike');
+        if (fileNameInput) fileNameInput.placeholder = getText('saveModal_defaultFilename');
+        if (btnModalClose) btnModalClose.title = getText('saveModal_close');
+        if (btnSaveImage) btnSaveImage.title = getText('saveModal_saveImage');
+        if (btnSaveProjectIdea) btnSaveProjectIdea.title = getText('saveModal_saveIdea');
+        if (btnLoadProjectIdea) btnLoadProjectIdea.title = getText('saveModal_loadIdea');
+        const breatheSoloLabelEl = document.getElementById('breatheSoloLabel');
+        if (breatheSoloLabelEl) breatheSoloLabelEl.textContent = getText('breatheModal_solo');
+        const breatheGroupLabelEl = document.getElementById('breatheGroupLabel');
+        if (breatheGroupLabelEl) breatheGroupLabelEl.textContent = getText('breatheModal_group');
+        const resizeModalTitleEl = document.getElementById('resizeModalTitle');
+        if (resizeModalTitleEl) resizeModalTitleEl.textContent = getText('resizeModal_title');
+        const resizeModalPromptEl = document.getElementById('resizeModalPrompt');
+        if (resizeModalPromptEl) resizeModalPromptEl.textContent = getText('resizeModal_prompt');
+        if (btnConfirmResize) btnConfirmResize.textContent = getText('resizeModal_confirm');
+        const helpModalTitleEl = document.getElementById('helpModalTitle');
+        if (helpModalTitleEl) helpModalTitleEl.textContent = getText('help_title');
+        const helpIntroTextEl = document.getElementById('helpIntroText');
+        if (helpIntroTextEl) helpIntroTextEl.textContent = getText('help_intro');
+        if (btnStartTutorialFromModal) btnStartTutorialFromModal.textContent = getText('help_startTour');
+        if(btnInvert) btnInvert.title = getText('tooltip_invert');
+        if(btnRandom) btnRandom.title = getText('tooltip_random');
+        if(btnColorPicker) btnColorPicker.title = getText('tooltip_colorPicker');
+        if(btnSymmetry) btnSymmetry.title = getText('tooltip_symmetry');
+        if(btnRedo) btnRedo.title = getText('tooltip_redo');
+        if(btnUndo) btnUndo.title = getText('tooltip_undo');
+        if(btnDark) btnDark.title = getText('tooltip_dark');
+        if(btnSpecialReset) btnSpecialReset.title = getText('tooltip_specialReset');
+        if(btnResetBoard) btnResetBoard.title = getText('tooltip_resetBoard');
+        if(btnResizeUp) btnResizeUp.title = getText('tooltip_resizeUp');
+        if(btnResizeDown) btnResizeDown.title = getText('tooltip_resizeDown');
+        if(btnSave) btnSave.title = getText('tooltip_save');
+        if(btnShowBreatheMenu) btnShowBreatheMenu.title = getText('tooltip_breathe');
+        if(btnTutorial) btnTutorial.title = getText('tooltip_tutorial');
+        if(btnLangToggle) btnLangToggle.textContent = currentLang === 'en' ? 'EN' : 'HE';
+        
+        const allButtonsForAria = document.querySelectorAll('.ctrl');
+        allButtonsForAria.forEach(btn => {
+            if (btn.title) {
+              btn.setAttribute('aria-label', btn.title)
+            }
+        });
+      }
+      
+      // ---- Language Switching Logic ----
+      function changeLanguage(lang) {
+        currentLang = lang;
+
+        // --- RTL/LTR Logic for Help Modal ---
+        const helpModalInnerContainer = document.getElementById('helpModalInnerContainer');
+        if (lang === 'he') {
+            helpModalInnerContainer.classList.add('rtl-mode');
+        } else { // 'en'
+            helpModalInnerContainer.classList.remove('rtl-mode');
+        }
+        // --- End of RTL/LTR Logic ---
+
+        PALETTES.forEach(p => {
+          const key = Object.keys(translations).find(k => translations[k].en === p.originalName);
+          if (key) {
+            p.name = getText(key);
+          }
+        });
+
+        setTextContent();
+        
+        // Refresh dynamic UI elements
+        updatePaletteHeader();
+        // If help modal is open, refresh its content
+        if (helpModal.classList.contains('modal-visible')) {
+            populateHelpModal();
+        }
+
+        try {
+          localStorage.setItem('userLanguage', lang);
+        } catch (e) {
+          console.warn('Could not save language to localStorage.');
+        }
+      }
+
+      function toggleLanguage() {
+        const newLang = currentLang === 'en' ? 'he' : 'en';
+        changeLanguage(newLang);
+      }
+      
+      function setAllTutorialControlsEnabled(enabled) { document.querySelectorAll('.ctrl').forEach(btn => { btn.disabled = !enabled; if (enabled) { btn.classList.remove('tutorial-active-button', 'glow-animation', 'glow-animation-separator'); } }); }
+      
+      function animateFinalMessage() {
+          const msgPart1 = document.getElementById('finalMsgPart1');
+          const msgHint = document.getElementById('finalMsgHint');
+          const startBtn = document.getElementById('startCreatingBtn');
+          
+          msgPart1.textContent = getText('tutorial_outro1');
+          msgHint.textContent = getText('tutorial_outro2');
+
+          finalMessageModal.classList.add('visible');
+          setTimeout(() => { msgPart1.style.opacity = '1'; }, 0);
+          setTimeout(() => { msgHint.style.opacity = '1'; }, 800); 
+          setTimeout(() => { startBtn.style.opacity = '1'; }, 1400); 
+      }
+      function advanceTutorial() {
+          currentTutorialStep++;
+          const step = tutorialSteps[currentTutorialStep];
+          if (step.isFinalScreen) {
+              tutorialText.classList.remove('visible');
+              animateFinalMessage();
+          } else {
+              setupTutorialStep();
+          }
+      }
+      function setupTutorialStep() {
+          const resizeStepIndex = tutorialSteps.findIndex(step => step.btnId === 'btnResizeUp');
+          if (currentTutorialStep >= resizeStepIndex) { skipTutorialBtn.style.display = 'none'; } 
+          else { skipTutorialBtn.style.display = 'block'; }
+          setAllTutorialControlsEnabled(false);
+          const step = tutorialSteps[currentTutorialStep];
+          const activeBtn = document.getElementById(step.btnId);
+          if (activeBtn) {
+              const btnRect = activeBtn.getBoundingClientRect();
+              tutorialText.innerHTML = getText(step.textKey);
+              if (['btnGap', 'btnResizeUp', 'btnSave', 'btnShowBreatheMenu', 'btnTutorial', 'btnResizeDown', 'btnDark'].includes(step.btnId)) {
+                const textTop = btnRect.top + (btnRect.height / 2);
+                const textLeft = btnRect.left - 16;
+                tutorialText.style.top = `${textTop}px`;
+                tutorialText.style.left = `${textLeft}px`;
+                tutorialText.style.transform = `translate(-100%, -50%)`;
+              } else {
+                const textTop = btnRect.top - 16;
+                const textLeft = btnRect.left + (btnRect.width / 2);
+                tutorialText.style.top = `${textTop}px`;
+                tutorialText.style.left = `${textLeft}px`;
+                tutorialText.style.transform = 'translate(-50%, -100%)';
+              }
+              setTimeout(() => { tutorialText.classList.add('visible'); }, 500);
+              activeBtn.disabled = false;
+              activeBtn.classList.add('tutorial-active-button', step.animationClass);
+              const handleStepClick = () => {
+                  tutorialText.classList.remove('visible');
+                  activeBtn.classList.remove('tutorial-active-button', step.animationClass);
+                  step.action();
+                  activeBtn.removeEventListener('click', handleStepClick);
+                  if (!step.advancesManually) { setTimeout(advanceTutorial, 1200); }
+              };
+              activeBtn.addEventListener('click', handleStepClick);
+          }
+      }
+      function cleanupTutorialStart() {
+        if (tutorialStartHandler) {
+          board.removeEventListener('pointerdown', tutorialStartHandler);
+          tutorialStartHandler = null;
+        }
+        board.classList.remove('tutorial-board-pulse');
+      }
+
+      function skipTutorial() {
+          cleanupTutorialStart();
+          isTutorialActive = false;
+          tutorialContainer.style.transition = 'opacity 1000ms ease-in-out';
+          tutorialContainer.style.opacity = '0';
+          setTimeout(() => { tutorialContainer.style.display = 'none'; tutorialText.classList.remove('visible'); }, 1000);
+          const controlsOverlay = document.getElementById('tutorialControlsOverlay');
+          if (controlsOverlay) { controlsOverlay.remove(); }
+          boardOverlay.style.opacity = '0';
+          finalMessageModal.classList.remove('visible');
+          setAllTutorialControlsEnabled(true);
+          if (tutorialInitialState) { applyState(tutorialInitialState); history = []; future = []; updateUndoRedoButtons(); } 
+          else { resetToGoldAndDefaultPalette(); }
+          try { localStorage.setItem('hasCompletedTutorial', 'true'); } catch (e) { console.warn('Could not save tutorial completion status to localStorage.'); }
+      }
+      async function endTutorialWithAnimation() {
+          cleanupTutorialStart();
+          startCreatingBtn.disabled = true;
+          boardOverlay.style.transition = 'opacity 1000ms ease-in-out';
+          boardOverlay.style.opacity = '1';
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (tutorialInitialState) { applyState(tutorialInitialState); } 
+          else { resetToGoldAndDefaultPalette(); }
+          isTutorialActive = false;
+          tutorialContainer.style.transition = 'opacity 1000ms ease-in-out';
+          tutorialContainer.style.opacity = '0';
+          finalMessageModal.classList.remove('visible');
+          const controlsOverlay = document.getElementById('tutorialControlsOverlay');
+          if (controlsOverlay) { controlsOverlay.remove(); }
+          setTimeout(() => { tutorialContainer.style.display = 'none'; tutorialText.classList.remove('visible'); }, 1000);
+          setAllTutorialControlsEnabled(true);
+          history = []; future = []; updateUndoRedoButtons();
+          try { localStorage.setItem('hasCompletedTutorial', 'true'); } catch (e) { console.warn('Could not save tutorial completion status to localStorage.'); }
+          boardOverlay.style.opacity = '0';
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          boardOverlay.style.transition = 'opacity 350ms ease-in-out';
+          startCreatingBtn.disabled = false;
+      }
+      function startTutorial() {
+          isTutorialActive = true;
+          currentTutorialStep = -1;
+          document.querySelectorAll('#finalMessageModal .msg-part, #finalMessageModal #startCreatingBtn').forEach(el => { el.style.opacity = '0'; });
+          tutorialInitialState = getCurrentState(); 
+          resetToGoldAndDefaultPalette(); 
+          history = []; future = []; updateUndoRedoButtons();
+          
+          const controlsOverlay = document.createElement('div');
+          controlsOverlay.id = 'tutorialControlsOverlay';
+          controlsOverlay.style.position = 'absolute';
+          controlsOverlay.style.inset = '0';
+          controlsOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.55)';
+          controlsOverlay.style.borderRadius = '8px';
+          controlsOverlay.style.zIndex = '990'; 
+          controlsContainer.appendChild(controlsOverlay);
+          tutorialContainer.style.display = 'block';
+          
+          tutorialText.innerHTML = `${getText('tutorial_intro')}<br><small style="opacity: 0.7; font-size: 14px;">${getText('tutorial_touchToStart')}</small>`;
+          tutorialText.style.top = '50%';
+          tutorialText.style.left = '50%';
+          tutorialText.style.transform = 'translate(-50%, -50%)';
+          
+          setTimeout(() => { 
+            tutorialContainer.style.opacity = '1';
+            tutorialText.classList.add('visible');
+            board.classList.add('tutorial-board-pulse');
+          }, 10); 
+
+          tutorialStartHandler = () => {
+              cleanupTutorialStart();
+              tutorialText.classList.remove('visible');
+              setTimeout(advanceTutorial, 500); 
+          };
+
+          board.addEventListener('pointerdown', tutorialStartHandler, { once: true });
+      }
+
+      async function initializeApp() {
+        const splashScreen = document.getElementById('splashScreen');
+        const splashText = document.getElementById('splashText');
+        const focusButton = document.getElementById('btnSpecialReset');
+        
+        initializeTutorialSteps();
+        
+        // Language detection from localStorage
+        try {
+            const savedLang = localStorage.getItem('userLanguage');
+            if (savedLang && (savedLang === 'en' || savedLang === 'he')) {
+                currentLang = savedLang;
+            }
+        } catch(e) {
+            console.warn('Could not read language from localStorage.');
+        }
+
+        // Initial UI setup based on language
+        changeLanguage(currentLang);
+
+        buildBoard(n, false); 
+        applyInitialPattern();
+        hasPerformedInitialAutofill = true;
+        
+        applySeparator();
+        updateUndoRedoButtons();
+        setBrushMode(true);
+        updateSymmetryUI();
+        updateColorPickerButtonUI();
+        updateGlowEffect();
+        updateLayout();
+
+        // ---- Event Listeners ----
+        btnRandom.addEventListener('click', (e) => handleCtrlClick(e, randomizeAll));
+        btnInvert.addEventListener('click', (e) => handleCtrlClick(e, invertGrid));
+        btnPalette.addEventListener('click', (e) => handleCtrlClick(e, () => switchPalette()));
+        btnResetBoard.addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(resetToGoldAndDefaultPalette)));
+        btnSpecialReset.addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(() => performAction(specialReset))));
+        btnResizeUp.addEventListener('click', (e) => handleCtrlClick(e, () => resizeGrid(true)));
+        btnResizeDown.addEventListener('click', (e) => handleCtrlClick(e, () => resizeGrid(false)));
+        btnSave.addEventListener('click', (e) => handleCtrlClick(e, savePNG));
+        btnGap.addEventListener('click', (e) => handleCtrlClick(e, cycleSeparator));
+        btnBrushMode.addEventListener('click', (e) => handleCtrlClick(e, toggleBrushMode));
+        btnUndo.addEventListener('click', (e) => handleCtrlClick(e, undo));
+        btnRedo.addEventListener('click', (e) => handleCtrlClick(e, redo));
+        btnTutorial.addEventListener('click', (e) => handleCtrlClick(e, openHelpModal));
+        btnSymmetry.addEventListener('click', (e) => handleCtrlClick(e, cycleSymmetryMode));
+        btnShowBreatheMenu.addEventListener('click', () => openBreatheModal());
+        btnColorPicker.addEventListener('click', (e) => handleCtrlClick(e, handleColorPickerClick));
+        btnDark.addEventListener('click', (e) => handleCtrlClick(e, goDarkAction));
+        btnModalClose.addEventListener('click', closeModal);
+        saveModal.addEventListener('click', (e) => { if (e.target === saveModal) { closeModal(); } });
+        btnBreatheModalClose.addEventListener('click', closeBreatheModal);
+        breatheModal.addEventListener('click', (e) => { if (e.target === breatheModal) { closeBreatheModal(); } });
+        btnStartSoloBreathe.addEventListener('click', () => { closeBreatheModal(); startBreathingEffect(false); });
+        btnStartGroupBreathe.addEventListener('click', () => { closeBreatheModal(); startBreathingEffect(true); });
+        colorPickerModal.addEventListener('click', (e) => { if (e.target === colorPickerModal) { closeColorPickerModal(); } });
+        btnHelpModalClose.addEventListener('click', closeHelpModal);
+        helpModal.addEventListener('click', (e) => { if (e.target === helpModal) { closeHelpModal(); } });
+        btnStartTutorialFromModal.addEventListener('click', () => { closeHelpModal(); startTutorial(); });
+        btnNextPalette.addEventListener('click', () => navigateColorPages(true));
+        btnPrevPalette.addEventListener('click', () => navigateColorPages(false));
+        btnConfirmResize.addEventListener('click', handleConfirmResize);
+        resizeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { handleConfirmResize(); } });
+        btnResizeModalClose.addEventListener('click', closeResizeModal);
+        resizeModal.addEventListener('click', (e) => { if (e.target === resizeModal) { closeResizeModal(); } });
+        colorPickerModal.addEventListener('wheel', handlePaletteWheel);
+        colorPickerModal.addEventListener('touchstart', handleTouchStart, { passive: true });
+        colorPickerModal.addEventListener('touchend', handleTouchEnd, { passive: true });
+        btnSaveImage.addEventListener('click', handleSaveImage);
+        btnSaveProjectIdea.addEventListener('click', handleSaveProject);
+        btnLoadProjectIdea.addEventListener('click', handleLoadProject);
+        projectFileInput.addEventListener('change', onProjectFileSelected);
+        document.querySelectorAll('.ctrl').forEach(btn => {
+            btn.addEventListener('pointerdown', handlePointerDownCtrl);
+            btn.addEventListener('pointerup', hideLongPressDisplay);
+            btn.addEventListener('pointerleave', hideLongPressDisplay);
+        });
+        skipTutorialBtn.addEventListener('click', skipTutorial);
+        startCreatingBtn.addEventListener('click', endTutorialWithAnimation);
+        btnLangToggle.addEventListener('click', toggleLanguage);
+        window.addEventListener('resize', updateLayout);
+        window.addEventListener('contextmenu', e => e.preventDefault());
+
+
+        // --- Splash Screen Animation ---
+        splashText.style.animation = 'fadeInText 2.5s linear forwards';
+        await new Promise(r => setTimeout(r, 5000));
+        splashText.style.animation = 'fadeOutText 1.5s linear forwards';
+        await new Promise(r => setTimeout(r, 1500));
+        focusButton.classList.add('splash-tutorial-focus');
+        splashText.style.display = 'none';
+        await new Promise(r => setTimeout(r, 1500)); 
+        splashScreen.style.opacity = '0';
+        await new Promise(r => setTimeout(r, 2000));
+        splashScreen.remove();
+        focusButton.classList.remove('splash-tutorial-focus');
+      }
+
+      initializeApp();
+
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
