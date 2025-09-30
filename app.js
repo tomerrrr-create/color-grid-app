@@ -11,6 +11,15 @@
 
       // ---- I18N Translations Object ----
       const translations = {
+        help_category_evolution: { en: "Evolution", he: "אבולוציה", ru: "Эволюция", nl: "Evolutie" },
+        help_category_tips: { en: "Tips & Tricks", he: "טיפים וטריקים", ru: "Советы и хитрости", nl: "Tips & Trucs" },
+        help_tip1: { en: "Long-press Sim Mode to prep the board: max size, dark background, and lightest brush.", he: "לחיצה ארוכה על מצב סימולציה מכינה את הלוח ליצירה: גודל מקסימלי, רקע כהה ומכחול בהיר.", ru: "Длительное нажатие на режим симуляции готовит холст: макс. размер, тёмный фон и светлая кисть.", nl: "Druk lang op Sim Modus om het bord voor te bereiden: max. grootte, donkere achtergrond en lichtste penseel." },
+        help_tip2: { en: "Long-press the Palette button to open a gallery for quick selection.", he: "לחיצה ארוכה על כפתור הפלטות פותחת גלריה לבחירה מהירה של פלטה.", ru: "Длительное нажатие на кнопку палитры открывает галерею для быстрого выбора.", nl: "Druk lang op de Paletknop om een galerij te openen voor een snelle keuze." },
+        help_tip3: { en: "Long-press a tile to open the color picker.", he: "לחיצה ארוכה על אריח בלוח פותחת את תפריט בחירת הצבע.", ru: "Длительное нажатие на плитку открывает палитру цветов.", nl: "Druk lang op een tegel om de kleurenkiezer te openen." },
+        help_tip4: { en: "With a color selected, long-press a tile to deselect it.", he: "כשיש צבע נבחר, לחיצה ארוכה על אריח מבטלת את הבחירה.", ru: "Если цвет выбран, длительное нажатие на плитку отменит выбор.", nl: "Als een kleur is geselecteerd, druk lang op een tegel om de selectie op te heffen." },
+        help_tip5: { en: "Long-press the resize buttons (+/-) to set a custom grid size.", he: "לחיצה ארוכה על כפתורי הגדלה/הקטנה מאפשרת לבחור גודל מותאם אישית.", ru: "Длительное нажатие на кнопки размера (+/-) позволяет задать свой размер сетки.", nl: "Druk lang op de formaatknoppen (+/-) om een aangepaste rastergrootte in te stellen." },
+        help_tip6: { en: "Long-press the 'Life' button to configure its evolution rules.", he: "לחיצה ארוכה על כפתור \"משחק החיים\" מאפשרת להגדיר את חוקי האבולוציה.", ru: "Длительное нажатие на кнопку 'Жизнь' позволяет настроить правила эволюции.", nl: "Druk lang op de 'Leven'-knop om de evolutieregels te configureren." },
+
         splashTitle: { en: "Follow Your Intuition", he: "היום יצרתי", ru: "Следуй своей интуиции", nl: "Volg je intuïtie" },
         startCreating: { en: "Start Creating", he: "יצירה", ru: "Начать творить", nl: "Begin met creëren" },
         skip: { en: "Skip", he: "דלגו", ru: "Пропустить", nl: "Overslaan" },
@@ -74,11 +83,20 @@
         paletteName_noise: { en: "Brown Noise", he: "מטילי זהב", ru: "Золотой запас", nl: "Goudkoorts" },
         paletteName_cosmos: { en: "Cosmos", he: "הקיום", ru: "Космос", nl: "Kosmos" },
         paletteName_jasmine: { en: "Jasmine Dream", he: "יסמין", ru: "Жасминовая мечта", nl: "Jasmijndroom" },
-        paletteName_breeze: { en: "Breeze", he: "בריזה", ru: "Бриз", nl: "Bries" },
         paletteName_sky: { en: "Sky", he: "רקיע", ru: "Небо", nl: "Lucht" },
 paletteName_healing: { en: "Healing", he: "ריפוי", ru: "Исцеление", nl: "Genezing" },
 paletteName_focus: { en: "Focus", he: "ריכוז", ru: "Фокус", nl: "Focus" },
-        paletteName_cosmicRift: { en: "Cosmic Rift", he: "שבר קוסמי", ru: "Космический разлом", nl: "Kosmische Spleet" },
+
+
+help_category_simulations: { en: "Simulations & Automations", he: "סימולציות ואוטומציה", ru: "Симуляции и автоматизация", nl: "Simulaties & Automatisering" },
+
+        help_toggleSimMode: { en: 'Simulation Mode: Toggles a UI layout focused on automation tools. Long-press prepares the board for simulation (max size, dark background, light brush).', he: 'מצב סימולציה: משנה את פריסת הכפתורים לממשק ייעודי לסימולציות. לחיצה ארוכה מכינה את הלוח לסימולציה (גודל מקסימלי, רקע כהה, מכחול בהיר).', ru: 'Режим симуляции: переключает раскладку интерфейса на инструменты автоматизации. Долгое нажатие подготавливает доску для симуляции (макс. размер, тёмный фон, светлая кисть).', nl: 'Simulatiemodus: Schakelt een UI-layout in die gericht is op automatiseringstools. Lang indrukken bereidt het bord voor op simulatie (maximale grootte, donkere achtergrond, lichte kwast).' },
+        
+        help_playPauseLife: { en: 'Play/Pause Life: (In Sim Mode) Runs the "Game of Life" as a continuous animation, generation after generation. Press again to pause.', he: 'הפעלה/השהיה: (במצב סימולציה) מריץ את "משחק החיים" כאנימציה רציפה, דור אחר דור. לחיצה נוספת משהה את הסימולציה.', ru: 'Запуск/Пауза Жизни: (в режиме симуляции) запускает "Игру в жизнь" как непрерывную анимацию, поколение за поколением. Нажмите ещё раз для паузы.', nl: 'Leven Starten/Pauzeren: (In Sim Modus) Voert het "Game of Life" uit als een continue animatie, generatie na generatie. Druk nogmaals om te pauzeren.' },
+
+        // --- Updated Keys ---
+
+
 
         help_invert: { en: 'Invert all colors to their opposite in the current palette.', he: 'הופך כל צבע על הלוח לצבע המשלים שלו בפלטה הנוכחית.', ru: 'Инвертирует все цвета на их противоположные в текущей палитре.', nl: 'Keert alle kleuren om naar hun tegenovergestelde in het huidige palet.' },
         help_palette: { en: 'Cycle through available color palettes.', he: 'מעבר בין פלטות צבעים.', ru: 'Переключает доступные цветовые палитры.', nl: 'Bladert door beschikbare kleurpaletten.' },
@@ -118,66 +136,104 @@ paletteName_focus: { en: "Focus", he: "ריכוז", ru: "Фокус", nl: "Focus
       const availableLangs = ['en', 'he', 'ru', 'nl'];
       let currentLang = 'en';
       
-      const PALETTES = [
-{
-  name: translations.paletteName_journey[currentLang],
-  originalName: "Journey",
-  emoji: '🌓',
-  colors: ["#000000", "#424242", "#7B1FA2", "#5E35B1", "#3949AB", "#673AB7", "#8E24AA", "#AD1457", "#3F51B5", "#B71C1C", "#9C27B0", "#C2185B", "#C62828", "#2E7D32", "#D32F2F", "#D81B60", "#AB47BC", "#757575", "#1976D2", "#E91E63", "#E53935", "#FF1744", "#EC407A", "#F44336", "#1E88E5", "#0097A7", "#EF5350", "#F4511E", "#FF4081", "#43A047", "#FF5252", "#FF5722", "#2196F3", "#F06292", "#4CAF50", "#FF7043", "#F57C00", "#9E9E9E", "#42A5F5", "#FB8C00", "#66BB6A", "#FF8C00", "#00BCD4", "#AFB42B", "#F48FB1", "#FF9800", "#8BC34A", "#26C6DA", "#FFA726", "#BDBDBD", "#9CCC65", "#FBC02D", "#CDDC39", "#FFE082", "#FFEE58"]
-},        { name: translations.paletteName_autumn[currentLang], originalName: "New-York Autumn", emoji: '🍂', colors: ["#3E2723", "#4E342E", "#8B0000", "#37474F", "#5D4037", "#2F4F4F", "#8B3A3A", "#8B4513", "#A52A2A", "#B22222", "#795548", "#556B2F", "#607D8B", "#808000", "#6B8E23", "#D2691E", "#B8860B", "#CD853F", "#FF7F50", "#C2A14A", "#FF8C00", "#DAA520", "#F4A460"] },
-        { name: translations.paletteName_summer[currentLang], originalName: "Brazilian Summer", emoji: '☀️', colors: ["#2962FF", "#F50057", "#FF1493", "#1E90FF", "#FF5722", "#00A86B", "#FF69B4", "#FF7F50", "#00B0FF", "#00C853", "#00BFFF", "#2ECC71", "#00C4FF", "#64DD17", "#00E676", "#40E0D0", "#FFC107", "#1DE9B6", "#FFD700", "#FDD835", "#00FF7F", "#18FFFF", "#FFEB3B"] },
-        { name: translations.paletteName_winter[currentLang], originalName: "Icelandic Winter", emoji: '❄️', colors: ["#263238", "#37474F", "#455A64", "#546E7A", "#78909C", "#9E9E9E", "#03A9F4", "#90A4AE", "#29B6F6", "#4FC3F7", "#B0BEC5", "#BDBDBD", "#4DD0E1", "#81D4FA", "#80DEEA", "#CFD8DC", "#B3E5FC", "#A7FFEB", "#ECEFF1", "#E1F5FE", "#E6F7FF", "#F5F5F5", "#FFFFFF"] },
-        { name: translations.paletteName_spring[currentLang], originalName: "Japanese Spring", emoji: '🌸', colors: ["#B39DDB", "#F48FB1", "#64B5F6", "#81C784", "#90CAF9", "#87CEFA", "#81D4FA", "#A5D6A7", "#D1C4E9", "#FFB7C5", "#F8BBD0", "#80DEEA", "#FFC0CB", "#C1E1C1", "#FFD1DC", "#B3E5FC", "#DCEDC8", "#E6E6FA", "#FFECB3", "#A7FFEB", "#FFF59D", "#FFF9C4", "#FFF8DC"] },
-        { name: translations.paletteName_rainforest[currentLang], originalName: "Amazon Rainforest", emoji: '🌳', colors: ["#013220", "#0B5345", "#145A32", "#0E6655", "#196F3D", "#117864", "#117A65", "#1D8348", "#1E8449", "#138D75", "#229954", "#239B56", "#16A085", "#27AE60", "#28B463", "#45B39D", "#52BE80", "#2ECC71", "#48C9B0", "#73C6B6", "#58D68D", "#82E0AA", "#A9DFBF"] },
-        { name: translations.paletteName_sunrise[currentLang], originalName: "Desert Sunrise", emoji: '🐪', colors: ["#4B0610", "#5A0C16", "#69121C", "#781822", "#861E28", "#95242E", "#A42A34", "#B33A3A", "#C23640", "#C94752", "#D15864", "#D86976", "#E07A88", "#E78B9A", "#EE9CAC", "#DDA0DD", "#BDB0D0", "#C3B1E1", "#F1A8AB", "#F3B4A9", "#D8BFD8", "#F6BFA8", "#F8CBA6", "#FAD6A5", "#E6E6FA"] },
-        { name: translations.paletteName_cherry[currentLang], originalName: "Cherry Blossom", emoji: '桜', iconHTML: '<span style="color: #FFB6C1;">桜</span>', colors: ["#69476E", "#86688B", "#8F6AAD", "#A284C2", "#A389A4", "#BC8F8F", "#B59ECB", "#D4A3A3", "#C0A9BD", "#BDB0D0", "#C3B1E1", "#C9B7D4", "#E1B5B5", "#D8BFD8", "#E0BBE4", "#D6CADD", "#FBC4AB", "#EECBCB", "#FFC4D0", "#DCD0E2", "#FFD1DC", "#E6DCE5", "#F4DEDE", "#FFDDE1", "#F8E9E9"] },
-        { name: translations.paletteName_sea[currentLang], originalName: "Deep Sea", emoji: '🌊', colors: ["#000000", "#0B0C10", "#1C1C1C", "#000080", "#252525", "#00008B", "#191970", "#0000CD", "#36454F", "#483D8B", "#2F4F4F", "#0000FF", "#8A2BE2", "#9932CC", "#6A5ACD", "#008080", "#008B8B", "#BA55D3", "#9370DB", "#5F9EA0", "#20B2AA", "#66CDAA", "#40E0D0", "#00FFFF", "#7FFFD4"] },
-        { name: translations.paletteName_noise[currentLang], originalName: "Brown Noise", iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><polygon points="7,3 17,3 21,21 3,21" style="fill:#FFD700;" /></svg>', colors: ["#3E2F00", "#523F00", "#665000", "#7A6000", "#8E7000", "#A28000", "#B69000", "#CAA000", "#DEB000", "#F2C000", "#F4C306", "#F6C70C", "#F8CA12", "#FACC18", "#FCD01E", "#FED324", "#FFD52A", "#FFD700", "#FFD730", "#FFD936", "#FFDB3C", "#FFDD42", "#FFDF48", "#FFE14E", "#FFE354"] },
-        { name: translations.paletteName_cosmos[currentLang], originalName: "Cosmos", emoji: '🌌', colors: ["#000000", "#0B0C10", "#00008B", "#1F2833", "#191970", "#263238", "#4B0082", "#37474F", "#483D8B", "#8A2BE2", "#BA55D3", "#9370DB", "#1E90FF", "#FF00FF", "#DA70D6", "#FF69B4", "#00BFFF", "#40E0D0", "#B0E0E6", "#FFFACD", "#F8F8FF", "#E0FFFF", "#FFFFFF"] },
-        { name: translations.paletteName_jasmine[currentLang], originalName: "Jasmine Dream", iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', colors: ["#4B0082", "#5A189A", "#682A7A", "#6A1E97", "#7B1E8A", "#743993", "#804090", "#854772", "#8C4888", "#8F588C", "#986089", "#9B5AA3", "#A0636A", "#9E6F80", "#AB6BB7", "#A97585", "#A8769C", "#AE7E82", "#B97F62", "#B885B1", "#B39178", "#B59095", "#C4927E", "#C69A7B", "#D29B5A", "#C59EAA", "#C2AA8E", "#C9AD70", "#DEAE77", "#D2B7A3", "#E1B674", "#D0C187", "#E3BF68", "#E0CF9C", "#E5D680", "#F0E595"] },
-        { name: translations.paletteName_breeze[currentLang], originalName: "Breeze", emoji: '🍃', colors: ["#2E8B57", "#20B2AA", "#3CB371", "#00BFFF", "#48D1CC", "#66CDAA", "#40E0D0", "#D2B48C", "#87CEEB", "#87CEFA", "#ADD8E6", "#98FB98", "#B0E0E6", "#7FFFD4", "#EEDD82", "#AFEEEE", "#F0E68C", "#FFEBCD", "#F5F5DC", "#F0F8FF", "#FFF5EE", "#F8F8FF", "#F0FFF0", "#FFFAF0", "#FFFFFF"] },
-        { name: translations.paletteName_sky[currentLang], originalName: "Sky", emoji: '☁️', colors: ["#303F9F", "#0D47A1", "#304FFE", "#3F51B5", "#01579B", "#1565C0", "#3D5AFE", "#2962FF", "#1976D2", "#0277BD", "#2979FF", "#1E88E5", "#0288D1", "#0091EA", "#039BE5", "#03A9F4", "#00B0FF", "#29B6F6", "#4FC3F7", "#40C4FF", "#81D4FA", "#B3E5FC", "#E1F5FE"]},
-
-
- {
-          name: translations.paletteName_cosmicRift[currentLang],
-          originalName: "Cosmic Rift",
-          emoji: '🌀',
-          colors: [
-            "#0D0221", "#0F1035", "#240E43", "#3C1563", "#56347A", "#711DB0", "#9F2B68",
-            "#F50057", "#FF00E5", "#00F6FF", "#30D5C8", "#ADFF2F", "#C1FF72",
-            "#FF8C00", "#FFD300", "#88D4FF", "#F0F8FF"]},
-
-        {
-          name: translations.paletteName_healing[currentLang],
-          originalName: "Healing",
-          emoji: '💧',
-          colors: [
-            "#1A3A3A", "#FFFFFF", "#FADADD", "#F9C6C5", "#F7A3A2", "#E88282", "#FFDAB9", "#FFC3A0",
-            "#FFFACD", "#FAFAD2", "#FFDEAD", "#F3D6A3", "#DEB887", "#D2B48C", "#F0FFF0", "#D3F2D3",
-            "#B3E0B3", "#98D8AA", "#77C38B", "#58A16F", "#AFEEEE", "#A5E1E1", "#80D0C7", "#64BDB3",
-            "#48A9A6", "#3E8E7E", "#E0FFFF", "#CDEAF5", "#B0E0E6", "#87CEEB", "#64A6C4", "#4682B4",
-            "#E6E6FA", "#D8BFD8", "#C3B1E1", "#B19CD9", "#9370DB", "#7A68A6", "#F5F5DC", "#F5DEB3",
-            "#D3D3D3", "#C0C0C0", "#A9A9A9", "#808080"
-          ]
-        },
-        {
-          name: translations.paletteName_focus[currentLang],
-          originalName: "Focus",
-          emoji: '🧘',
-          colors: [
-            "#000000", "#1A0B2E", "#0B172E", "#333333", "#7F7F7F", "#CCCCCC", "#4A0072", "#8E24AA",
-            "#C2185B", "#E91E63", "#EC407A", "#F8BBD0", "#B71C1C", "#D32F2F", "#F4511E", "#FB8C00",
-            "#FFA726", "#FFECB3", "#FBC02D", "#FDD835", "#FFEE58", "#FFF176", "#FFF9C4", "#FFFFFF",
-            "#1B5E20", "#388E3C", "#4CAF50", "#81C784", "#A5D6A7", "#E8F5E9", "#0D47A1", "#1976D2",
-            "#2196F3", "#42A5F5", "#90CAF9", "#E3F2FD", "#004D40", "#00796B", "#009688", "#4DB6AC",
-            "#80CBC4", "#B2DFDB", "#1A237E", "#303F9F", "#3F51B5", "#5C6BC0", "#9FA8DA", "#C5CAE9"
-          ]
-        }
-
-
-      ];
-
+const PALETTES = [
+    // --- Group 1: The Foundations ---
+    {
+        name: translations.paletteName_journey[currentLang],
+        originalName: "Journey",
+        emoji: '🌓',
+        colors: ["#000000", "#424242", "#7B1FA2", "#5E35B1", "#3949AB", "#673AB7", "#8E24AA", "#AD1457", "#3F51B5", "#B71C1C", "#9C27B0", "#C2185B", "#C62828", "#2E7D32", "#D32F2F", "#D81B60", "#AB47BC", "#757575", "#1976D2", "#E91E63", "#E53935", "#FF1744", "#EC407A", "#F44336", "#1E88E5", "#0097A7", "#EF5350", "#F4511E", "#FF4081", "#43A047", "#FF5252", "#FF5722", "#2196F3", "#F06292", "#4CAF50", "#FF7043", "#F57C00", "#9E9E9E", "#42A5F5", "#FB8C00", "#66BB6A", "#FF8C00", "#00BCD4", "#AFB42B", "#F48FB1", "#FF9800", "#8BC34A", "#26C6DA", "#FFA726", "#BDBDBD", "#9CCC65", "#FBC02D", "#CDDC39", "#FFE082", "#FFEE58"]
+    },
+    {
+        name: translations.paletteName_focus[currentLang],
+        originalName: "Focus",
+        emoji: '🧘',
+        colors: ["#000000", "#1A0B2E", "#0B172E", "#333333", "#7F7F7F", "#CCCCCC", "#4A0072", "#8E24AA", "#C2185B", "#E91E63", "#EC407A", "#F8BBD0", "#B71C1C", "#D32F2F", "#F4511E", "#FB8C00", "#FFA726", "#FFECB3", "#FBC02D", "#FDD835", "#FFEE58", "#FFF176", "#FFF9C4", "#FFFFFF", "#1B5E20", "#388E3C", "#4CAF50", "#81C784", "#A5D6A7", "#E8F5E9", "#0D47A1", "#1976D2", "#2196F3", "#42A5F5", "#90CAF9", "#E3F2FD", "#004D40", "#00796B", "#009688", "#4DB6AC", "#80CBC4", "#B2DFDB", "#1A237E", "#303F9F", "#3F51B5", "#5C6BC0", "#9FA8DA", "#C5CAE9"]
+    },
+    // --- Group 2: The Four Seasons ---
+    { 
+        name: translations.paletteName_spring[currentLang], 
+        originalName: "Japanese Spring", 
+        emoji: '🌸', 
+        colors: ["#B39DDB", "#F48FB1", "#64B5F6", "#81C784", "#90CAF9", "#87CEFA", "#81D4FA", "#A5D6A7", "#D1C4E9", "#FFB7C5", "#F8BBD0", "#80DEEA", "#FFC0CB", "#C1E1C1", "#FFD1DC", "#B3E5FC", "#DCEDC8", "#E6E6FA", "#FFECB3", "#A7FFEB", "#FFF59D", "#FFF9C4", "#FFF8DC"] 
+    },
+    { 
+        name: translations.paletteName_summer[currentLang], 
+        originalName: "Brazilian Summer", 
+        emoji: '☀️', 
+        colors: ["#2962FF", "#F50057", "#FF1493", "#1E90FF", "#FF5722", "#00A86B", "#FF69B4", "#FF7F50", "#00B0FF", "#00C853", "#00BFFF", "#2ECC71", "#00C4FF", "#64DD17", "#00E676", "#40E0D0", "#FFC107", "#1DE9B6", "#FFD700", "#FDD835", "#00FF7F", "#18FFFF", "#FFEB3B"] 
+    },
+    { 
+        name: translations.paletteName_autumn[currentLang], 
+        originalName: "New-York Autumn", 
+        emoji: '🍂', 
+        colors: ["#3E2723", "#4E342E", "#8B0000", "#37474F", "#5D4037", "#2F4F4F", "#8B3A3A", "#8B4513", "#A52A2A", "#B22222", "#795548", "#556B2F", "#607D8B", "#808000", "#6B8E23", "#D2691E", "#B8860B", "#CD853F", "#FF7F50", "#C2A14A", "#FF8C00", "#DAA520", "#F4A460"] 
+    },
+    { 
+        name: translations.paletteName_winter[currentLang], 
+        originalName: "Icelandic Winter", 
+        emoji: '❄️', 
+        colors: ["#263238", "#37474F", "#455A64", "#546E7A", "#78909C", "#9E9E9E", "#03A9F4", "#90A4AE", "#29B6F6", "#4FC3F7", "#B0BEC5", "#BDBDBD", "#4DD0E1", "#81D4FA", "#80DEEA", "#CFD8DC", "#B3E5FC", "#A7FFEB", "#ECEFF1", "#E1F5FE", "#E6F7FF", "#F5F5F5", "#FFFFFF"] 
+    },
+    // --- Group 3: Scenes from Nature ---
+    { 
+        name: translations.paletteName_rainforest[currentLang], 
+        originalName: "Amazon Rainforest", 
+        emoji: '🌳', 
+        colors: ["#013220", "#0B5345", "#145A32", "#0E6655", "#196F3D", "#117864", "#117A65", "#1D8348", "#1E8449", "#138D75", "#229954", "#239B56", "#16A085", "#27AE60", "#28B463", "#45B39D", "#52BE80", "#2ECC71", "#48C9B0", "#73C6B6", "#58D68D", "#82E0AA", "#A9DFBF"] 
+    },
+    { 
+        name: translations.paletteName_sunrise[currentLang], 
+        originalName: "Desert Sunrise", 
+        emoji: '🐪', 
+        colors: ["#4B0610", "#5A0C16", "#69121C", "#781822", "#861E28", "#95242E", "#A42A34", "#B33A3A", "#C23640", "#C94752", "#D15864", "#D86976", "#E07A88", "#E78B9A", "#EE9CAC", "#DDA0DD", "#BDB0D0", "#C3B1E1", "#F1A8AB", "#F3B4A9", "#D8BFD8", "#F6BFA8", "#F8CBA6", "#FAD6A5", "#E6E6FA"] 
+    },
+    { 
+        name: translations.paletteName_sea[currentLang], 
+        originalName: "Deep Sea", 
+        emoji: '🌊', 
+        colors: ["#000000", "#0B0C10", "#1C1C1C", "#000080", "#252525", "#00008B", "#191970", "#0000CD", "#36454F", "#483D8B", "#2F4F4F", "#0000FF", "#8A2BE2", "#9932CC", "#6A5ACD", "#008080", "#008B8B", "#BA55D3", "#9370DB", "#5F9EA0", "#20B2AA", "#66CDAA", "#40E0D0", "#00FFFF", "#7FFFD4"] 
+    },
+    { 
+        name: translations.paletteName_sky[currentLang], 
+        originalName: "Sky", 
+        emoji: '☁️', 
+        colors: ["#303F9F", "#0D47A1", "#304FFE", "#3F51B5", "#01579B", "#1565C0", "#3D5AFE", "#2962FF", "#1976D2", "#0277BD", "#2979FF", "#1E88E5", "#0288D1", "#0091EA", "#039BE5", "#03A9F4", "#00B0FF", "#29B6F6", "#4FC3F7", "#40C4FF", "#81D4FA", "#B3E5FC", "#E1F5FE"]
+    },
+    // --- Group 4: Themed & Gentle ---
+    { 
+        name: translations.paletteName_cherry[currentLang], 
+        originalName: "Cherry Blossom", 
+        emoji: '桜', 
+        iconHTML: '<span style="color: #FFB6C1;">桜</span>', 
+        colors: ["#69476E", "#86688B", "#8F6AAD", "#A284C2", "#A389A4", "#BC8F8F", "#B59ECB", "#D4A3A3", "#C0A9BD", "#BDB0D0", "#C3B1E1", "#C9B7D4", "#E1B5B5", "#D8BFD8", "#E0BBE4", "#D6CADD", "#FBC4AB", "#EECBCB", "#FFC4D0", "#DCD0E2", "#FFD1DC", "#E6Dce5", "#F4DEDE", "#FFDDE1", "#F8E9E9"] 
+    },
+    { 
+        name: translations.paletteName_jasmine[currentLang], 
+        originalName: "Jasmine Dream", 
+        iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', 
+        colors: ["#4B0082", "#5A189A", "#682A7A", "#6A1E97", "#7B1E8A", "#743993", "#804090", "#854772", "#8C4888", "#8F588C", "#986089", "#9B5AA3", "#A0636A", "#9E6F80", "#AB6BB7", "#A97585", "#A8769C", "#AE7E82", "#B97F62", "#B885B1", "#B39178", "#B59095", "#C4927E", "#C69A7B", "#D29B5A", "#C59EAA", "#C2AA8E", "#C9AD70", "#DEAE77", "#D2B7A3", "#E1B674", "#D0C187", "#E3BF68", "#E0CF9C", "#E5D680", "#F0E595"] 
+    },
+    {
+        name: translations.paletteName_healing[currentLang],
+        originalName: "Healing",
+        emoji: '✨',
+        colors: ["#1A3A3A", "#FFFFFF", "#FADADD", "#F9C6C5", "#F7A3A2", "#E88282", "#FFDAB9", "#FFC3A0", "#FFFACD", "#FAFAD2", "#FFDEAD", "#F3D6A3", "#DEB887", "#D2B48C", "#F0FFF0", "#D3F2D3", "#B3E0B3", "#98D8AA", "#77C38B", "#58A16F", "#AFEEEE", "#A5E1E1", "#80D0C7", "#64BDB3", "#48A9A6", "#3E8E7E", "#E0FFFF", "#CDEAF5", "#B0E0E6", "#87CEEB", "#64A6C4", "#4682B4", "#E6E6FA", "#D8BFD8", "#C3B1E1", "#B19CD9", "#9370DB", "#7A68A6", "#F5F5DC", "#F5DEB3", "#D3D3D3", "#C0C0C0", "#A9A9A9", "#808080"]
+    },
+    // --- Group 5: Abstract & Elemental ---
+    { 
+        name: translations.paletteName_noise[currentLang], 
+        originalName: "Brown Noise", 
+        iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><polygon points="7,3 17,3 21,21 3,21" style="fill:#FFD700;" /></svg>', 
+        colors: ["#3E2F00", "#523F00", "#665000", "#7A6000", "#8E7000", "#A28000", "#B69000", "#CAA000", "#DEB000", "#F2C000", "#F4C306", "#F6C70C", "#F8CA12", "#FACC18", "#FCD01E", "#FED324", "#FFD52A", "#FFD700", "#FFD730", "#FFD936", "#FFDB3C", "#FFDD42", "#FFDF48", "#FFE14E", "#FFE354"] 
+    },
+    { 
+        name: translations.paletteName_cosmos[currentLang], 
+        originalName: "Cosmos", 
+        emoji: '🌌', 
+        colors: ["#000000", "#0B0C10", "#00008B", "#1F2833", "#191970", "#263238", "#4B0082", "#37474F", "#483D8B", "#8A2BE2", "#BA55D3", "#9370DB", "#1E90FF", "#FF00FF", "#DA70D6", "#FF69B4", "#00BFFF", "#40E0D0", "#B0E0E6", "#FFFACD", "#F8F8FF", "#E0FFFF", "#FFFFFF"] 
+    }
+];
 
       // ---- Sort all palettes by luminance on startup ----
       PALETTES.forEach(palette => {
@@ -555,6 +611,24 @@ function getCurrentState() {
         hasUsedRandomize = true;
       }
 
+function shuffleExistingColors() {
+    const nonGoldTiles = tiles().filter(tile => !isGold(tile));
+    if (nonGoldTiles.length < 2) return;
+
+    const existingColors = nonGoldTiles.map(tile => getIndex(tile));
+
+    for (let i = existingColors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [existingColors[i], existingColors[j]] = [existingColors[j], existingColors[i]];
+    }
+
+    nonGoldTiles.forEach((tile, index) => {
+        setIndex(tile, existingColors[index]);
+    });
+}
+
+
+
       function getDarkestColorIndex(colors) {
           let darkestIndex = 0;
           let minLuminance = Infinity;
@@ -801,7 +875,7 @@ function getCurrentState() {
 
 
 function toggleSimMode() {
-  const duration = 600; // משך אנימציית ה-Fade
+  const duration = 500; // משך אנימציית ה-Fade
 
   // שלב 1: העלם את כל לוח הבקרה
   controlsContainer.style.opacity = '0';
@@ -818,7 +892,8 @@ function toggleSimMode() {
 
       const controlsToHide = [
           btnBrushMode, btnGap, btnResetBoard,
-          btnTutorial, btnSave, btnSpecialReset
+          btnTutorial, btnSave, btnSpecialReset,
+    btnPalette, btnInvert
       ];
 
       controlsToHide.forEach(btn => btn.classList.toggle('control-hidden', isSimModeActive));
@@ -1904,6 +1979,11 @@ function runBrightnessEvolution() {
           const btn = e.currentTarget;
           longPressTimer = setTimeout(() => {
               wasLongPress = true;
+
+if (btn.id === 'btnRandom') {
+    performAction(shuffleExistingColors);
+    return;
+}
               
 // --- START: MODIFIED LONG PRESS LOGIC ---
               if (btn.id === 'btnToggleSimMode') {
@@ -1966,147 +2046,158 @@ function runBrightnessEvolution() {
           }, LONG_PRESS_SHOW_MS);
       }
       
-      function populateHelpModal() {
-        const contentDiv = document.getElementById('helpModalContent');
-        contentDiv.innerHTML = '';
-        
-        const categories = {
-            inspiration: {
-                titleKey: 'help_category_inspiration',
-                buttons: ['btnPalette', 'btnRandom', 'btnInvert', 'btnSpecialReset', 'btnDark', 'btnGameOfLife', 'btnBrightnessEvo']
-            },
-            order: {
-                titleKey: 'help_category_order',
-                buttons: ['btnResizeUp', 'btnResizeDown', 'btnGap', 'btnResetBoard']
-            },
-            touch: {
-                titleKey: 'help_category_touch',
-                buttons: ['btnBrushMode', 'btnSymmetry', 'btnColorPicker']
-            },
-            expression: {
-                titleKey: 'help_category_expression',
-                buttons: ['btnSave', 'btnShowBreatheMenu']
-            },
-            tools: {
-                titleKey: 'help_category_tools',
-                buttons: ['btnUndo', 'btnRedo']
-            }
-        };
 
-        const helpData = {
-          'btnInvert': getText('help_invert'), 'btnPalette': getText('help_palette'), 'btnRandom': getText('help_random'),
-          'btnColorPicker': getText('help_colorPicker'), 'btnSymmetry': getText('help_symmetry'), 'btnBrushMode': getText('help_brushMode'),
-          'btnRedo': getText('help_redo'), 'btnUndo': getText('help_undo'), 'btnDark': getText('help_dark'),
-          'btnSpecialReset': getText('help_specialReset'), 'btnResetBoard': getText('help_resetBoard'),
-          'btnResizeUp': getText('help_resizeUp'), 'btnResizeDown': getText('help_resizeDown'), 'btnGap': getText('help_gap'),
-          'btnSave': getText('help_save'), 'btnShowBreatheMenu': getText('help_breathe'),
-          'btnGameOfLife': getText('help_gameOfLife'), 'btnBrightnessEvo': getText('help_brightnessEvo')
-        };
 
-        for (const categoryKey in categories) {
-            const category = categories[categoryKey];
-            
-            const titleEl = document.createElement('h3');
-            titleEl.className = 'help-category-title';
-            titleEl.textContent = getText(category.titleKey);
-            contentDiv.appendChild(titleEl);
+function populateHelpModal() {
+    const contentDiv = document.getElementById('helpModalContent');
+    contentDiv.innerHTML = '';
 
-            category.buttons.forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (!btn || !helpData[btnId]) return;
-
-                const helpItem = document.createElement('div');
-                helpItem.className = 'flex items-center gap-4';
-
-                const iconWrapper = document.createElement('div');
-                iconWrapper.className = 'help-item-icon-wrapper';
-                iconWrapper.innerHTML = btn.innerHTML;
-
-                const svg = iconWrapper.querySelector('svg');
-                if (svg && (btnId === 'btnBrushMode' || btnId === 'btnGap' || btnId === 'btnResizeUp' || btnId === 'btnResizeDown' || btnId === 'btnShowBreatheMenu')) {
-                    svg.style.width = 'var(--side-icon-size)';
-                    svg.style.height = 'var(--side-icon-size)';
-                }
-                
-                if (btn.id === 'btnSymmetry') {
-                    const originalPaths = btn.querySelectorAll('.part');
-                    const clonedPaths = iconWrapper.querySelectorAll('.part');
-                    originalPaths.forEach((part, index) => {
-                        if (clonedPaths[index]) {
-                            clonedPaths[index].style.stroke = part.style.stroke;
-                        }
-                    });
-                }
-                if (btn.id === 'btnBrushMode') {
-                    const path = iconWrapper.querySelector('svg path');
-                    if (path) {
-                        path.setAttribute('fill', isBrushModeOn ? '#fff' : '#000');
-                    }
-                }
-
-                const textWrapper = document.createElement('div');
-                textWrapper.textContent = helpData[btnId];
-                textWrapper.className = 'text-gray-300 text-sm';
-                
-                helpItem.appendChild(iconWrapper);
-                helpItem.appendChild(textWrapper);
-                contentDiv.appendChild(helpItem);
-            });
+    // 1. הגדרת הקטגוריות והכפתורים בסדר החדש
+    const categories = {
+        inspiration: {
+            titleKey: 'help_category_inspiration',
+            buttons: ['btnPalette', 'btnRandom', 'btnInvert', 'btnSpecialReset']
+        },
+        order: {
+            titleKey: 'help_category_order',
+            buttons: ['btnResizeUp', 'btnResizeDown', 'btnGap', 'btnDark']
+        },
+        touch: {
+            titleKey: 'help_category_touch',
+            buttons: ['btnBrushMode', 'btnSymmetry', 'btnColorPicker']
+        },
+        evolution: {
+            titleKey: 'help_category_evolution',
+            buttons: ['btnToggleSimMode', 'btnShowBreatheMenu', 'btnGameOfLife', 'btnBrightnessEvo', 'btnPlayPauseLife']
+        },
+        tools: {
+            titleKey: 'help_category_tools',
+            buttons: ['btnUndo', 'btnRedo', 'btnSave', 'btnResetBoard']
         }
-        
-        // --- START: Add Keyboard Shortcuts Section ---
-        const shortcutsTitle = document.createElement('h3');
-        shortcutsTitle.className = 'help-category-title';
-        shortcutsTitle.textContent = getText('help_category_shortcuts');
-        contentDiv.appendChild(shortcutsTitle);
+    };
 
-        const shortcutsContainer = document.createElement('div');
-        shortcutsContainer.className = 'space-y-2';
+    // 2. הגדרת הטקסטים שיוצגו עבור כל כפתור
+    const helpData = {
+        'btnPalette': getText('help_palette'), 'btnRandom': getText('help_random'), 'btnInvert': getText('help_invert'),
+        'btnSpecialReset': getText('help_specialReset'), 'btnResizeUp': getText('help_resizeUp'),
+        'btnResizeDown': getText('help_resizeDown'), 'btnGap': getText('help_gap'), 'btnDark': getText('help_dark'),
+        'btnBrushMode': getText('help_brushMode'), 'btnSymmetry': getText('help_symmetry'), 'btnColorPicker': getText('help_colorPicker'),
+        'btnToggleSimMode': getText('help_toggleSimMode'), 'btnShowBreatheMenu': getText('help_breathe'),
+        'btnGameOfLife': getText('help_gameOfLife'), 'btnBrightnessEvo': getText('help_brightnessEvo'),
+        'btnPlayPauseLife': getText('help_playPauseLife'), 'btnUndo': getText('help_undo'), 'btnRedo': getText('help_redo'),
+        'btnSave': getText('help_save'), 'btnResetBoard': getText('help_resetBoard')
+    };
 
-        const shortcuts = [
-            { keys: ['Ctrl', '+', 'Z'], descriptionKey: 'help_shortcut_undo' },
-            { keys: ['Ctrl', '+', 'Y'], descriptionKey: 'help_shortcut_redo' },
-            { keys: ['Ctrl', '+', 'S'], descriptionKey: 'help_shortcut_save' },
-            { keys: ['I'], descriptionKey: 'help_shortcut_invert' },
-            { keys: ['R'], descriptionKey: 'help_shortcut_random' },
-            { keys: ['D'], descriptionKey: 'help_shortcut_dark' },
-            { keys: ['B'], descriptionKey: 'help_shortcut_brush' },
-            { keys: ['M'], descriptionKey: 'help_shortcut_symmetry' },
-            { keys: ['G'], descriptionKey: 'help_shortcut_gap' },
-            { keys: ['←', '/', '→'], descriptionKey: 'help_shortcut_palette' },
-            { keys: ['+', '/', '-'], descriptionKey: 'help_shortcut_resize' }
-        ];
+    // 3. לולאה שיוצרת את התוכן עבור קטגוריות הכפתורים
+    for (const categoryKey in categories) {
+        const category = categories[categoryKey];
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'help-category-title';
+        titleEl.textContent = getText(category.titleKey);
+        contentDiv.appendChild(titleEl);
 
-        shortcuts.forEach(shortcut => {
-            const item = document.createElement('div');
-            item.className = 'flex items-center justify-between gap-4';
+        category.buttons.forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            if (!btn || !helpData[btnId]) return;
 
-            const description = document.createElement('span');
-            description.className = 'text-gray-300 text-sm';
-            description.textContent = getText(shortcut.descriptionKey);
+            const helpItem = document.createElement('div');
+            helpItem.className = 'flex items-center gap-4';
 
-            const keysWrapper = document.createElement('div');
+            const iconWrapper = document.createElement('div');
+            iconWrapper.className = 'help-item-icon-wrapper';
+            iconWrapper.innerHTML = btn.innerHTML;
             
-            shortcut.keys.forEach((key, index) => {
-                if (key === '+' || key === '/') {
-                    const separator = document.createTextNode(` ${key} `);
-                    keysWrapper.appendChild(separator);
-                } else {
-                    const keyEl = document.createElement('span');
-                    keyEl.className = 'kbd-key';
-                    keyEl.textContent = key;
-                    keysWrapper.appendChild(keyEl);
-                }
-            });
+            if (btnId === 'btnPlayPauseLife') {
+                const playIcon = iconWrapper.querySelector('#iconPlay');
+                if(playIcon) playIcon.style.display = 'block';
+                const pauseIcon = iconWrapper.querySelector('#iconPause');
+                if(pauseIcon) pauseIcon.style.display = 'none';
+            }
 
-            item.appendChild(description);
-            item.appendChild(keysWrapper);
-            shortcutsContainer.appendChild(item);
+            const textWrapper = document.createElement('div');
+            textWrapper.textContent = helpData[btnId];
+            textWrapper.className = 'text-gray-300 text-sm';
+            
+            helpItem.appendChild(iconWrapper);
+            helpItem.appendChild(textWrapper);
+            contentDiv.appendChild(helpItem);
         });
+    }
+    
+    // 4. הוספת קטגוריית הטיפים החדשה
+    const tipsTitle = document.createElement('h3');
+    tipsTitle.className = 'help-category-title';
+    tipsTitle.textContent = getText('help_category_tips');
+    contentDiv.appendChild(tipsTitle);
 
-        contentDiv.appendChild(shortcutsContainer);
-        // --- END: Add Keyboard Shortcuts Section ---
-      }
+    const tipsContainer = document.createElement('div');
+    tipsContainer.className = 'space-y-3 text-sm text-gray-300 pl-2'; // הוספתי ריווח ופדינג
+    const tips = ['help_tip1', 'help_tip2', 'help_tip3', 'help_tip4', 'help_tip5', 'help_tip6'];
+
+
+tips.forEach(tipKey => {
+        const tipItem = document.createElement('p');
+
+        // Create the gold star accent
+        const accent = document.createElement('span');
+        accent.textContent = '*';
+        accent.style.color = GOLD; // Uses the existing GOLD constant
+        accent.style.marginRight = '8px'; // Adds a nice space after the star
+
+        // Add the accent and the text to the line
+        tipItem.appendChild(accent);
+        tipItem.appendChild(document.createTextNode(getText(tipKey)));
+
+        tipsContainer.appendChild(tipItem);
+    });
+
+
+
+
+    contentDiv.appendChild(tipsContainer);
+
+    // 5. הוספת קטגוריית קיצורי המקלדת (ללא שינוי)
+    const shortcutsTitle = document.createElement('h3');
+    shortcutsTitle.className = 'help-category-title';
+    shortcutsTitle.textContent = getText('help_category_shortcuts');
+    contentDiv.appendChild(shortcutsTitle);
+
+    const shortcutsContainer = document.createElement('div');
+    shortcutsContainer.className = 'space-y-2';
+
+    const shortcuts = [
+        { keys: ['Ctrl', '+', 'Z'], descriptionKey: 'help_shortcut_undo' }, { keys: ['Ctrl', '+', 'Y'], descriptionKey: 'help_shortcut_redo' },
+        { keys: ['Ctrl', '+', 'S'], descriptionKey: 'help_shortcut_save' }, { keys: ['I'], descriptionKey: 'help_shortcut_invert' },
+        { keys: ['R'], descriptionKey: 'help_shortcut_random' }, { keys: ['D'], descriptionKey: 'help_shortcut_dark' },
+        { keys: ['B'], descriptionKey: 'help_shortcut_brush' }, { keys: ['M'], descriptionKey: 'help_shortcut_symmetry' },
+        { keys: ['G'], descriptionKey: 'help_shortcut_gap' }, { keys: ['←', '/', '→'], descriptionKey: 'help_shortcut_palette' },
+        { keys: ['+', '/', '-'], descriptionKey: 'help_shortcut_resize' }
+    ];
+
+    shortcuts.forEach(shortcut => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between gap-4';
+        const description = document.createElement('span');
+        description.className = 'text-gray-300 text-sm';
+        description.textContent = getText(shortcut.descriptionKey);
+        const keysWrapper = document.createElement('div');
+        shortcut.keys.forEach(key => {
+            if (key === '+' || key === '/') {
+                keysWrapper.appendChild(document.createTextNode(` ${key} `));
+            } else {
+                const keyEl = document.createElement('span');
+                keyEl.className = 'kbd-key';
+                keyEl.textContent = key;
+                keysWrapper.appendChild(keyEl);
+            }
+        });
+        item.appendChild(description);
+        item.appendChild(keysWrapper);
+        shortcutsContainer.appendChild(item);
+    });
+    contentDiv.appendChild(shortcutsContainer);
+}
+
 
       function setTextContent() {
         const splashTextEl = document.getElementById('splashText');
