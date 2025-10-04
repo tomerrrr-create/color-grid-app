@@ -65,6 +65,36 @@ export const PALETTES = [
         colors: ["#0d3b66", "#1c294a", "#2b213b", "#481b5e", "#6a0d83", "#892d8a", "#ad3f8f", "#ce4993", "#e05481", "#ee5d6c", "#f57667", "#fb9062", "#fc9d54", "#ffac4a", "#ff8c42", "#f99e52", "#f4ae58", "#eeaf61", "#f8c87f", "#fcdca2", "#f8c0cb", "#f5e3e0", "#fdf6f4"]
     },
 {
+        originalName: "Lavender Dawn",
+        emoji: '🌅',
+        colors: ["#3D2A4D", "#463058", "#503664", "#593C70", "#62427C", "#6C4888", "#754E94", "#7F549F", "#895AAA", "#9360B6", "#9D66C2", "#A76CCE", "#B172D9", "#BB78E5", "#C57EF1", "#CF84FD", "#D48CFB", "#D994F9", "#DE9CF7", "#E3A4F5", "#E8ACF3", "#EDB4F1", "#F2BCEF", "#F7C4ED", "#FCCCEB", "#FFD5E8", "#FFDDE6", "#FFE6E3", "#FFEEDF", "#FFF2D7", "#FFF6CF", "#FFF9C7", "#FFFCC0", "#FDF5BA", "#FBEFB4", "#F9E8AE", "#F7E2A8", "#F5DCA2", "#F3D59C", "#F1CF96", "#EEC890", "#EBC28A", "#E9BB84", "#E6B57E", "#E4AE78", "#E1A872", "#DFA16C"]
+    },
+{
+        originalName: "Monochrome",
+        emoji: '☯️',
+        colors: ["#FFFFFF", "#F9F9F9", "#F3F3F3", "#EDEDED", "#E7E7E7", "#E1E1E1", "#DBDBDB", "#D5D5D5", "#CFCFCF", "#C9C9C9", "#C3C3C3", "#BDBDBD", "#B7B7B7", "#B1B1B1", "#ABABAB", "#A5A5A5", "#9F9F9F", "#999999", "#939393", "#8D8D8D", "#878787", "#818181", "#7B7B7B", "#757575", "#6F6F6F", "#696969", "#636363", "#5D5D5D", "#575757", "#515151", "#4B4B4B", "#454545", "#3F3F3F", "#393939", "#333333", "#2D2D2D", "#272727", "#212121", "#1B1B1B", "#151515", "#0F0F0F", "#0C0C0C", "#090909", "#060606", "#040404", "#020202", "#000000"]
+    },
+
+{
+        originalName: "Phoenix Fire",
+        emoji: '🔥',
+        colors: ["#1A0A0A", "#2A0E0C", "#3A1410", "#4A1913", "#5A1E16", "#6B2318", "#7B281B", "#8C2E1E", "#9C3321", "#AD3824", "#BD3D26", "#CE4229", "#DE472C", "#EF4C2F", "#FF5131", "#FF5C26", "#FF6621", "#FF701C", "#FF7A17", "#FF8412", "#FF8E0D", "#FF9800", "#FFA31A", "#FFAD33", "#FFB84D", "#FFC266", "#FFCC80", "#FFD699", "#FFE0B3", "#FFEBCC", "#FFF5E6", "#FFD580", "#FFBF40", "#E6A833", "#CC9226", "#B37C1A", "#99660D", "#805000", "#664000", "#4C3000", "#332000", "#FF6F61", "#E63946", "#C71F37", "#A4161A", "#701010", "#400B0B"]
+    },
+
+{
+        originalName: "Serene Sky",
+        emoji: '🕊️',
+        colors: ["#FDFEFF", "#F8FAFB", "#F2F6F7", "#ECF2F5", "#E6EEF3", "#E0EAF1", "#DAE6EF", "#D4E2ED", "#CEDDEA", "#C8D9E8", "#C2D5E6", "#BCD1E4", "#B6CCE2", "#B0C8E0", "#AAC4DE", "#A4C0DC", "#9EBBD9", "#98B7D7", "#92B3D5", "#8CAFD3", "#86AAD1", "#80A6CF", "#7AA2CD", "#749ECB", "#6E99C8", "#6895C6", "#6291C4", "#5C8DC2", "#5688C0", "#5084BE", "#4A80BC", "#447CBA", "#3E77B7", "#3873B5", "#3270B0", "#2D6CAB", "#2868A6", "#2363A1", "#1E5F9C", "#195B97", "#145792", "#0F528D", "#0A4E88", "#054983", "#00457E", "#003F73"]
+    },
+
+{
+        originalName: "Elemental Gems",
+        emoji: '💎',
+        colors: ["#0F0F0F", "#1C1C1C", "#2A2A2A", "#383838", "#464646", "#545454", "#626262", "#707070", "#7E7E7E", "#8C8C8C", "#9A9A9A", "#A8A8A8", "#B6B6B6", "#C4C4C4", "#D2D2D2", "#E0E0E0", "#EEEDED", "#F9F9F9", "#FFFDFB", "#B08D57", "#C29D69", "#D4AF7A", "#E6C18B", "#F8D39C", "#4F7942", "#3A6351", "#2F5233", "#5E8C61", "#7BAE7F", "#99D6A6", "#135E82", "#1C7A9B", "#2799B9", "#3AB3D0", "#56CFE1", "#72EFDD", "#5A3E85", "#6C4F96", "#7E60A7", "#9273B8", "#A687C9", "#BA9BDA", "#D0B0EB", "#E6C6FC", "#F0DBFF", "#FBF2FF"]
+    },
+
+
+{
     originalName: "Amethyst Dream",
     emoji: '🔮',
     colors: ["#1a0b1e", "#220e29", "#2b1235", "#331541", "#3b184d", "#441b59", "#4c1e65", "#552171", "#5d247d", "#662789", "#6e2a95", "#772da1", "#7f30ad", "#813ec3", "#8b4ec8", "#955dcd", "#9f6dd2", "#a97cd7", "#b38cdc", "#bd9be1", "#c7aae6", "#d1baeb", "#dbc9f0", "#e5d8f5", "#efe8fa", "#f9f7ff", "#f5eeff", "#f0e2ff", "#ebd6ff", "#e6caff", "#e2bdff", "#deafff", "#d9a2ff", "#d494ff", "#cf85ff", "#ca76ff", "#c568ff", "#c059ff", "#bb4aff", "#b243f5", "#aa40e9", "#a13cdd", "#9939d1", "#9036c5", "#8833b9", "#772ebf"]
