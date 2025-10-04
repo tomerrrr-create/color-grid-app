@@ -1,10 +1,15 @@
 // js/app.js
 
+
+import { onLanguageChange } from './i18n.js';
 import { getText, setCurrentLang, initializeLanguage, getCurrentLang, getAvailableLangs, translations } from './i18n.js';
 import * as C from './constants.js';
 import * as Simulations from './simulations.js';
 import { dom } from './dom-elements.js';
 import { initializeModals } from './ui-modals.js'; // ייבוא של הקובץ החדש
+
+
+
 
 (function() {
       // ---- Helper function for color sorting ----
@@ -993,16 +998,17 @@ import { initializeModals } from './ui-modals.js'; // ייבוא של הקובץ
         else { if(circle) { circle.style.fill = '#000'; circle.style.stroke = '#fff'; } }
     }
       
-      function navigateColorPages(isNext) {
-        const totalPages = Math.ceil(C.PALETTES[activePaletteIndex].colors.length / C.COLORS_PER_PAGE);
-        if(totalPages <= 1) return;
-        if(isNext) {
-          colorPickerPage = (colorPickerPage + 1) % totalPages;
-        } else {
-          colorPickerPage = (colorPickerPage - 1 + totalPages) % totalPages;
-        }
-        modals.renderColorPickerContent();
-      }
+// החלף את הגרסה הקיימת בזו:
+function navigateColorPages(isNext) {
+    const totalPages = Math.ceil(C.PALETTES[activePaletteIndex].colors.length / C.COLORS_PER_PAGE);
+    if (totalPages <= 1) return;
+
+    if (isNext) {
+      colorPickerPage = (colorPickerPage + 1) % totalPages;
+    } else {
+      colorPickerPage = (colorPickerPage - 1 + totalPages) % totalPages;
+    }
+}
       
       let touchStartX = 0; let touchEndX = 0;
       function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
@@ -1102,63 +1108,117 @@ import { initializeModals } from './ui-modals.js'; // ייבוא של הקובץ
         else modals.openColorPickerModal();
       }
       
-      function setTextContent() {
-        document.getElementById('splashText').textContent = getText('splashTitle');
-        document.getElementById('fileNameLabel').textContent = getText('saveModal_feelsLike');
-        dom.fileNameInput.placeholder = getText('saveModal_defaultFilename');
-        dom.btnModalClose.title = getText('saveModal_close');
-        dom.btnSaveImage.title = getText('saveModal_saveImage');
-        dom.btnSaveProjectIdea.title = getText('saveModal_saveIdea');
-        dom.btnLoadProjectIdea.title = getText('saveModal_loadIdea');
-        document.getElementById('breatheSoloLabel').textContent = getText('breatheModal_solo');
-        document.getElementById('breatheGroupLabel').textContent = getText('breatheModal_group');
-        document.getElementById('resizeModalTitle').textContent = getText('resizeModal_title');
-        document.getElementById('resizeModalPrompt').textContent = getText('resizeModal_prompt');
-        dom.btnConfirmResize.textContent = getText('resizeModal_confirm');
-        document.getElementById('helpModalTitle').textContent = getText('help_title');
-        document.getElementById('paletteModalTitle').textContent = getText('paletteModal_title');
-        document.getElementById('helpIntroText').textContent = getText('help_intro');
-        document.getElementById('gsSettingsTitle').textContent = getText('gs_modal_title');
-        dom.btnGsSettingsCancel.textContent = getText('gs_modal_cancel');
-        dom.btnGsSettingsSave.textContent = getText('gs_modal_save_close');
-        dom.btnInvert.title = getText('tooltip_invert'); dom.btnRandom.title = getText('tooltip_random');
-        dom.btnColorPicker.title = getText('tooltip_colorPicker'); dom.btnSymmetry.title = getText('tooltip_symmetry');
-        dom.btnRedo.title = getText('tooltip_redo'); dom.btnUndo.title = getText('tooltip_undo');
-        dom.btnDark.title = getText('tooltip_dark'); dom.btnSpecialReset.title = getText('tooltip_specialReset');
-        dom.btnResetBoard.title = getText('tooltip_resetBoard'); dom.btnResizeUp.title = getText('tooltip_resizeUp');
-        dom.btnResizeDown.title = getText('tooltip_resizeDown'); dom.btnSave.title = getText('tooltip_save');
-        dom.btnShowBreatheMenu.title = getText('tooltip_breathe'); dom.btnTutorial.title = getText('tooltip_tutorial');
-        dom.btnGameOfLife.title = getText('tooltip_gameOfLife'); dom.btnBrightnessEvo.title = getText('tooltip_brightnessEvo');
-        dom.btnGravitationalSort.title = getText('tooltip_gravitationalSort'); dom.btnErosion.title = getText('tooltip_erosion');
-        dom.btnDla.title = getText('tooltip_dla'); dom.btnLangToggle.textContent = getCurrentLang().toUpperCase();
-        document.querySelectorAll('.ctrl').forEach(btn => { if (btn.title) btn.setAttribute('aria-label', btn.title) });
-      }
-      
 
 
+
+// החלף את כל הפונקציה setTextContent בזו:
+function setTextContent() {
+    // כל השורות הבאות משתמשות עכשיו באובייקט dom המרכזי
+    dom.splashText.textContent = getText('splashTitle');
+    dom.fileNameLabel.textContent = getText('saveModal_feelsLike');
+    dom.fileNameInput.placeholder = getText('saveModal_defaultFilename');
+    dom.btnModalClose.title = getText('saveModal_close');
+    dom.btnSaveImage.title = getText('saveModal_saveImage');
+    dom.btnSaveProjectIdea.title = getText('saveModal_saveIdea');
+    dom.btnLoadProjectIdea.title = getText('saveModal_loadIdea');
+    dom.breatheSoloLabel.textContent = getText('breatheModal_solo');
+    dom.breatheGroupLabel.textContent = getText('breatheModal_group');
+    dom.resizeModalTitle.textContent = getText('resizeModal_title');
+    dom.resizeModalPrompt.textContent = getText('resizeModal_prompt');
+    dom.btnConfirmResize.textContent = getText('resizeModal_confirm');
+    dom.helpModalTitle.textContent = getText('help_title');
+    dom.paletteModalTitle.textContent = getText('paletteModal_title');
+    dom.helpIntroText.textContent = getText('help_intro');
+    dom.gsSettingsTitle.textContent = getText('gs_modal_title');
+    dom.btnGsSettingsCancel.textContent = getText('gs_modal_cancel');
+    dom.btnGsSettingsSave.textContent = getText('gs_modal_save_close');
+    dom.btnInvert.title = getText('tooltip_invert'); 
+    dom.btnRandom.title = getText('tooltip_random');
+    dom.btnColorPicker.title = getText('tooltip_colorPicker'); 
+    dom.btnSymmetry.title = getText('tooltip_symmetry');
+    dom.btnRedo.title = getText('tooltip_redo'); 
+    dom.btnUndo.title = getText('tooltip_undo');
+    dom.btnDark.title = getText('tooltip_dark'); 
+    dom.btnSpecialReset.title = getText('tooltip_specialReset');
+    dom.btnResetBoard.title = getText('tooltip_resetBoard'); 
+    dom.btnResizeUp.title = getText('tooltip_resizeUp');
+    dom.btnResizeDown.title = getText('tooltip_resizeDown'); 
+    dom.btnSave.title = getText('tooltip_save');
+    dom.btnShowBreatheMenu.title = getText('tooltip_breathe'); 
+    dom.btnTutorial.title = getText('tooltip_tutorial');
+    dom.btnGameOfLife.title = getText('tooltip_gameOfLife'); 
+    dom.btnBrightnessEvo.title = getText('tooltip_brightnessEvo');
+    dom.btnGravitationalSort.title = getText('tooltip_gravitationalSort'); 
+    dom.btnErosion.title = getText('tooltip_erosion');
+    dom.btnDla.title = getText('tooltip_dla'); 
+    dom.btnLangToggle.textContent = getCurrentLang().toUpperCase();
+
+    // לולאה זו מעדכנת את תיאורי ה-ARIA לנגישות
+    document.querySelectorAll('.ctrl').forEach(btn => { 
+        if (btn.title) btn.setAttribute('aria-label', btn.title);
+    });
+}
+
+
+// החלף את הפונקציה הקיימת (והשבורה) בזו:
 function updateAllUIText() {
-          const helpModalInnerContainer = document.getElementById('helpModalInnerContainer');
-          if (getCurrentLang() === 'he') helpModalInnerContainer.classList.add('rtl-mode');
-          else helpModalInnerContainer.classList.remove('rtl-mode');
-          setTextContent();
-          updatePaletteHeader();
-          if (dom.helpModal.classList.contains('modal-visible')) modals.populateHelpModal();
-      }
+    // 1. תרגום מחדש של שמות הפלטות במערך הראשי
+    C.PALETTES.forEach(p => {
+        if (!p.originalName) p.originalName = p.name; 
+        const key = Object.keys(translations).find(k => translations[k].en === p.originalName);
+        p.name = key ? getText(key) : p.originalName;
+    });
+
+    // 2. טיפול מלא ב-RTL (ימין לשמאל)
+    const helpModalInnerContainer = document.getElementById('helpModalInnerContainer');
+    if (getCurrentLang() === 'he') {
+        helpModalInnerContainer.classList.add('rtl-mode');
+        document.documentElement.dir = 'rtl';
+    } else {
+        helpModalInnerContainer.classList.remove('rtl-mode');
+        document.documentElement.dir = 'ltr';
+    }
+
+    // 3. עדכון כל הטקסטים בממשק
+    setTextContent();
+    updatePaletteHeader();
+
+    // 4. החלק החשוב: בודקים אם מודלים פתוחים ומרנדרים אותם מחדש
+    if (dom.helpModal.classList.contains('modal-visible')) {
+        modals.populateHelpModal();
+    }
+    if (dom.paletteModal.classList.contains('modal-visible')) {
+        modals.populatePaletteModal();
+    }
+}
 
 
 
-      function toggleLanguage() {
-        const availableLangs = getAvailableLangs(), currentLang = getCurrentLang();
-        const currentIndex = availableLangs.indexOf(currentLang), nextIndex = (currentIndex + 1) % availableLangs.length;
-        setCurrentLang(availableLangs[nextIndex]);
-        updateAllUIText();
-      }
+
+
+
+// החלף את הגרסה הקיימת בזו:
+function toggleLanguage() {
+    const availableLangs = getAvailableLangs();
+    const currentLang = getCurrentLang();
+    const currentIndex = availableLangs.indexOf(currentLang);
+    const nextIndex = (currentIndex + 1) % availableLangs.length;
+    // הפונקציה הזו תגרום ל-i18n.js להודיע לכל מי שמאזין שהשפה השתנתה
+    setCurrentLang(availableLangs[nextIndex]); 
+}
+
 
 
       async function initializeApp() {
         const splashScreen = document.getElementById('splashScreen'), splashText = document.getElementById('splashText');
         
         initializeLanguage();
+
+onLanguageChange(() => {
+    updateAllUIText();
+});
+
+
         updateAllUIText();
 
         // --- אתחול המודולים ---
@@ -1182,7 +1242,12 @@ function updateAllUIText() {
             getDlaRules: () => dlaRules, setDlaRules: (r) => { dlaRules = r; },
             setGeneratedImageFile: (f) => { generatedImageFile = f; },
             handleSaveImage, handleSaveProject, handleLoadProject, onProjectFileSelected, startBreathingEffect,
-        };
+    handleTouchStart,
+    handleTouchEnd
+};
+
+
+
         modals = initializeModals(contextForModals);
         
         buildBoard(n, false); 

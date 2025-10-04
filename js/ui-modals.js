@@ -2,14 +2,21 @@
 
 let lastWheelTime = 0;
 
+// החלף את הגרסה הקיימת בזו:
 function handlePaletteWheel(e) {
-    // מונע גלילה מהירה מדי
     if (Date.now() - lastWheelTime < 200) return;
     e.preventDefault();
-    // קובע את כיוון הגלילה ומחליף עמוד בהתאם
+
+    // קוראים לפונקציה ב-app.js כדי שתשנה את מספר העמוד
     app.navigateColorPages(e.deltaY > 0);
+
+    // --->>> והשורה החדשה <<<---
+    // מיד אחרי, אנחנו קוראים לפונקציית הרינדור מתוך המודול הזה
+    renderColorPickerContent(); 
+
     lastWheelTime = Date.now();
 }
+
 
 // משתנה שיחזיק את כל הפונקציות והמשתנים מ-app.js שהמודולים צריכים
 let app;
@@ -518,17 +525,18 @@ export function initializeModals(appContext) {
     app.dom.btnDlaSettingsCancel.addEventListener('click', closeDlaSettingsModal);
 
     // Export functions that need to be called from app.js
-    return {
-        openBreatheModal,
-        openResizeModal,
-        openColorPickerModal,
-        openHelpModal,
-        openPaletteModal,
-        openGolSettingsModal,
-        openGravitationalSortSettingsModal,
-        openDlaSettingsModal,
-        closeModal,
-        renderColorPickerContent,
-        populateHelpModal // <--- יש להוסיף את השורה הזו
-    };
+return {
+    openBreatheModal,
+    openResizeModal,
+    openColorPickerModal,
+    openHelpModal,
+    openPaletteModal,
+    openGolSettingsModal,
+    openGravitationalSortSettingsModal,
+    openDlaSettingsModal,
+    closeModal,
+    renderColorPickerContent, // <--- הפסיק היה חסר כאן
+    populateHelpModal,
+    populatePaletteModal // <--- בונוס: נייצא גם את זה למקרה הצורך
+};
 }

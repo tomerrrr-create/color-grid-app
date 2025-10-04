@@ -1,5 +1,4 @@
-// js/dom-elements.js
-
+// החלף את כל תוכן הקובץ dom-elements.js בקוד הזה:
 export const dom = {
   // Main Layout & Board
   appContainer: document.getElementById('appContainer'),
@@ -8,6 +7,7 @@ export const dom = {
   board: document.getElementById('board'),
   boardOverlay: document.getElementById('boardOverlay'),
   root: document.documentElement,
+  splashText: document.getElementById('splashText'),
 
   // Control Buttons
   btnRandom: document.getElementById('btnRandom'),
@@ -58,6 +58,7 @@ export const dom = {
   imagePreview: document.getElementById('imagePreview'),
   btnModalClose: document.getElementById('btnModalClose'),
   fileNameInput: document.getElementById('fileNameInput'),
+  fileNameLabel: document.getElementById('fileNameLabel'),
   btnSaveImage: document.getElementById('btnSaveImage'),
   btnSaveProjectIdea: document.getElementById('btnSaveProjectIdea'),
   btnLoadProjectIdea: document.getElementById('btnLoadProjectIdea'),
@@ -67,6 +68,8 @@ export const dom = {
   btnBreatheModalClose: document.getElementById('btnBreatheModalClose'),
   btnStartSoloBreathe: document.getElementById('btnStartSoloBreathe'),
   btnStartGroupBreathe: document.getElementById('btnStartGroupBreathe'),
+  breatheSoloLabel: document.getElementById('breatheSoloLabel'),
+  breatheGroupLabel: document.getElementById('breatheGroupLabel'),
 
   // Color Picker Modal Elements
   colorPickerHeader: document.getElementById('colorPickerHeader'),
@@ -78,15 +81,20 @@ export const dom = {
 
   // Help Modal Elements
   btnHelpModalClose: document.getElementById('btnHelpModalClose'),
+  helpModalTitle: document.getElementById('helpModalTitle'),
+  helpIntroText: document.getElementById('helpIntroText'),
 
   // Resize Modal Elements
   btnResizeModalClose: document.getElementById('btnResizeModalClose'),
   resizeInput: document.getElementById('resizeInput'),
   btnConfirmResize: document.getElementById('btnConfirmResize'),
+  resizeModalTitle: document.getElementById('resizeModalTitle'),
+  resizeModalPrompt: document.getElementById('resizeModalPrompt'),
   
   // Palette Modal Elements
   btnPaletteModalClose: document.getElementById('btnPaletteModalClose'),
   paletteModalGrid: document.getElementById('paletteModalGrid'),
+  paletteModalTitle: document.getElementById('paletteModalTitle'),
   
   // Game of Life Settings Modal Elements
   golSurvivalMin: document.getElementById('golSurvivalMin'),
@@ -99,17 +107,17 @@ export const dom = {
   btnGolSettingsReset: document.getElementById('btnGolSettingsReset'),
 
   // Gravitational Sort Settings Modal Elements
+  gsSettingsTitle: document.getElementById('gsSettingsTitle'),
   gsDirectionButtons: document.querySelectorAll('.gs-direction-btn'),
   gsStrengthSlider: document.getElementById('gsStrength'),
   gsStrengthValue: document.getElementById('gsStrengthValue'),
   btnGsSettingsSave: document.getElementById('btnGsSettingsSave'),
   btnGsSettingsCancel: document.getElementById('btnGsSettingsCancel'),
 
-  // START: New DLA Settings Modal Elements
+  // DLA Settings Modal Elements
   dlaSettingsModal: document.getElementById('dlaSettingsModal'),
   dlaColorGeneticsToggle: document.getElementById('dlaColorGeneticsToggle'),
   dlaInjectFromEdgesToggle: document.getElementById('dlaInjectFromEdgesToggle'),
   btnDlaSettingsSave: document.getElementById('btnDlaSettingsSave'),
   btnDlaSettingsCancel: document.getElementById('btnDlaSettingsCancel'),
-  // END: New DLA Settings Modal Elements
 };

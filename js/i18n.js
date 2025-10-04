@@ -4,6 +4,12 @@
 const availableLangs = ['en', 'he', 'ru', 'nl'];
 let currentLang = 'en'; // ערך התחלתי
 
+const listeners = []; // מערך שיחזיק את כל הפונקציות ש"מאזינות" לשינוי שפה
+// פונקציה חדשה שמאפשרת למודולים אחרים "להירשם" לעדכונים
+export function onLanguageChange(callback) {
+  listeners.push(callback);
+}
+
 // 2. זהו כל אובייקט התרגומים שהוצאנו החוצה
 export const translations = {
   help_category_evolution: { en: "Evolution", he: "אבולוציה", ru: "Эволюция", nl: "Evolutie" },
@@ -149,6 +155,7 @@ export function getAvailableLangs() {
     return availableLangs;
 }
 
+
 export function setCurrentLang(lang) {
   if (availableLangs.includes(lang)) {
     currentLang = lang;
@@ -157,8 +164,14 @@ export function setCurrentLang(lang) {
     } catch (e) {
       console.warn('Could not save language to localStorage.');
     }
+    // --->>> השורה החשובה שהוספנו <<<---
+    // מפעילים את כל פונקציות העדכון שנרשמו
+    listeners.forEach(callback => callback(currentLang));
   }
 }
+
+
+
 
 export function getText(key) {
   if (!translations[key] || !translations[key][currentLang]) {
