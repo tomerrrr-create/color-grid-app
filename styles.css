@@ -10,6 +10,8 @@
   --stroke: 3px;
   --gold: #FFD700;
   --glow-color: var(--gold);
+ --sim-color: #90A4AE;
+
 }
 
 /* --- MOBILE STABILITY FIXES --- */
@@ -30,25 +32,30 @@ body {
   -ms-user-select: none; /* IE 10+ */
   user-select: none; /* Standard syntax */
 }
-.board {
-  display: grid;
-  grid-template-columns: repeat(var(--grid-size), 1fr);
-  gap: var(--gap-px);
-  border-width: var(--gap-px);
-  border-radius: 6px;
-  transition: gap 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+/* START: --- Structural Change for Canvas --- */
+#board {
   position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* --- תיקון: הסרנו את התלות של המסגרת במשתנה --- */
+  /* עכשיו תמיד תהיה מסגרת דקה, והמרווחים יצוירו בקנבס */
+  border: 0px solid black; 
+  background-color: #000;
+  border-radius: 6px;
+  transition: box-shadow 0.3s ease-in-out;
 }
-.tile {
-  border-radius: var(--tile-radius);
-  transition: background-color 0.4s ease, box-shadow 0.2s ease, border-radius 0.6s ease-in-out;
+
+#boardCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px; /* Slightly smaller radius to fit inside the container's border */
 }
+/* END: --- Structural Change for Canvas --- */
+
 
 /* --- CONTROL BUTTON STYLES --- */
-
-/* MODIFIED: Unified grid for all controls */
-
-
 #controlsContainer {
     position: relative;
     display: grid;
@@ -64,10 +71,6 @@ body {
     opacity: 0;
     pointer-events: none;
 }
-
-/* DELETED: Old specific grid container styles are no longer needed */
-/* #controls { ... } */
-/* .side-controls { ... } */
 
 .ctrl {
   width: 50px;
@@ -183,7 +186,9 @@ body {
 #btnShowBreatheMenu,
 #btnGravitationalSort,
 #btnErosion,
-#btnDla {
+#btnDla,
+#btnNudgeBrighter,
+#btnNudgeDarker {
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
@@ -225,15 +230,12 @@ body {
 
 
 /* --- Simulation Mode Layout Overrides --- */
-
-/* This prevents a jump of buttons that disappear on transition */
 .sim-mode-active #btnBrushMode,
 .sim-mode-active #btnGap,
 .sim-mode-active #btnResetBoard,
 .sim-mode-active #btnTutorial,
 .sim-mode-active #btnSave,
 .sim-mode-active #btnSpecialReset,
-.sim-mode-active #btnPalette,
 .sim-mode-active #btnInvert {
   display: none;
 }
@@ -243,13 +245,14 @@ body {
 .sim-mode-active #btnShowBreatheMenu,
 .sim-mode-active #btnGravitationalSort,
 .sim-mode-active #btnErosion,
-.sim-mode-active #btnDla {
+.sim-mode-active #btnDla,
+.sim-mode-active #btnNudgeBrighter,
+.sim-mode-active #btnNudgeDarker {
     opacity: 1;
     pointer-events: auto;
     visibility: visible;
     transform: scale(1);
 }
-
 /* Left Panel */
 .sim-mode-active #btnRedo         { grid-area: 4 / 1; }
 .sim-mode-active #btnResizeDown  { grid-area: 3 / 1; }
@@ -257,13 +260,17 @@ body {
 
 
 /* Center Panel */
-.sim-mode-active #btnPlayPauseLife   { grid-area: 1 / 4; }
-.sim-mode-active #btnStepForward     { display: inline-flex; grid-area: 1 / 5; }
+/* שורה ראשונה (השינוי שביקשת) */
+.sim-mode-active #btnStepForward     { display: inline-flex; grid-area: 1 / 3; } /* מיקום 1: צעד קדימה */
+.sim-mode-active #btnPalette        { grid-area: 1 / 4; }                      /* מיקום 2: החלף פלטה */
+.sim-mode-active #btnPlayPauseLife   { grid-area: 1 / 5; }                      /* מיקום 3: הפעל / השהה */
+
+/* שורות אחרות (נשארות ללא שינוי) */
 .sim-mode-active #btnGameOfLife      { grid-area: 2 / 3; }
-.sim-mode-active #btnShowBreatheMenu { grid-area: 2 / 4; }
+.sim-mode-active #btnShowBreatheMenu { grid-area: 3 / 4; }
 .sim-mode-active #btnBrightnessEvo   { grid-area: 2 / 5; }
 .sim-mode-active #btnGravitationalSort { grid-area: 3 / 3; }
-.sim-mode-active #btnDla             { grid-area: 3 / 4; }
+.sim-mode-active #btnDla             { grid-area: 2 / 4; }
 .sim-mode-active #btnErosion         { grid-area: 3 / 5; }
 .sim-mode-active #btnToggleSimMode   { grid-area: 4 / 4; }
 
@@ -280,6 +287,8 @@ body {
     display: none;
 }
 .sim-mode-active #btnUndo   { grid-area: 4 / 7; }
+.sim-mode-active #btnNudgeBrighter { grid-area: 2 / 1; } /* UPDATED and MOVED */
+.sim-mode-active #btnNudgeDarker   { grid-area: 2 / 7; } /* UPDATED and MOVED */
 
 
 #btnBrushMode svg path {
@@ -287,12 +296,6 @@ body {
 }
 #btnBrushMode.brush-on svg path {
     fill: #fff;
-}
-.tile.source-highlight {
-    box-shadow: 0 0 0 4px var(--gold) inset;
-}
-.tile.target-highlight {
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8) inset;
 }
 .app-shell {
   width: min(85vmin, 720px);
@@ -316,12 +319,12 @@ body {
 .glow-animation-separator svg {
   animation: glow-effect 2s ease-in-out infinite;
 }
-#saveModal, #breatheModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal {
+#saveModal, #breatheModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal, #advancedColorMappingModal {
   transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
   visibility: hidden;
   opacity: 0;
 }
-#saveModal.modal-visible, #breatheModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible {
+#saveModal.modal-visible, #breatheModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible, #advancedColorMappingModal.modal-visible {
   visibility: visible;
   opacity: 1;
 }
@@ -344,15 +347,11 @@ body {
 }
 
 @media (max-width: 480px) {
-  /* MODIFIED: Adjust grid for smaller screens */
   #controlsContainer {
     grid-template-columns: 44px 1fr 44px 44px 44px 1fr 44px;
     grid-template-rows: repeat(4, 44px);
   }
   .ctrl { width: 44px; height: 44px; }
-}
-.board.no-gap-fix .tile {
-  transform: scale(1.02);
 }
 
 #btnSymmetry .part {
@@ -362,9 +361,6 @@ body {
 @keyframes breathe {
   0%, 100% { filter: brightness(1); }
   50% { filter: brightness(0.4); }
-}
-.breathing-tile {
-  animation: breathe 4s infinite;
 }
 
 #breatheExitContainer {
@@ -555,11 +551,11 @@ body {
 }
 
 /* --- Glowing Border for Selected Color --- */
-.board.glowing-border {
-  animation: glow-border 3s infinite;
+#board.glowing-border {
+  animation: glow-border 3s 2;
 }
-.board.glowing-border-rainbow {
-   animation: glow-border-rainbow 5s infinite;
+#board.glowing-border-rainbow {
+   animation: glow-border-rainbow 3s 2;
 }
 
 @keyframes glow-border {
@@ -769,4 +765,35 @@ body {
 #btnStepForward:not(:disabled) {
   color: #fff
 }
+
 /* --- END: New Step Forward Button Styles --- */
+
+
+/* --- Custom Simulation Button Color --- */
+#btnGameOfLife svg,
+#btnBrightnessEvo svg,
+#btnShowBreatheMenu svg,
+#btnGravitationalSort svg,
+#btnErosion svg {
+    stroke: var(--sim-color); /* צובע את קווי המתאר של האייקון */
+}
+
+#btnShowBreatheMenu svg circle {
+    fill: var(--sim-color); /* צובע את העיגולים המלאים באייקון הנשימה */
+}
+
+#btnDla svg {
+    fill: var(--sim-color); /* צובע את האייקון המלא של DLA */
+}
+
+
+/* Custom styling for the simulation control panel */
+#controlsContainer.sim-mode-active {
+  /* 1. רקע גרדיאנט כחול-דיו עמוק לשחור */
+  background: linear-gradient(to bottom, #0f172a, #000000); 
+
+  /* 2. הסרנו את ה-padding כדי לפתור את בעיית הריווח */
+  border-radius: 12px; 
+  border: 1px solid #334155; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
