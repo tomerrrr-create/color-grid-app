@@ -678,9 +678,12 @@ body {
 }
 /* --- END: MODIFIED STYLE FOR "ARMED" SIMULATION BUTTON --- */
 
-/* MODIFIED: Color the play icon white when a simulation is armed */
-.sim-mode-active #btnPlayPauseLife:not(:disabled) #iconPlay {
-  fill: #fff;
+/* --- Play/Pause Button Icon Colors --- */
+
+/* צובע את אייקון ה-Play (כשהוא זמין) ואת אייקון ה-Pause בצבע זהב */
+.sim-mode-active #btnPlayPauseLife:not(:disabled) #iconPlay,
+.sim-mode-active #btnPlayPauseLife #iconPause {
+  fill: var(--gold);
 }
 
 
@@ -762,9 +765,11 @@ body {
   transition: color 0.3s ease;
 }
 
+/* Color the Step Forward icon with gold when active */
 #btnStepForward:not(:disabled) {
-  color: #fff
+  color: var(--gold); /* <-- שינוי הצבע לזהב */
 }
+
 
 /* --- END: New Step Forward Button Styles --- */
 
@@ -787,13 +792,25 @@ body {
 }
 
 
-/* Custom styling for the simulation control panel */
-#controlsContainer.sim-mode-active {
-  /* 1. רקע גרדיאנט כחול-דיו עמוק לשחור */
-  background: linear-gradient(to bottom, #0f172a, #000000); 
+/* --- Styling for the central grid wrapper in simulation mode --- */
 
-  /* 2. הסרנו את ה-padding כדי לפתור את בעיית הריווח */
-  border-radius: 12px; 
-  border: 1px solid #334155; 
+/* זהו אלמנט הרקע החדש שהוספנו. הוא מוסתר כברירת מחדל */
+#simModeBackground {
+  display: none;
+  z-index: -1; /* ממקם אותו מאחורי הכפתורים */
+}
+
+/* כשאנחנו במצב סימולציה, אנחנו מציגים את הרקע ומעצבים אותו */
+.sim-mode-active #simModeBackground {
+  display: block;
+  
+  /* מיקום הרקע בדיוק על 3 העמודות המרכזיות ו-4 השורות */
+  grid-column: 3 / span 3;
+  grid-row: 2 / span 2;
+  
+  /* העיצוב של המעטפת */
+  background: linear-gradient(to bottom, #0f172a, #000000);
+  border-radius: 12px;
+  border: 1px solid #334155;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
