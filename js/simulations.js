@@ -98,15 +98,12 @@ export function runGameOfLifeGeneration({ n, currentBoardState, currentPalette, 
             const tileData = currentBoardState[i * n + j];
             const tileIndex = tileData.k;
 
-            let isAlive = false;
-            switch (gameOfLifeRules.liveCellDef) {
-                case 'notDarkest': isAlive = tileIndex !== darkestIndex; break;
-                case 'notLightest': isAlive = tileIndex !== lightestIndex; break;
-                case 'notDarkestAndLightest': isAlive = tileIndex !== darkestIndex && tileIndex !== lightestIndex; break;
-                case 'topHalf': isAlive = tileIndex > halfIndex; break;
-                case 'bottomHalf': isAlive = tileIndex < halfIndex && tileIndex !== darkestIndex; break;
-                default: isAlive = tileIndex !== darkestIndex;
-            }
+            // --- START: MODIFICATION 1 ---
+            // The 'liveCellDef' logic is now hard-coded to 'notDarkest' as requested.
+            // The old switch statement has been removed.
+            let isAlive = tileIndex !== darkestIndex;
+            // --- END: MODIFICATION 1 ---
+
             if (tileData.isGold) isAlive = false;
 
             internalCurrentState[i][j] = { isAlive, k: tileIndex };
@@ -138,11 +135,20 @@ export function runGameOfLifeGeneration({ n, currentBoardState, currentPalette, 
             let newK = cell.k;
 
             if (cell.isAlive) {
-                becomesAlive = liveNeighbors >= gameOfLifeRules.survivalMin && liveNeighbors <= gameOfLifeRules.survivalMax;
+                // === START MODIFICATION ===
+                // Use list-based rule check instead of range
+                becomesAlive = gameOfLifeRules.survival.includes(liveNeighbors);
+                // === END MODIFICATION ===
             } else {
-                becomesAlive = liveNeighbors === gameOfLifeRules.birth;
+                // === START MODIFICATION ===
+                // Use list-based rule check instead of range
+                becomesAlive = gameOfLifeRules.birth.includes(liveNeighbors);
+                // === END MODIFICATION ===
                 if (becomesAlive) {
-                    const geneticColor = getGeneticColor(neighborColors, gameOfLifeRules.colorGenetics);
+                    // --- START: MODIFICATION 2 ---
+                    // The 'colorGenetics' method is now hard-coded to 'average' as requested.
+                    const geneticColor = getGeneticColor(neighborColors, 'average');
+                    // --- END: MODIFICATION 2 ---
                     newK = findClosestColorIndex(geneticColor, currentPalette);
                 }
             }
@@ -165,9 +171,10 @@ export function runGameOfLifeGeneration({ n, currentBoardState, currentPalette, 
     return nextBoardState;
 }
 
-export function runBrightnessEvolution({ n, currentBoardState }) {
+export function runBrightnessEvolution({ n, currentBoardState, currentPalette }) {
     const smoothingFactor = 0.5;
     const nextBoardState = currentBoardState.map(tile => ({ ...tile })); // Create a mutable copy
+    const maxIndex = currentPalette.length - 1; // קביעת האינדקס המקסימלי המותר
 
     for (let i = 0; i < n * n; i++) {
         const cell = currentBoardState[i];
@@ -196,7 +203,13 @@ export function runBrightnessEvolution({ n, currentBoardState }) {
         if (neighborCount > 0) {
             const averageBrightness = totalBrightness / neighborCount;
             const currentV = cell.v;
-            const newV = currentV + (averageBrightness - currentV) * smoothingFactor;
+            let newV = currentV + (averageBrightness - currentV) * smoothingFactor;
+
+            // --- התיקון המרכזי ---
+            // תחימת הערך החדש בין 0 לאינדקס המקסימלי של הפלטה
+            newV = Math.max(0, Math.min(newV, maxIndex)); 
+            // ---------------------
+
             nextBoardState[i].v = newV;
             nextBoardState[i].k = Math.round(newV);
         }
@@ -204,6 +217,10 @@ export function runBrightnessEvolution({ n, currentBoardState }) {
 
     return nextBoardState;
 }
+
+
+
+
 
 export function runGravitationalSortGeneration({ n, currentBoardState, gravitationalSortRules }) {
     const nextBoardState = currentBoardState.map(tile => ({...tile}));
@@ -318,6 +335,10 @@ export function runErosionGeneration({ n, currentBoardState, currentPalette, ero
 }
 
 // --- DLA Helper functions, now adapted for boardState ---
+
+
+
+
 function getStickingNeighborColors({ walker, n, dlaState, currentBoardState, currentPalette }) {
     const neighborColors = [];
     for (let ny = -1; ny <= 1; ny++) {
@@ -327,15 +348,22 @@ function getStickingNeighborColors({ walker, n, dlaState, currentBoardState, cur
             const neighborX = walker.x + nx;
             if (neighborX >= 0 && neighborX < n && neighborY >= 0 && neighborY < n) {
                 const neighborIndex = neighborY * n + neighborX;
+                
+                // Check 1: Is the neighbor officially part of the crystal?
                 if (dlaState.crystal.has(neighborIndex)) {
                     const colorK = currentBoardState[neighborIndex].k;
-                    neighborColors.push(currentPalette[colorK]);
+                    // Check 2 (The Fix): Is its current color NOT black? This prevents corrupted data from being used.
+                    if (colorK > 0) {
+                        neighborColors.push(currentPalette[colorK]);
+                    }
                 }
             }
         }
     }
     return neighborColors;
 }
+
+
 
 function getRandomGridPosition(n) {
     return { y: Math.floor(Math.random() * n), x: Math.floor(Math.random() * n) };
@@ -359,11 +387,11 @@ function getRandomEdgePosition(n) {
 
 export function runDlaGeneration({ n, currentBoardState, currentPalette, dlaState, dlaRules }) {
 
-    // The "fastMode" logic remains the same as it's a different algorithm.
     if (dlaRules.fastMode) {
-        // ... (existing fastMode code) ...
+        // Fast mode logic is separate and remains unchanged.
+        return { nextBoardState: currentBoardState, nextDlaState: dlaState };
     } else {
-        // --- START: EFFICIENT "WALKERS" ALGORITHM ---
+        // --- Original Algorithm with Final, Minimal Fixes Applied ---
         if (!dlaState || !dlaState.isInitialized) return { nextBoardState: currentBoardState, nextDlaState: dlaState };
 
         const pLen = currentPalette.length;
@@ -374,23 +402,27 @@ export function runDlaGeneration({ n, currentBoardState, currentPalette, dlaStat
         const nextDlaState = { 
             ...dlaState, 
             walkers: [...dlaState.walkers],
-            emptyIndices: [...dlaState.emptyIndices] // Work on a copy of the list
+            emptyIndices: [...dlaState.emptyIndices]
         };
 
-        if (nextDlaState.lastWalkerIndex === undefined) nextDlaState.lastWalkerIndex = 0;
+        // Initialize the intelligent fallback logic on the first run.
+        if (nextDlaState.lastSuccessfulColorIndex === undefined) {
+            const firstCrystalCellIndex = nextDlaState.crystal.values().next().value;
+            if (firstCrystalCellIndex !== undefined) {
+                nextDlaState.lastSuccessfulColorIndex = currentBoardState[firstCrystalCellIndex].k;
+            } else {
+                nextDlaState.lastSuccessfulColorIndex = 1; // Absolute fallback
+            }
+        }
 
         while (processedCount < batchSize && nextDlaState.walkers.length > 0 && nextDlaState.emptyIndices.length > 0) {
             const walkerIndex = nextDlaState.lastWalkerIndex;
             let walker = nextDlaState.walkers[walkerIndex];
 
-            // ... (walker movement logic remains the same) ...
-            const dx = Math.floor(Math.random() * 3) - 1;
-            const dy = Math.floor(Math.random() * 3) - 1;
-            walker.x = Math.max(0, Math.min(n - 1, walker.x + dx));
-            walker.y = Math.max(0, Math.min(n - 1, walker.y + dy));
+            walker.x = Math.max(0, Math.min(n - 1, walker.x + Math.floor(Math.random() * 3) - 1));
+            walker.y = Math.max(0, Math.min(n - 1, walker.y + Math.floor(Math.random() * 3) - 1));
 
             let stuck = false;
-            // ... (sticking check logic remains the same) ...
             for (let ny = -1; ny <= 1; ny++) {
                 for (let nx = -1; nx <= 1; nx++) {
                      if (nx === 0 && ny === 0) continue;
@@ -406,50 +438,61 @@ export function runDlaGeneration({ n, currentBoardState, currentPalette, dlaStat
                 if (stuck) break;
             }
 
-
             if (stuck) {
                 const boardIndex = walker.y * n + walker.x;
                 if (!nextDlaState.crystal.has(boardIndex)) {
                     nextDlaState.crystal.add(boardIndex);
                     
-                    // --- 1. Remove the newly filled spot from the list of empty indices ---
                     const indexInEmptyList = nextDlaState.emptyIndices.indexOf(boardIndex);
                     if (indexInEmptyList > -1) {
-                         // Efficient removal by swapping with the last element and popping
                         const lastElement = nextDlaState.emptyIndices.pop();
                         if (indexInEmptyList < nextDlaState.emptyIndices.length) {
                              nextDlaState.emptyIndices[indexInEmptyList] = lastElement;
                         }
                     }
 
-                    // ... (color genetics logic remains the same) ...
                     let colorIndex;
                     if (dlaRules.colorGenetics) {
-                        const parentColors = getStickingNeighborColors({ walker, n, dlaState: nextDlaState, currentBoardState, currentPalette });
+
+const parentColors = getStickingNeighborColors({ 
+    walker, 
+    n, 
+    dlaState: nextDlaState, 
+    currentBoardState: nextBoardState,
+    currentPalette 
+});
+
                         if (parentColors.length > 0) {
                             const geneticColor = getGeneticColor(parentColors, 'average');
                             colorIndex = findClosestColorIndex(geneticColor, currentPalette);
                         } else {
-                            colorIndex = (nextDlaState.crystal.size - 1) % pLen;
+                            // THE FIX: Use the intelligent fallback instead of the old color-cycling logic.
+                            colorIndex = nextDlaState.lastSuccessfulColorIndex;
                         }
                     } else {
                         colorIndex = (nextDlaState.crystal.size - 1) % pLen;
                     }
+
+                    // Final safety net to prevent any black cells.
+                    if (colorIndex === 0) {
+                        colorIndex = 1;
+                    }
+                    
+                    // In genetics mode, save this successful color for the next potential emergency.
+                    if (dlaRules.colorGenetics) {
+                        nextDlaState.lastSuccessfulColorIndex = colorIndex;
+                    }
+
                     nextBoardState[boardIndex].k = colorIndex;
                     nextBoardState[boardIndex].v = colorIndex;
                     nextBoardState[boardIndex].isGold = false;
                 }
 
-                // --- 2. Replace the walker with a new one from a guaranteed empty spot ---
                 if (nextDlaState.emptyIndices.length > 0) {
                     const randomIndexInEmptyList = Math.floor(Math.random() * nextDlaState.emptyIndices.length);
                     const newBoardIndex = nextDlaState.emptyIndices[randomIndexInEmptyList];
-                    nextDlaState.walkers[walkerIndex] = {
-                        y: Math.floor(newBoardIndex / n),
-                        x: newBoardIndex % n
-                    };
+                    nextDlaState.walkers[walkerIndex] = { y: Math.floor(newBoardIndex / n), x: newBoardIndex % n };
                 } else {
-                    // If no empty spots left, remove the walker
                     nextDlaState.walkers.splice(walkerIndex, 1);
                 }
             }
@@ -461,6 +504,67 @@ export function runDlaGeneration({ n, currentBoardState, currentPalette, dlaStat
         }
 
         return { nextBoardState, nextDlaState };
-        // --- END: EFFICIENT "WALKERS" ALGORITHM ---
     }
+}
+
+
+
+
+export function runContrastGeneration({ n, currentBoardState, currentPalette }) {
+    const nextBoardState = currentBoardState.map(tile => ({...tile}));
+    const strength = 0.1; // אפשר להפוך את זה להגדרה שהמשתמש יכול לשלוט בה בעתיד
+    const maxIndex = currentPalette.length - 1;
+
+    for (let i = 0; i < n * n; i++) {
+        const cell = currentBoardState[i];
+        if (cell.isGold) continue;
+        
+        const row = Math.floor(i / n);
+        const col = i % n;
+
+        let totalBrightness = 0;
+        let neighborCount = 0;
+
+        // נחשב את ממוצע הבהירות של השכנים בלבד (לא כולל התא עצמו)
+        for (let di = -1; di <= 1; di++) {
+            for (let dj = -1; dj <= 1; dj++) {
+                if (di === 0 && dj === 0) continue; // מדלגים על התא המרכזי
+                
+                const ni = row + di;
+                const nj = col + dj;
+                if (ni >= 0 && ni < n && nj >= 0 && nj < n) {
+                    const neighbor = currentBoardState[ni * n + nj];
+                    if (!neighbor.isGold) {
+                        totalBrightness += neighbor.v;
+                        neighborCount++;
+                    }
+                }
+            }
+        }
+
+        if (neighborCount > 0) {
+            const avgBrightness = totalBrightness / neighborCount;
+            const currentBrightness = cell.v;
+            let newBrightness;
+
+            // --- לב הלוגיקה של הקונטרסט ---
+            if (currentBrightness > avgBrightness) {
+                // אם אני בהיר יותר מהממוצע, אני אהפוך לעוד יותר בהיר
+                newBrightness = currentBrightness + strength;
+            } else if (currentBrightness < avgBrightness) {
+                // אם אני כהה יותר מהממוצע, אני אהפוך לעוד יותר כהה
+                newBrightness = currentBrightness - strength;
+            } else {
+                // אם אני שווה לממוצע, אני לא משתנה
+                newBrightness = currentBrightness;
+            }
+            
+            // נוודא שהערך החדש לא חורג מגבולות הפלטה
+            newBrightness = Math.max(0, Math.min(newBrightness, maxIndex));
+
+            nextBoardState[i].k = Math.round(newBrightness);
+            nextBoardState[i].v = newBrightness;
+        }
+    }
+    return nextBoardState;
 }

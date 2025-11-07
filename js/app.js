@@ -15,9 +15,9 @@ import { initializeModals } from './ui-modals.js';
       let animationLoopId = null;
 
       // --- Breathe Animation State ---
-      let isBreathing = false;
+      let isBreathing = false; // This variable is now effectively replaced by (isLifePlaying && armedSimulation === 'breathe')
       let breatheStartTime = 0;
-      let breatheMode = 'solo'; // 'solo' or 'group'
+      let breatheEvoMode = 'off'; // 'off', 'solo' or 'group'
 
       // --- Color Helper for Breathing ---
       function adjustBrightness(hex, factor) {
@@ -72,11 +72,15 @@ import { initializeModals } from './ui-modals.js';
       let colorPickerPage = 0;
       let longPressTimer = null;
       let wasLongPress = false;
-      
+      let brushSize = 1; 
       let isLifePlaying = false;
       let animationFrameId = null;
       let armedSimulation = null;
       let symmetryMode = 'off';
+let brightnessEvoMode = 'off'; // ישמור את המצב הנבחר: 'off', 'brightness', או 'contrast'
+let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
+ 
+      // breatheEvoMode is defined at the top
       
       const isGold = (index) => boardState[index]?.isGold;
       const paletteLen = () => palette().length;
@@ -217,7 +221,7 @@ import { initializeModals } from './ui-modals.js';
 
           renderToScreen(now);
 
-          if (isStillAnimating || isBreathing) {
+          if (isStillAnimating || (isLifePlaying && armedSimulation === 'breathe')) {
               animationLoopId = requestAnimationFrame(animationLoop);
           } else {
               animationLoopId = null; 
@@ -230,114 +234,94 @@ import { initializeModals } from './ui-modals.js';
           }
       }
       
-      function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
-          if (!targetCtx) return;
 
-          if (separatorPx > 0) {
-              targetCtx.fillStyle = '#000000';
-              targetCtx.fillRect(0, 0, width, height);
-          } else {
-              targetCtx.clearRect(0, 0, width, height);
-          }
 
-          if (boardState.length === 0) return;
-          
-          const totalGapSize = (n - 1) * separatorPx;
-          const tileSize = (width - totalGapSize) / n;
-          
-          const currentPalette = palette();
-          const paletteAsRgb = currentPalette.map(hexToRgb);
 
-          for (let i = 0; i < n * n; i++) {
-              const tileData = boardState[i];
-              if (!tileData) continue;
+function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
+    if (!targetCtx) return;
 
-              let finalColor;
+    if (separatorPx > 0) {
+        targetCtx.fillStyle = '#000000';
+        targetCtx.fillRect(0, 0, width, height);
+    } else {
+        targetCtx.clearRect(0, 0, width, height);
+    }
 
-              if (isBreathing && !tileData.isGold) {
-                  const BREATHE_SPEED = 0.0015;
-                  const elapsed = timestamp - breatheStartTime;
-                  let wave;
+    if (boardState.length === 0) return;
+    
+    const totalGapSize = (n - 1) * separatorPx;
+    const tileSize = (width - totalGapSize) / n;
+    
+    const currentPalette = palette();
+    const paletteAsRgb = currentPalette.map(hexToRgb);
 
-                  if (breatheMode === 'solo') {
-                      // --- MODIFIED: Use the pre-calculated random offset ---
-                      wave = Math.sin(elapsed * BREATHE_SPEED + tileData.breatheOffset);
-                  } else { // 'group' mode
-                      wave = Math.sin(elapsed * BREATHE_SPEED + tileData.k * 0.8);
-                  }
-                  
-// ... (חישוב ה-wave נשאר זהה) ...
+    for (let i = 0; i < n * n; i++) {
+        const tileData = boardState[i];
+        if (!tileData) continue;
 
-const FADE_IN_DURATION = 2000; // 2 שניות לכניסה עדינה
-const fadeInProgress = Math.min(elapsed / FADE_IN_DURATION, 1.0);
+        let finalColor;
 
-// הנוסחה הקודמת, מנוסחת מחדש לנוחות:
-const animatedFactor = 0.7 + wave * 0.3; 
+        if (isLifePlaying && armedSimulation === 'breathe' && !tileData.isGold) {
+            const BREATHE_SPEED = 0.0015;
+            const elapsed = timestamp - breatheStartTime;
+            let wave;
 
-// נוסחת האינטרפולציה: מערבבים בין בהירות מלאה (1.0) לבין הבהירות המונפשת
-const brightnessFactor = (1.0 * (1 - fadeInProgress)) + (animatedFactor * fadeInProgress);
+            if (breatheEvoMode === 'solo') {
+const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;
+            const effectiveElapsed = (elapsed - tileData.startDelay + cycleDuration) % cycleDuration;
+            wave = Math.sin(effectiveElapsed * BREATHE_SPEED); // השתמש בזמן האפקטיבי, ללא צורך בהיסט פאזה
 
-const originalColor = getPaletteColor(tileData.k);
-finalColor = adjustBrightness(originalColor, brightnessFactor);
+            } else { // 'group' mode
+                wave = Math.sin(elapsed * BREATHE_SPEED + tileData.k * 0.8);
+            }
+            
+            const FADE_IN_DURATION = 2000;
+            const fadeInProgress = Math.min(elapsed / FADE_IN_DURATION, 1.0);
+            const animatedFactor = 0.7 + wave * 0.3; 
+            const brightnessFactor = (1.0 * (1 - fadeInProgress)) + (animatedFactor * fadeInProgress);
 
-              } else if (tileData.isGold) {
-                  finalColor = C.GOLD;
-              } else if (tileData.prevK !== null && timestamp) {
-                  const elapsed = timestamp - tileData.animStart;
-                  const progress = Math.min(elapsed / ANIMATION_DURATION, 1.0);
-                  
-                  const fromRgb = paletteAsRgb[norm(tileData.prevK)];
-                  const toRgb = paletteAsRgb[norm(tileData.k)];
+            const originalColor = getPaletteColor(tileData.k);
+            finalColor = adjustBrightness(originalColor, brightnessFactor);
 
-                  const r = Math.round(lerp(fromRgb[0], toRgb[0], progress));
-                  const g = Math.round(lerp(fromRgb[1], toRgb[1], progress));
-                  const b = Math.round(lerp(fromRgb[2], toRgb[2], progress));
-                  
-                  finalColor = `rgb(${r},${g},${b})`;
-              } else {
-                  finalColor = getPaletteColor(tileData.k);
-              }
+        } else if (tileData.isGold) {
+            finalColor = C.GOLD;
+        } else if (tileData.prevK !== null && timestamp) {
+            const elapsed = timestamp - tileData.animStart;
+            const progress = Math.min(elapsed / ANIMATION_DURATION, 1.0);
+            
+            const fromRgb = paletteAsRgb[norm(tileData.prevK)];
+            const toRgb = paletteAsRgb[norm(tileData.k)];
 
-              targetCtx.fillStyle = finalColor;
-              const row = Math.floor(i / n);
-              const col = i % n;
-              const x = col * (tileSize + separatorPx);
-              const y = row * (tileSize + separatorPx);
-              
-              if (separatorPx === 0) {
-                  targetCtx.fillRect(x - 0.5, y - 0.5, tileSize + 1, tileSize + 1);
-              } else {
-                  targetCtx.fillRect(x, y, tileSize, tileSize);
-              }
-          }
-      }
+            const r = Math.round(lerp(fromRgb[0], toRgb[0], progress));
+            const g = Math.round(lerp(fromRgb[1], toRgb[1], progress));
+            const b = Math.round(lerp(fromRgb[2], toRgb[2], progress));
+            
+            finalColor = `rgb(${r},${g},${b})`;
+        } else {
+            finalColor = getPaletteColor(tileData.k);
+        }
+
+        targetCtx.fillStyle = finalColor;
+        const row = Math.floor(i / n);
+        const col = i % n;
+        const x = col * (tileSize + separatorPx);
+        const y = row * (tileSize + separatorPx);
+        
+        if (separatorPx === 0) {
+            targetCtx.fillRect(x - 0.5, y - 0.5, tileSize + 1, tileSize + 1);
+        } else {
+            targetCtx.fillRect(x, y, tileSize, tileSize);
+        }
+    }
+}
 
       function renderToScreen(timestamp) {
         if (!ctx || !canvas) return;
         renderBoard(ctx, canvas.clientWidth, canvas.clientHeight, timestamp);
       }
 
-      function startBreatheAnimation(mode) {
-          if (isLifePlaying) return;
-          
-          // --- MODIFIED: Assign a random offset to each tile on start ---
-          boardState.forEach(tile => {
-              // Multiply by 2 * PI to get a random starting point anywhere in the sine wave cycle
-              tile.breatheOffset = Math.random() * 2 * Math.PI;
-          });
-
-          isBreathing = true;
-          breatheMode = mode;
-          breatheStartTime = performance.now();
-          dom.btnExitBreathe.classList.add('visible');
-          startAnimationLoop();
-      }
-
-      function stopBreatheAnimation() {
-          isBreathing = false;
-          dom.btnExitBreathe.classList.remove('visible');
-          renderToScreen(null);
-      }
+      // --- startBreatheAnimation and stopBreatheAnimation are now removed. ---
+      // Logic is merged into togglePlayPauseLife.
       
       function updatePaletteHeader() {
         const pal = C.PALETTES[activePaletteIndex];
@@ -622,24 +606,24 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
       
 
 
+
+
 function syncDlaCrystalState() {
     if (!dlaState) {
         initializeDla();
         return;
     }
     dlaState.crystal.clear();
-    dlaState.emptyIndices = []; // <-- הוספה: מאפסים את רשימת הריקים
+    dlaState.emptyIndices = [];
 
     boardState.forEach((tile, index) => {
         if (tile.k > 0 && !tile.isGold) {
             dlaState.crystal.add(index);
         } else {
-            // <-- הוספה: כל תא שאינו חלק מהגביש הוא תא ריק
             dlaState.emptyIndices.push(index);
         }
     });
 }
-
 
 
       function gameLoop() {
@@ -648,21 +632,35 @@ function syncDlaCrystalState() {
         let nextState;
         switch(armedSimulation) {
             case 'gameOfLife': nextState = Simulations.runGameOfLifeGeneration(context); boardState = nextState; break;
-            case 'brightnessEvo': nextState = Simulations.runBrightnessEvolution(context); boardState = nextState; break;
+case 'brightnessEvo':
+    if (brightnessEvoMode === 'contrast') {
+        nextState = Simulations.runContrastGeneration(context);
+    } else {
+        nextState = Simulations.runBrightnessEvolution(context);
+    }
+    boardState = nextState;
+    break;
+
             case 'gravitationalSort': nextState = Simulations.runGravitationalSortGeneration(context); boardState = nextState; break;
             case 'erosion': nextState = Simulations.runErosionGeneration(context); boardState = nextState; break;
             case 'dla':
-                const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(context);
-                boardState = nextBoardState;
-                dlaState = nextDlaState;
-                break;
+
+const currentDlaRules = { ...dlaRules, colorGenetics: dlaMode === 'genetics' };
+const dlaContext = { ...context, dlaRules: currentDlaRules };
+const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(dlaContext);
+boardState = nextBoardState;
+dlaState = nextDlaState;
+break;
+            case 'breathe': break; // This loop only handles discrete simulations. Breathe uses animationLoop.
+
         }
         renderToScreen(null);
         animationFrameId = requestAnimationFrame(gameLoop);
       }
 
       function stepForward() {
-        if (isLifePlaying) return;
+        if (isLifePlaying || armedSimulation === 'breathe') return;
+        
         performAction(() => {
             if (armedSimulation === 'dla') {
                 syncDlaCrystalState();
@@ -674,9 +672,14 @@ function syncDlaCrystalState() {
                 case 'gameOfLife': 
                     boardState = Simulations.runGameOfLifeGeneration(context); 
                     break;
-                case 'brightnessEvo': 
-                    boardState = Simulations.runBrightnessEvolution(context); 
-                    break;
+case 'brightnessEvo': 
+    if (brightnessEvoMode === 'contrast') {
+        boardState = Simulations.runContrastGeneration(context);
+    } else {
+        boardState = Simulations.runBrightnessEvolution(context);
+    }
+    break;
+
                 case 'gravitationalSort': 
                     boardState = Simulations.runGravitationalSortGeneration(context); 
                     break;
@@ -684,10 +687,14 @@ function syncDlaCrystalState() {
                     boardState = Simulations.runErosionGeneration(context); 
                     break;
                 case 'dla': 
-                    const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(context);
-                    boardState = nextBoardState;
-                    dlaState = nextDlaState;
-                    break;
+
+const currentDlaRules = { ...dlaRules, colorGenetics: dlaMode === 'genetics' };
+const dlaContext = { ...context, dlaRules: currentDlaRules };
+const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(dlaContext);
+boardState = nextBoardState;
+dlaState = nextDlaState;
+break;
+                // No case for 'breathe' as it has no steps
             }
             renderToScreen(null);
         });
@@ -696,8 +703,9 @@ function syncDlaCrystalState() {
       function pauseLife() {
           if (!isLifePlaying) return;
           isLifePlaying = false;
-          cancelAnimationFrame(animationFrameId);
+          cancelAnimationFrame(animationFrameId); // Stops gameLoop
           animationFrameId = null;
+          // animationLoop will stop itself on its next frame because isLifePlaying is false
 
           if (simulationStartState) {
               const simulationEndState = getCurrentState();
@@ -709,7 +717,7 @@ function syncDlaCrystalState() {
 
           dom.iconPlay.style.display = 'block';
           dom.iconPause.style.display = 'none';
-          if (armedSimulation) dom.btnStepForward.disabled = false;
+          if (armedSimulation && armedSimulation !== 'breathe') dom.btnStepForward.disabled = false;
           dom.btnGameOfLife.disabled = false;
           dom.btnBrightnessEvo.disabled = false;
           dom.btnShowBreatheMenu.disabled = false;
@@ -723,8 +731,36 @@ function syncDlaCrystalState() {
               pauseLife();
               return;
           }
-          if (!armedSimulation || armedSimulation === 'breathe') return;
+          if (!armedSimulation) return;
 
+          // --- Handle Breathe Simulation (uses animationLoop) ---
+          if (armedSimulation === 'breathe') {
+
+
+const BREATHE_SPEED = 0.0015;
+            const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;            boardState.forEach(tile => {
+                tile.startDelay = Math.random() * cycleDuration; 
+            });
+
+
+              breatheStartTime = performance.now();
+              isLifePlaying = true;
+              
+              dom.iconPlay.style.display = 'none';
+              dom.iconPause.style.display = 'block';
+              dom.btnStepForward.disabled = true;
+              dom.btnGameOfLife.disabled = true;
+              dom.btnBrightnessEvo.disabled = true;
+              dom.btnShowBreatheMenu.disabled = true;
+              dom.btnGravitationalSort.disabled = true;
+              dom.btnErosion.disabled = true;
+              dom.btnDla.disabled = true;
+              
+              startAnimationLoop(); // Start the smooth animation loop
+              return; // Exit here, don't start gameLoop
+          }
+
+          // --- Handle Discrete Simulations (uses gameLoop) ---
           if (armedSimulation === 'dla') {
               syncDlaCrystalState();
           }
@@ -787,7 +823,13 @@ function initializeDla() {
             }
         }
 
-        const walkerCount = n * 4;
+// Calculate walker count using a direct, pre-calibrated formula.
+        let calculatedWalkers = Math.round(1.2 * n * Math.sqrt(n));
+
+        // IMPORTANT: Ensure we don't create more walkers than there are empty spaces.
+        const walkerCount = Math.min(calculatedWalkers, emptyIndices.length);
+
+
         const initialWalkers = [];
         for (let i = 0; i < walkerCount; i++) {
             if (emptyIndices.length === 0) break; // Stop if no empty space is left
@@ -811,37 +853,70 @@ function initializeDla() {
 
 
 
-      function armSimulation(simulationName) {
-        if (isLifePlaying) return;
-        const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla];
-        simButtons.forEach(btn => btn.classList.remove('simulation-active'));
-        if (armedSimulation === simulationName) {
-          armedSimulation = null;
-          dom.btnPlayPauseLife.disabled = true;
-          dom.btnStepForward.disabled = true;
-        } else {
-          armedSimulation = simulationName;
-          if (simulationName === 'breathe') {
-              modals.openBreatheModal();
-              armedSimulation = null; // Don't keep it armed, just open modal
-              return;
-          }
-          if (simulationName === 'dla') {
-             initializeDla();
-          }
-          dom.btnPlayPauseLife.disabled = false;
-          dom.btnStepForward.disabled = false;
-          const buttonToActivate = simButtons.find(btn => btn.id.toLowerCase().includes(simulationName.toLowerCase()));
-          if(buttonToActivate) {
-            buttonToActivate.classList.add('simulation-active');
-          }
+function armSimulation(simulationName) {
+    if (isLifePlaying) return;
+
+    const currentlyArmed = armedSimulation;
+    const isTogglingOff = currentlyArmed === simulationName;
+
+    // --- RESET ALL STATES ---
+    // This is the core of the fix. We reset everything first.
+    armedSimulation = null;
+    brightnessEvoMode = 'off';
+    dlaMode = 'off';
+    breatheEvoMode = 'off';
+    
+    const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla];
+    simButtons.forEach(btn => btn.classList.remove('simulation-active'));
+    updateBrightnessEvoButtonUI(); // Update UI to reflect the reset
+    updateDlaButtonUI();           // Update UI to reflect the reset
+    updateBreatheEvoButtonUI();    // Update UI to reflect the reset
+    
+    dom.btnPlayPauseLife.disabled = true;
+    dom.btnStepForward.disabled = true;
+    // --- END RESET ---
+
+    // If we weren't just toggling off, arm the new simulation.
+    if (!isTogglingOff) {
+        armedSimulation = simulationName;
+        
+        // Special handling for the cycling buttons
+        if (simulationName === 'brightnessEvo') {
+            brightnessEvoMode = 'brightness'; // Default to the first 'on' state
         }
-      }
+        if (simulationName === 'dla') {
+            dlaMode = 'genetics'; // Default to the first 'on' state
+            initializeDla();
+        }
+        if (simulationName === 'breathe') {
+            breatheEvoMode = 'solo'; // Default to the first 'on' state
+        }
+
+        const buttonToActivate = simButtons.find(btn => btn.id.toLowerCase().includes(simulationName.toLowerCase()));
+        if (buttonToActivate) {
+            buttonToActivate.classList.add('simulation-active');
+        }
+        
+        updateBrightnessEvoButtonUI(); // Update UI with the new state
+        updateDlaButtonUI();           // Update UI with the new state
+        updateBreatheEvoButtonUI();    // Update UI with the new state
+
+        dom.btnPlayPauseLife.disabled = false;
+        dom.btnStepForward.disabled = false;
+
+        // Disable step forward specifically for breathe
+        if (simulationName === 'breathe') {
+            dom.btnStepForward.disabled = true;
+        }
+    }
+}
+
+
       
       function setBrushMode(isBrushOn) {
           isBrushModeOn = isBrushOn;
           dom.btnBrushMode.classList.toggle('brush-on', isBrushOn);
-          const newTitle = isBrushModeOn ? getText('brushMode_paint') : getText('brushMode_copy');
+          const newTitle = isBrushOn ? getText('brushMode_paint') : getText('brushMode_copy');
           dom.btnBrushMode.title = newTitle;
           dom.btnBrushMode.setAttribute('aria-label', newTitle);
           if (pointerState.dragSourceIndex !== null) pointerState.dragSourceIndex = null;
@@ -871,16 +946,22 @@ function initializeDla() {
         return fileName.replace(/[<>:"/\\|?*]/g, '_') + `.${extension}`;
       }
 
-      function downloadHighQualityImage() {
-        const exportSize = 4096;
-        const borderSize = Math.round(exportSize * 0.01); 
-        const drawingAreaSize = exportSize - (borderSize * 2);
 
-        const offscreenCanvas = document.createElement('canvas');
-        offscreenCanvas.width = exportSize;
-        offscreenCanvas.height = exportSize;
-        const offscreenCtx = offscreenCanvas.getContext('2d');
 
+
+// "כלי עזר" קטן שמבצע את ההורדה הישירה למחשב
+      function triggerDownload(file) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(file);
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+
+      // הפונקציה הראשית החדשה שמחליפה את הקודמת
+      async function shareOrDownloadImage() {
         const originalButtonText = dom.btnSaveImage.innerHTML;
         dom.btnSaveImage.innerHTML = `
             <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -890,37 +971,65 @@ function initializeDla() {
         `;
         dom.btnSaveImage.disabled = true;
         
-        setTimeout(() => {
+        // שלב א': יצירת התמונה באיכות גבוהה (נשאר ללא שינוי)
+        const exportSize = 4096;
+        const borderSize = Math.round(exportSize * 0.01); 
+        const drawingAreaSize = exportSize - (borderSize * 2);
+
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = exportSize;
+        offscreenCanvas.height = exportSize;
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+        
+        await new Promise(resolve => setTimeout(() => {
             offscreenCtx.fillStyle = '#000000';
             offscreenCtx.fillRect(0, 0, exportSize, exportSize);
-
             offscreenCtx.save();
             offscreenCtx.translate(borderSize, borderSize);
-            
             renderBoard(offscreenCtx, drawingAreaSize, drawingAreaSize, null);
-
             offscreenCtx.restore();
-    
-            offscreenCanvas.toBlob((blob) => {
-                if (blob) {
-                    const highQualityFile = new File([blob], getSanitizedFileName('png'), { type: 'image/png' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(highQualityFile);
-                    link.download = highQualityFile.name;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href);
-                } else {
-                    alert("Error creating high-quality image.");
+            resolve();
+        }, 50));
+        
+        const blob = await new Promise(resolve => offscreenCanvas.toBlob(resolve, 'image/png'));
+        
+        if (!blob) {
+            alert("Error creating high-quality image.");
+            dom.btnSaveImage.innerHTML = originalButtonText;
+            dom.btnSaveImage.disabled = false;
+            return;
+        }
+
+        const fileName = getSanitizedFileName('png');
+        const imageFile = new File([blob], fileName, { type: 'image/png' });
+        const shareData = {
+            files: [imageFile],
+            title: fileName.replace('.png', ''),
+            text: 'נוצר באמצעות האפליקציה',
+        };
+
+        // שלב ב': בדיקה אם המכשיר תומך בשיתוף
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            // אם כן (מובייל) - פותחים את תפריט השיתוף
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Share API error:', err);
+                    triggerDownload(imageFile); // אם השיתוף נכשל, נבצע הורדה רגילה
                 }
-                
-                dom.btnSaveImage.innerHTML = originalButtonText;
-                dom.btnSaveImage.disabled = false;
-                modals.closeModal();
-            }, 'image/png');
-        }, 50);
+            }
+        } else {
+            // אם לא (דסקטופ) - מבצעים הורדה ישירה
+            triggerDownload(imageFile);
+        }
+        
+        dom.btnSaveImage.innerHTML = originalButtonText;
+        dom.btnSaveImage.disabled = false;
+        modals.closeModal();
       }
+
+
       
       async function handleSaveProject() {
           const stateString = JSON.stringify(getCurrentState(), null, 2);
@@ -967,6 +1076,15 @@ function initializeDla() {
                 const lightestIndex = currentPalette.length - 1;
                 selectedColor = currentPalette[lightestIndex];
                 selectedColorIndex = lightestIndex;
+
+brushSize = 3;
+const brushSizeSlider = document.getElementById('brushSizeSlider');
+                const brushSizeValue = document.getElementById('brushSizeValue');
+                if (brushSizeSlider) brushSizeSlider.value = brushSize;
+                if (brushSizeValue) brushSizeValue.textContent = brushSize;
+
+
+
                 isRainbowModeActive = false;
                 symmetryMode = 'kaleidoscope';
                 updateSymmetryUI();
@@ -999,7 +1117,7 @@ function initializeDla() {
             if (btn.id === 'btnToggleSimMode') { if (!isSimModeActive) toggleSimMode(); prepareBoardForSimMode(); return; }
             if (btn.id === 'btnGameOfLife') { modals.openGolSettingsModal(); return; }
             if (btn.id === 'btnGravitationalSort') { modals.openGravitationalSortSettingsModal(); return; }
-            if (btn.id === 'btnDla') { modals.openDlaSettingsModal(); return; }
+if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); return; }
             if (btn.id === 'btnPalette') { modals.openPaletteModal(); return; }
             if (btn.id === 'btnResizeUp' || btn.id === 'btnResizeDown') { modals.openResizeModal(); return; }
         }, C.LONG_PRESS_SHOW_MS);
@@ -1027,8 +1145,6 @@ function initializeDla() {
         dom.btnSaveImage.title = getText('saveModal_saveImage');
         dom.btnSaveProjectIdea.title = getText('saveModal_saveIdea');
         dom.btnLoadProjectIdea.title = getText('saveModal_loadIdea');
-        dom.breatheSoloLabel.textContent = getText('breatheModal_solo');
-        dom.breatheGroupLabel.textContent = getText('breatheModal_group');
         dom.resizeModalTitle.textContent = getText('resizeModal_title');
         dom.resizeModalPrompt.textContent = getText('resizeModal_prompt');
         dom.btnConfirmResize.textContent = getText('resizeModal_confirm');
@@ -1125,6 +1241,15 @@ function initializeDla() {
         simButtons.forEach(btn => btn.classList.remove('simulation-active'));
         dom.btnPlayPauseLife.disabled = true;
         dom.btnStepForward.disabled = true;
+    brightnessEvoMode = 'off';
+    updateBrightnessEvoButtonUI();
+ updateDlaButtonUI();
+   dlaMode = 'off';
+    updateDlaButtonUI();
+    breatheEvoMode = 'off';
+    updateBreatheEvoButtonUI();
+
+
       }
 
       function resetWasLongPress() {
@@ -1177,11 +1302,105 @@ function applyActionToTiles(indices, actionFn) {
         if (changed) startAnimationLoop();
       }
 
+function handleDragPaint(targetIndex) {
+    if (targetIndex === -1 || targetIndex === pointerState.lastPaintedIndex) return;
+    pointerState.lastPaintedIndex = targetIndex;
 
-      function handleDragPaint(targetIndex) {
-        if (targetIndex === -1 || targetIndex === pointerState.lastPaintedIndex) return;
-        pointerState.lastPaintedIndex = targetIndex;
-        const targetIndices = getSymmetricIndices(targetIndex);
+    const baseTiles = getTilesInRadius(targetIndex, brushSize);
+    const finalTiles = new Set();
+    baseTiles.forEach(baseIndex => {
+        getSymmetricIndices(baseIndex).forEach(symIndex => finalTiles.add(symIndex));
+    });
+
+    const targetIndices = Array.from(finalTiles);
+
+    if (isRainbowModeActive) {
+        applyActionToTiles(targetIndices, tile => {
+            tile.isGold = false;
+            tile.k = Math.floor(Math.random() * paletteLen());
+        });
+    } else if (selectedColorIndex !== -1) {
+        applyActionToTiles(targetIndices, tile => {
+            tile.isGold = false;
+            tile.k = selectedColorIndex;
+        });
+    } else if (pointerState.dragSourceIndex !== null) {
+        const sourceK = boardState[pointerState.dragSourceIndex].k;
+        applyActionToTiles(targetIndices, tile => {
+            tile.isGold = false;
+            tile.k = sourceK;
+        });
+    }
+}
+
+const pointerState = { id: null, downIndex: -1, downX: 0, downY: 0, longPressTimer: null, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null };
+
+function onPointerDown(e) {
+    if (isLifePlaying || isBreathing) return;
+    const index = getTileIndexFromCoords(e.clientX, e.clientY);
+    if (index === -1) return;
+    e.target.setPointerCapture(e.pointerId);
+    Object.assign(pointerState, { id: e.pointerId, downIndex: index, downX: e.clientX, downY: e.clientY, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: getCurrentState() });
+    pointerState.longPressTimer = setTimeout(() => {
+        if (pointerState.isDragging) return;
+        pointerState.suppressClick = true;
+        if (selectedColor || isRainbowModeActive) {
+            performAction(resetSelectedColor);
+        } else {
+            modals.openColorPickerModal(index);
+        }
+    }, C.LONG_PRESS_SHOW_MS);
+    if (!isBrushModeOn) { pointerState.dragSourceIndex = index; }
+}
+
+function onPointerMove(e) {
+    if (pointerState.id !== e.pointerId) return;
+    const currentIndex = getTileIndexFromCoords(e.clientX, e.clientY);
+    if (!pointerState.isDragging) {
+        const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
+        if (dist >= 8) {
+            clearTimeout(pointerState.longPressTimer);
+            pointerState.longPressTimer = null;
+            pointerState.isDragging = true;
+            pointerState.suppressClick = true;
+            if (isBrushModeOn) {
+                if (selectedColorIndex === -1) { pointerState.dragSourceIndex = pointerState.downIndex; }
+                handleDragPaint(pointerState.downIndex);
+            }
+        }
+    }
+    if (pointerState.isDragging && isBrushModeOn) {
+        handleDragPaint(currentIndex); 
+    }
+}
+
+function onPointerUp(e) {
+    if (pointerState.id !== e.pointerId) return;
+    clearTimeout(pointerState.longPressTimer);
+    const upIndex = getTileIndexFromCoords(e.clientX, e.clientY);
+
+    if (pointerState.isDragging) {
+        if (!isBrushModeOn && pointerState.dragSourceIndex !== null && upIndex !== -1) {
+            const sourceData = { ...boardState[pointerState.dragSourceIndex] };
+            const baseTiles = getTilesInRadius(upIndex, brushSize);
+            const finalTiles = new Set();
+            baseTiles.forEach(baseIndex => {
+                getSymmetricIndices(baseIndex).forEach(symIndex => finalTiles.add(symIndex));
+            });
+            const targetIndices = Array.from(finalTiles);
+            applyActionToTiles(targetIndices, tile => {
+                tile.k = sourceData.k;
+                tile.isGold = sourceData.isGold;
+            });
+        }
+    } else if (!pointerState.suppressClick && upIndex !== -1) {
+         const baseTiles = getTilesInRadius(upIndex, brushSize);
+         const finalTiles = new Set();
+         baseTiles.forEach(baseIndex => {
+             getSymmetricIndices(baseIndex).forEach(symIndex => finalTiles.add(symIndex));
+         });
+         const targetIndices = Array.from(finalTiles);
+
         if (isRainbowModeActive) {
             applyActionToTiles(targetIndices, tile => {
                 tile.isGold = false;
@@ -1192,97 +1411,24 @@ function applyActionToTiles(indices, actionFn) {
                 tile.isGold = false;
                 tile.k = selectedColorIndex;
             });
-        } else if (pointerState.dragSourceIndex !== null) {
-            const sourceK = boardState[pointerState.dragSourceIndex].k;
+        } else {
             applyActionToTiles(targetIndices, tile => {
-                tile.isGold = false;
-                tile.k = sourceK;
+                if (!tile.isGold) {
+                    tile.k = (tile.k + 1) % paletteLen();
+                } else {
+                    tile.isGold = false;
+                }
             });
         }
-      }
-      const pointerState = { id: null, downIndex: -1, downX: 0, downY: 0, longPressTimer: null, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null };
-      function onPointerDown(e) {
-        if (isLifePlaying || isBreathing) return;
-        const index = getTileIndexFromCoords(e.clientX, e.clientY);
-        if (index === -1) return;
-        e.target.setPointerCapture(e.pointerId);
-        Object.assign(pointerState, { id: e.pointerId, downIndex: index, downX: e.clientX, downY: e.clientY, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: getCurrentState() });
-        pointerState.longPressTimer = setTimeout(() => {
-            if (pointerState.isDragging) return;
-            pointerState.suppressClick = true;
-            if (selectedColor || isRainbowModeActive) {
-                performAction(resetSelectedColor);
-            } else {
-                modals.openColorPickerModal(index);
-            }
-        }, C.LONG_PRESS_SHOW_MS);
-        if (!isBrushModeOn) { pointerState.dragSourceIndex = index; }
-      }
+    }
+    const afterState = getCurrentState();
+    if (pointerState.beforeState && !areStatesEqual(pointerState.beforeState, afterState)) {
+         pushHistory({ before: pointerState.beforeState, after: afterState }); 
+         hasPerformedInitialAutofill = true;
+    }
+    Object.assign(pointerState, { id: null, downIndex: -1, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null });
+}
 
-      function onPointerMove(e) {
-        if (pointerState.id !== e.pointerId) return;
-        const currentIndex = getTileIndexFromCoords(e.clientX, e.clientY);
-        if (!pointerState.isDragging) {
-            const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
-            if (dist >= 8) {
-                clearTimeout(pointerState.longPressTimer);
-                pointerState.longPressTimer = null;
-                pointerState.isDragging = true;
-                pointerState.suppressClick = true;
-                if (isBrushModeOn) {
-                    if (selectedColorIndex === -1) { pointerState.dragSourceIndex = pointerState.downIndex; }
-                    handleDragPaint(pointerState.downIndex);
-                }
-            }
-        }
-        if (pointerState.isDragging && isBrushModeOn) {
-            handleDragPaint(currentIndex); 
-        }
-      }
-
-      function onPointerUp(e) {
-        if (pointerState.id !== e.pointerId) return;
-        clearTimeout(pointerState.longPressTimer);
-        const upIndex = getTileIndexFromCoords(e.clientX, e.clientY);
-
-        if (pointerState.isDragging) {
-            if (!isBrushModeOn && pointerState.dragSourceIndex !== null && upIndex !== -1) {
-                const sourceData = { ...boardState[pointerState.dragSourceIndex] };
-                const targetIndices = getSymmetricIndices(upIndex);
-                applyActionToTiles(targetIndices, tile => {
-                    tile.k = sourceData.k;
-                    tile.isGold = sourceData.isGold;
-                });
-            }
-        } else if (!pointerState.suppressClick && upIndex !== -1) {
-            const targetIndices = getSymmetricIndices(upIndex);
-            if (isRainbowModeActive) {
-                applyActionToTiles(targetIndices, tile => {
-                    tile.isGold = false;
-                    tile.k = Math.floor(Math.random() * paletteLen());
-                });
-            } else if (selectedColorIndex !== -1) {
-                applyActionToTiles(targetIndices, tile => {
-                    tile.isGold = false;
-                    tile.k = selectedColorIndex;
-                });
-            } else {
-                applyActionToTiles(targetIndices, tile => {
-                    if (!tile.isGold) {
-                        tile.k = (tile.k + 1) % paletteLen();
-                    } else {
-                        tile.isGold = false;
-                    }
-                });
-            }
-        }
-        const afterState = getCurrentState();
-        if (pointerState.beforeState && !areStatesEqual(pointerState.beforeState, afterState)) {
-             pushHistory({ before: pointerState.beforeState, after: afterState }); 
-             hasPerformedInitialAutofill = true;
-        }
-        Object.assign(pointerState, { id: null, downIndex: -1, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null });
-      }
       
       function updateLayout() {
         const shell = dom.appShell;
@@ -1341,6 +1487,30 @@ function applyActionToTiles(indices, actionFn) {
             colorPickerPage = (colorPickerPage - 1 + totalPages) % totalPages;
         }
     }
+
+function getTilesInRadius(centerIndex, radius) {
+    if (radius <= 1) return [centerIndex];
+
+    const tilesInRadius = new Set();
+    const centerCol = centerIndex % n;
+    const centerRow = Math.floor(centerIndex / n);
+    const r = Math.floor(radius / 2);
+
+    for (let rowOffset = -r; rowOffset <= r; rowOffset++) {
+        for (let colOffset = -r; colOffset <= r; colOffset++) {
+            const dist = Math.sqrt(rowOffset * rowOffset + colOffset * colOffset);
+            if (dist <= r) {
+                const targetRow = centerRow + rowOffset;
+                const targetCol = centerCol + colOffset;
+                if (targetRow >= 0 && targetRow < n && targetCol >= 0 && targetCol < n) {
+                    tilesInRadius.add(targetRow * n + targetCol);
+                }
+            }
+        }
+    }
+    return Array.from(tilesInRadius);
+}
+
       
     function getSymmetricIndices(index) {
           if (index === -1) return [];
@@ -1381,9 +1551,133 @@ function applyActionToTiles(indices, actionFn) {
           dom.btnSymmetry.setAttribute('aria-label', getText(titleKey));
           dom.btnSymmetry.title = getText('tooltip_symmetry');
       }
-      
+    
+
+  
       function updateSymmetryUI() { updateSymmetryButtonUI(); }
       
+function updateBrightnessEvoButtonUI() {
+    dom.btnBrightnessEvo.classList.remove('mode-brightness', 'mode-contrast', 'simulation-active');
+
+    if (brightnessEvoMode === 'brightness') {
+        dom.btnBrightnessEvo.classList.add('mode-brightness');
+        // נוסיף גם את הקלאס שמדגיש שהסימולציה "חמושה"
+        if (armedSimulation === 'brightnessEvo') {
+             dom.btnBrightnessEvo.classList.add('simulation-active');
+        }
+    } else if (brightnessEvoMode === 'contrast') {
+        dom.btnBrightnessEvo.classList.add('mode-contrast');
+        if (armedSimulation === 'brightnessEvo') {
+             dom.btnBrightnessEvo.classList.add('simulation-active');
+        }
+    }
+}
+
+
+function cycleBrightnessEvoMode() {
+    // שומרים את המצב הקודם כדי שנוכל להשוות
+    const oldMode = brightnessEvoMode;
+
+    const sequence = ['off', 'brightness', 'contrast'];
+    const currentIndex = sequence.indexOf(brightnessEvoMode);
+    const nextIndex = (currentIndex + 1) % sequence.length;
+    brightnessEvoMode = sequence[nextIndex];
+
+    // תנאי 1: אם עברנו ממצב "כבוי" למצב "דלוק" (בהירות)
+    // זו הפעם היחידה שאנחנו צריכים לחמש את הסימולציה
+    if (oldMode === 'off' && brightnessEvoMode !== 'off') {
+        armSimulation('brightnessEvo');
+    } 
+    // תנאי 2: אם עברנו ממצב "דלוק" כלשהו למצב "כבוי"
+    else if (oldMode !== 'off' && brightnessEvoMode === 'off') {
+        armSimulation(null); // מבטלים את החימוש
+    }
+    // במקרה האחר (מעבר בין 'בהירות' ל'קונטרסט'), אנחנו לא עושים כלום.
+    // הסימולציה כבר חמושה ואין צורך לגעת בה.
+
+    // בכל מקרה, נעדכן את המראה של הכפתור
+    updateBrightnessEvoButtonUI();
+}
+
+
+function updateDlaButtonUI() {
+    dom.btnDla.classList.remove('mode-genetics', 'mode-no-genetics');
+    if (dlaMode === 'genetics') {
+        dom.btnDla.classList.add('mode-genetics');
+    } else if (dlaMode === 'no-genetics') {
+        dom.btnDla.classList.add('mode-no-genetics');
+    }
+}
+
+
+function cycleDlaMode() {
+    const oldMode = dlaMode;
+
+    const sequence = ['off', 'genetics', 'no-genetics'];
+    const currentIndex = sequence.indexOf(dlaMode);
+    const nextIndex = (currentIndex + 1) % sequence.length;
+    dlaMode = sequence[nextIndex];
+
+    if (oldMode === 'off' && dlaMode !== 'off') {
+        armSimulation('dla');
+    } else if (oldMode !== 'off' && dlaMode === 'off') {
+        if (armedSimulation === 'dla') {
+            armSimulation(null);
+        }
+    }
+    
+    updateDlaButtonUI();
+}
+
+
+// --- NEW: Breathe Simulation UI and Cycling ---
+function updateBreatheEvoButtonUI() {
+    dom.btnShowBreatheMenu.classList.remove('mode-solo', 'mode-group', 'simulation-active');
+
+    if (breatheEvoMode === 'solo') {
+        dom.btnShowBreatheMenu.classList.add('mode-solo');
+        dom.iconBreatheSolo.style.display = 'block';
+        dom.iconBreatheGroup.style.display = 'none';
+        if (armedSimulation === 'breathe') {
+            dom.btnShowBreatheMenu.classList.add('simulation-active');
+        }
+    } else if (breatheEvoMode === 'group') {
+        dom.btnShowBreatheMenu.classList.add('mode-group');
+        dom.iconBreatheSolo.style.display = 'none';
+        dom.iconBreatheGroup.style.display = 'block';
+        if (armedSimulation === 'breathe') {
+            dom.btnShowBreatheMenu.classList.add('simulation-active');
+        }
+    } else { // 'off'
+        dom.iconBreatheSolo.style.display = 'block';
+        dom.iconBreatheGroup.style.display = 'none';
+    }
+}
+
+function cycleBreatheEvoMode() {
+    if (isLifePlaying) {
+        pauseLife();
+    }
+
+    const oldMode = breatheEvoMode;
+    const sequence = ['off', 'solo', 'group'];
+    const currentIndex = sequence.indexOf(breatheEvoMode);
+    const nextIndex = (currentIndex + 1) % sequence.length;
+    breatheEvoMode = sequence[nextIndex];
+
+    if (oldMode === 'off' && breatheEvoMode !== 'off') {
+        armSimulation('breathe');
+    } else if (oldMode !== 'off' && breatheEvoMode === 'off') {
+        if (armedSimulation === 'breathe') {
+            armSimulation(null);
+        }
+    }
+    
+    updateBreatheEvoButtonUI();
+}
+// --- END: New Breathe Functions ---
+
+
       function cycleSymmetryMode() {
           performAction(() => {
               const currentIndex = C.SYMMETRY_MODES.indexOf(symmetryMode);
@@ -1415,11 +1709,14 @@ function applyActionToTiles(indices, actionFn) {
             getGameOfLifeRules: () => gameOfLifeRules, setGameOfLifeRules: (r) => { gameOfLifeRules = r; },
             getGravitationalSortRules: () => gravitationalSortRules, setGravitationalSortRules: (r) => { gravitationalSortRules = r; },
             getDlaRules: () => dlaRules, setDlaRules: (r) => { dlaRules = r; },
+
+
+
             handleSaveProject, handleLoadProject, onProjectFileSelected,
             pointerState,
             resetWasLongPress,
-            downloadImage: downloadHighQualityImage,
-            startBreatheAnimation: startBreatheAnimation,
+downloadImage: shareOrDownloadImage,
+            // startBreatheAnimation is removed
             adaptColors, // Pass the new function to the modals context
         };
         modals = initializeModals(contextForModals);
@@ -1431,6 +1728,8 @@ function applyActionToTiles(indices, actionFn) {
         updateUndoRedoButtons();
         setBrushMode(true);
         updateSymmetryUI();
+updateBrightnessEvoButtonUI();
+        updateBreatheEvoButtonUI(); // Add this
         updateColorPickerButtonUI();
         updateGlowEffect();
         updateLayout();
@@ -1460,23 +1759,39 @@ function applyActionToTiles(indices, actionFn) {
         dom.btnDark.addEventListener('click', (e) => handleCtrlClick(e, goDarkAction));
         dom.btnToggleSimMode.addEventListener('click', (e) => handleCtrlClick(e, toggleSimMode));
         dom.btnGameOfLife.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('gameOfLife')));
-        dom.btnBrightnessEvo.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('brightnessEvo')));
-        dom.btnShowBreatheMenu.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('breathe')));
+
+dom.btnBrightnessEvo.addEventListener('click', (e) => handleCtrlClick(e, cycleBrightnessEvoMode));
+
+
+dom.btnShowBreatheMenu.addEventListener('click', (e) => handleCtrlClick(e, cycleBreatheEvoMode));
+
         dom.btnGravitationalSort.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('gravitationalSort')));
         dom.btnErosion.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('erosion')));
-        dom.btnDla.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('dla')));
+
+dom.btnDla.addEventListener('click', (e) => handleCtrlClick(e, cycleDlaMode));
+
         dom.btnPlayPauseLife.addEventListener('click', (e) => handleCtrlClick(e, togglePlayPauseLife));
         dom.btnStepForward.addEventListener('click', (e) => handleCtrlClick(e, stepForward));
         dom.btnNudgeBrighter.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(1)));
         dom.btnNudgeDarker.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(-1)));
         dom.btnLangToggle.addEventListener('click', toggleLanguage);
-        dom.btnExitBreathe.addEventListener('click', stopBreatheAnimation);
+        // dom.btnExitBreathe.addEventListener('click', stopBreatheAnimation); // Removed
         
         document.querySelectorAll('.ctrl').forEach(btn => { 
             btn.addEventListener('pointerdown', handlePointerDownCtrl); 
             btn.addEventListener('pointerup', hideLongPressDisplay); 
             btn.addEventListener('pointerleave', hideLongPressDisplay); 
         });
+// Brush Size Slider Logic
+const brushSizeSlider = document.getElementById('brushSizeSlider');
+const brushSizeValue = document.getElementById('brushSizeValue');
+if (brushSizeSlider) {
+    brushSizeSlider.addEventListener('input', (e) => {
+        brushSize = parseInt(e.target.value, 10);
+        if(brushSizeValue) brushSizeValue.textContent = brushSize;
+    });
+}
+
 
         window.addEventListener('resize', updateLayout);
         window.addEventListener('contextmenu', e => e.preventDefault());

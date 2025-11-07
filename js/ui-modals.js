@@ -38,10 +38,6 @@ function closeModal() {
     app.dom.imagePreview.src = '';
 }
 
-function closeBreatheModal() {
-    app.dom.breatheModal.classList.remove('modal-visible');
-}
-
 function closeResizeModal() {
     app.dom.resizeModal.classList.remove('modal-visible');
 }
@@ -61,6 +57,11 @@ function closePaletteModal() {
 
 function closeGolSettingsModal() {
     app.dom.gameOfLifeSettingsModal.classList.remove('modal-visible');
+    // --- START MODIFICATION ---
+    // Reset borders on close
+    app.dom.golSurvivalRules.style.borderColor = '';
+    app.dom.golBirthRules.style.borderColor = '';
+    // --- END MODIFICATION ---
     setTimeout(() => app.dom.gameOfLifeSettingsModal.style.display = 'none', 300);
     app.resetWasLongPress();
 }
@@ -71,11 +72,6 @@ function closeGravitationalSortSettingsModal() {
     app.resetWasLongPress();
 }
 
-function closeDlaSettingsModal() {
-    app.dom.dlaSettingsModal.classList.remove('modal-visible');
-    setTimeout(() => app.dom.dlaSettingsModal.style.display = 'none', 300);
-    app.resetWasLongPress();
-}
 
 // Phase 1 Addition
 function closeAdvancedColorMappingModal() {
@@ -86,11 +82,6 @@ function closeAdvancedColorMappingModal() {
 
 
 // --- Modal Management Functions ---
-
-function openBreatheModal() {
-    if (app.isLifePlaying()) return;
-    app.dom.breatheModal.classList.add('modal-visible');
-}
 
 function openResizeModal() {
     if (app.isBreathing()) return;
@@ -112,7 +103,7 @@ function openAdvancedColorMappingModal() {
 
 function handleConfirmResize() {
     let newSize = parseInt(app.dom.resizeInput.value, 10);
-    if (isNaN(newSize) || newSize < 1 || newSize > 150) {
+    if (isNaN(newSize) || newSize < 1 || newSize > 300) {
         app.dom.resizeInput.style.borderColor = 'red';
         setTimeout(() => { app.dom.resizeInput.style.borderColor = ''; }, 1000);
         return;
@@ -408,23 +399,95 @@ function populateHelpModal() {
 function openGolSettingsModal() {
     if (app.isBreathing() || app.isLifePlaying()) return;
     const rules = app.getGameOfLifeRules();
-    app.dom.golSurvivalMin.value = rules.survivalMin;
-    app.dom.golSurvivalMax.value = rules.survivalMax;
-    app.dom.golBirth.value = rules.birth;
-    app.dom.golLiveCellDef.value = rules.liveCellDef;
-    app.dom.golColorGenetics.value = rules.colorGenetics;
+    
+    // --- START MODIFICATION ---
+    // Convert arrays back to comma-separated strings
+    app.dom.golSurvivalRules.value = rules.survival.join(', ');
+    app.dom.golBirthRules.value = rules.birth.join(', ');
+
+    // Reset validation styles
+    app.dom.golSurvivalRules.style.borderColor = '';
+    app.dom.golBirthRules.style.borderColor = '';
+    // --- END MODIFICATION ---
+    
     app.dom.gameOfLifeSettingsModal.style.display = 'flex';
     setTimeout(() => app.dom.gameOfLifeSettingsModal.classList.add('modal-visible'), 10);
 }
 
+// --- START: MODIFICATION ---
+// Helper function to parse and validate rule strings
+function validateRuleString(ruleString) {
+    const rules = new Set();
+    const parts = ruleString.trim().split(',');
+
+    // Handle empty string as a valid empty list
+    if (ruleString.trim() === '') {
+        return [];
+    }
+
+    for (const part of parts) {
+        const trimmedPart = part.trim();
+        if (trimmedPart === '') continue; // Allow for trailing commas or double commas
+
+        const num = parseInt(trimmedPart, 10);
+        
+        // Check for invalid numbers (NaN, out of range 0-8)
+        if (isNaN(num) || num < 0 || num > 8 || num.toString() !== trimmedPart) {
+            return null; // Invalid input
+        }
+        rules.add(num);
+    }
+    return Array.from(rules).sort((a, b) => a - b); // Return sorted, unique numbers
+}
+
+
+// Updated function to set preset strings
+function applyGolPreset(survivalString, birthString) {
+    app.dom.golSurvivalRules.value = survivalString;
+    app.dom.golBirthRules.value = birthString;
+    // Clear any error states
+    app.dom.golSurvivalRules.style.borderColor = '';
+    app.dom.golBirthRules.style.borderColor = '';
+}
+// --- END: MODIFICATION ---
+
 function saveGolSettings() {
+    // --- START MODIFICATION ---
+    const survivalInput = app.dom.golSurvivalRules;
+    const birthInput = app.dom.golBirthRules;
+
+    // Reset borders
+    survivalInput.style.borderColor = '';
+    birthInput.style.borderColor = '';
+
+    const newSurvivalRules = validateRuleString(survivalInput.value);
+    const newBirthRules = validateRuleString(birthInput.value);
+
+    let hasError = false;
+
+    if (newSurvivalRules === null) {
+        survivalInput.style.borderColor = 'red';
+        hasError = true;
+    }
+    
+    if (newBirthRules === null) {
+        birthInput.style.borderColor = 'red';
+        hasError = true;
+    }
+
+    if (hasError) {
+        // We could show a more formal alert here, but for now, the red border indicates the error
+        // as requested ("prevent saving").
+        console.error("Invalid GOL rules. Please enter only numbers between 0 and 8, separated by commas.");
+        return; // Don't save, don't close
+    }
+
     const newRules = {
-        survivalMin: parseInt(app.dom.golSurvivalMin.value, 10) || 0,
-        survivalMax: parseInt(app.dom.golSurvivalMax.value, 10) || 0,
-        birth: parseInt(app.dom.golBirth.value, 10) || 0,
-        liveCellDef: app.dom.golLiveCellDef.value,
-        colorGenetics: app.dom.golColorGenetics.value,
+        survival: newSurvivalRules,
+        birth: newBirthRules,
     };
+    // --- END MODIFICATION ---
+
     app.setGameOfLifeRules(newRules);
     closeGolSettingsModal();
 }
@@ -432,11 +495,16 @@ function saveGolSettings() {
 function resetGolSettings() {
     app.setGameOfLifeRules({ ...app.C.defaultGameOfLifeRules });
     const rules = app.getGameOfLifeRules();
-    app.dom.golSurvivalMin.value = rules.survivalMin;
-    app.dom.golSurvivalMax.value = rules.survivalMax;
-    app.dom.golBirth.value = rules.birth;
-    app.dom.golLiveCellDef.value = rules.liveCellDef;
-    app.dom.golColorGenetics.value = rules.colorGenetics;
+    
+    // --- START MODIFICATION ---
+    // Convert default arrays to strings
+    app.dom.golSurvivalRules.value = rules.survival.join(', ');
+    app.dom.golBirthRules.value = rules.birth.join(', ');
+    
+    // Clear any error states
+    app.dom.golSurvivalRules.style.borderColor = '';
+    app.dom.golBirthRules.style.borderColor = '';
+    // --- END MODIFICATION ---
 }
 
 function openGravitationalSortSettingsModal() {
@@ -464,42 +532,10 @@ function saveGravitationalSortSettings() {
 
 
 
-
-function openDlaSettingsModal() {
-    if (app.isBreathing() || app.isLifePlaying()) return;
-    const rules = app.getDlaRules();
-
-    // עדכון המתגים והטקסטים הקיימים
-    app.dom.dlaColorGeneticsToggle.checked = rules.colorGenetics;
-    app.dom.dlaInjectFromEdgesToggle.checked = rules.injectFromEdges;
-    app.dom.dlaSettingsModal.querySelector('#dlaSettingsTitle').textContent = app.getText('dla_modal_title');
-    app.dom.dlaSettingsModal.querySelector('#dlaColorGeneticsLabel').textContent = app.getText('dla_genetics_label');
-    app.dom.dlaSettingsModal.querySelector('#dlaColorGeneticsDesc').textContent = app.getText('dla_genetics_desc');
-    app.dom.dlaSettingsModal.querySelector('#dlaInjectFromEdgesLabel').textContent = app.getText('dla_edges_label');
-    app.dom.dlaSettingsModal.querySelector('#dlaInjectFromEdgesDesc').textContent = app.getText('dla_edges_desc');
-
-    // עדכון המתג והטקסטים החדשים שהוספנו
-    app.dom.dlaFastModeToggle.checked = rules.fastMode;
-    app.dom.dlaSettingsModal.querySelector('#dlaFastModeLabel').textContent = app.getText('dla_fastmode_label');
-    app.dom.dlaSettingsModal.querySelector('#dlaFastModeDesc').textContent = app.getText('dla_fastmode_desc');
-
-    // עדכון כפתורים והצגת המודל
-    app.dom.btnDlaSettingsSave.textContent = app.getText('dla_modal_save_close');
-    app.dom.btnDlaSettingsCancel.textContent = app.getText('dla_modal_cancel');
-    app.dom.dlaSettingsModal.style.display = 'flex';
-    setTimeout(() => app.dom.dlaSettingsModal.classList.add('modal-visible'), 10);
-}
+let selectedEvoMode = 'brightness'; // ישמור את הבחירה הזמנית של המשתמש
 
 
-function saveDlaSettings() {
-    const newRules = {
-        colorGenetics: app.dom.dlaColorGeneticsToggle.checked,
-        injectFromEdges: app.dom.dlaInjectFromEdgesToggle.checked,
-        fastMode: app.dom.dlaFastModeToggle.checked,
-    };
-    app.setDlaRules(newRules);
-    closeDlaSettingsModal();
-}
+
 
 export function initializeModals(appContext) {
     app = appContext;
@@ -511,25 +547,6 @@ export function initializeModals(appContext) {
     app.dom.btnSaveProjectIdea.addEventListener('click', app.handleSaveProject);
     app.dom.btnLoadProjectIdea.addEventListener('click', app.handleLoadProject);
     app.dom.projectFileInput.addEventListener('change', app.onProjectFileSelected);
-
-    // Breathe Modal
-    app.dom.btnBreatheModalClose.addEventListener('click', closeBreatheModal);
-    app.dom.breatheModal.addEventListener('click', (e) => { if (e.target === app.dom.breatheModal) { closeBreatheModal(); } });
-    
-    // --- START: MODIFIED Breathe button listeners for gentle start ---
-    app.dom.btnStartSoloBreathe.addEventListener('click', () => {
-        closeBreatheModal();
-        setTimeout(() => {
-            app.startBreatheAnimation('solo');
-        }, 1000); // Increased delay to 1 second
-    });
-    app.dom.btnStartGroupBreathe.addEventListener('click', () => {
-        closeBreatheModal();
-        setTimeout(() => {
-            app.startBreatheAnimation('group');
-        }, 1000); // Increased delay to 1 second
-    });
-    // --- END: MODIFIED Breathe button listeners ---
 
     // Resize Modal
     app.dom.btnConfirmResize.addEventListener('click', handleConfirmResize);
@@ -566,6 +583,18 @@ export function initializeModals(appContext) {
     app.dom.btnGolSettingsCancel.addEventListener('click', closeGolSettingsModal);
     app.dom.btnGolSettingsReset.addEventListener('click', resetGolSettings);
 
+    // --- START: MODIFICATION ---
+    // (אני קולט את הכפתורים כאן כי הם לא ב-dom-elements.js)
+    // Updated preset calls to use the new string-based function
+    document.getElementById('btnGolPresetHarmonic').addEventListener('click', () => applyGolPreset('3, 4, 5', '3'));
+    document.getElementById('btnGolPresetRapid').addEventListener('click', () => applyGolPreset('2, 3, 4, 5, 6, 7, 8', '3')); // Max neighbors is 8
+    document.getElementById('btnGolPresetClassic').addEventListener('click', () => applyGolPreset('2, 3', '3'));
+    document.getElementById('btnGolPresetChaos').addEventListener('click', () => applyGolPreset('3', '2'));
+    document.getElementById('btnGolPresetHive').addEventListener('click', () => applyGolPreset('2, 3, 4, 5', '4'));
+    document.getElementById('btnGolPresetMoon').addEventListener('click', () => applyGolPreset('1, 2, 3, 4', '2'));
+    document.getElementById('btnGolPresetCoral').addEventListener('click', () => applyGolPreset('4, 5, 6, 7, 8', '3'));
+    // --- END: MODIFICATION ---
+
     // Gravitational Sort Settings Modal
     app.dom.gsDirectionButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -579,9 +608,7 @@ export function initializeModals(appContext) {
     app.dom.btnGsSettingsSave.addEventListener('click', saveGravitationalSortSettings);
     app.dom.btnGsSettingsCancel.addEventListener('click', closeGravitationalSortSettingsModal);
 
-    // DLA Settings Modal
-    app.dom.btnDlaSettingsSave.addEventListener('click', saveDlaSettings);
-    app.dom.btnDlaSettingsCancel.addEventListener('click', closeDlaSettingsModal);
+
 
     // Phase 1 Addition: Advanced Color Mapping Modal
     app.dom.btnAdaptModalClose.addEventListener('click', closeAdvancedColorMappingModal);
@@ -593,14 +620,12 @@ export function initializeModals(appContext) {
 
 
     return {
-        openBreatheModal,
         openResizeModal,
         openColorPickerModal,
         openHelpModal,
         openPaletteModal,
         openGolSettingsModal,
         openGravitationalSortSettingsModal,
-        openDlaSettingsModal,
         openAdvancedColorMappingModal, // Phase 1 Addition
         closeModal,
         renderColorPickerContent,
