@@ -58,9 +58,7 @@ function closePaletteModal() {
 function closeGolSettingsModal() {
     app.dom.gameOfLifeSettingsModal.classList.remove('modal-visible');
     // --- START MODIFICATION ---
-    // Reset borders on close
-    app.dom.golSurvivalRules.style.borderColor = '';
-    app.dom.golBirthRules.style.borderColor = '';
+    // (הסרת הקוד הישן שטיפל בגבולות האדומים של שדות הטקסט)
     // --- END MODIFICATION ---
     setTimeout(() => app.dom.gameOfLifeSettingsModal.style.display = 'none', 300);
     app.resetWasLongPress();
@@ -79,6 +77,14 @@ function closeAdvancedColorMappingModal() {
     setTimeout(() => app.dom.advancedColorMappingModal.style.display = 'none', 300);
     app.resetWasLongPress();
 }
+
+// --- START: Added for Contour Settings ---
+function closeContourSettingsModal() {
+    app.dom.contourSettingsModal.classList.remove('modal-visible');
+    setTimeout(() => app.dom.contourSettingsModal.style.display = 'none', 300);
+    app.resetWasLongPress();
+}
+// --- END: Added for Contour Settings ---
 
 
 // --- Modal Management Functions ---
@@ -396,91 +402,119 @@ function populateHelpModal() {
     contentDiv.appendChild(shortcutsContainer);
 }
 
+// --- START: New Preset Button Logic ---
+
+// 1. אובייקט עזר שמכיל את החוקים של כל פריסט
+
+const PRESET_RULES = {
+  'btnGolPresetHarmonic': { survival: [3, 4, 5], birth: [3] },
+  'btnGolPresetHive': { survival: [2, 3, 4, 5], birth: [4] },
+  'btnGolPresetLivingTexture': { survival: [3, 4, 6, 7, 8], birth: [3, 6, 7, 8] },
+  'btnGolPresetAmoeba': { survival: [1, 3, 5, 8], birth: [3, 5, 7] },
+  'btnGolPresetPaint': { survival: [1, 2, 3, 4, 5, 6, 7, 8], birth: [4, 5, 6, 7, 8] },
+  'btnGolPresetPaint2': { survival: [1, 2, 3, 4, 5, 6, 7, 8], birth: [1, 2,3] },
+
+  'btnGolPresetCoral': { survival: [4, 5, 6, 7, 8], birth: [3] },
+    'btnGolPresetMeditation': { survival: [1, 2, 3, 4, 5], birth: [3] },
+  'btnGolPresetJoelson': { survival: [2, 3, 4, 5], birth: [4, 5, 6, 7, 8] },
+  'btnGolPresetVibration': { survival: [5, 6, 7, 8], birth: [4, 5, 6, 7, 8] },
+  'btnGolPresetCharlie': { survival: [2, 5, 8], birth: [3, 5, 7, 8] }
+};
+
+// 2. הפונקציה החדשה שבודקת ומעדכנת את כפתורי הפריסט
+function updateActivePresetButton() {
+  // קח את כל הצ'יפים הפעילים כרגע
+  const currentSurvival = [];
+  app.dom.golSurvivalChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+    currentSurvival.push(parseInt(chip.dataset.number, 10));
+  });
+  
+  const currentBirth = [];
+  app.dom.golBirthChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+    currentBirth.push(parseInt(chip.dataset.number, 10));
+  });
+
+  // פונקציית עזר להשוואת שני מערכים
+  const arraysAreEqual = (a, b) => 
+    a.length === b.length && a.every((val, index) => val === b[index]);
+
+  // סדר את המערכים הנוכחיים לצורך השוואה
+  currentSurvival.sort((a,b) => a - b);
+  currentBirth.sort((a,b) => a - b);
+
+  // עבור על כל הפריסטים המוכרים
+  for (const [buttonId, rules] of Object.entries(PRESET_RULES)) {
+    const presetButton = document.getElementById(buttonId);
+    if (!presetButton) continue;
+
+    // השווה את החוקים הנוכחיים לחוקי הפריסט (הם כבר ממוינים)
+    const survivalMatch = arraysAreEqual(currentSurvival, rules.survival);
+    const birthMatch = arraysAreEqual(currentBirth, rules.birth);
+
+    // הדלק או כבה את הכפתור בהתאם
+    if (survivalMatch && birthMatch) {
+      presetButton.classList.add('active');
+    } else {
+      presetButton.classList.remove('active');
+    }
+  }
+}
+
+// 3. עדכון פונקציית applyGolPreset הקיימת
+function applyGolPreset(survivalArray, birthArray) {
+    // עדכון צ'יפים של הישרדות
+    app.dom.golSurvivalChipsContainer.querySelectorAll('.gol-chip-btn').forEach(chip => {
+        const num = parseInt(chip.dataset.number, 10);
+        chip.classList.toggle('active', survivalArray.includes(num));
+    });
+
+    // עדכון צ'יפים של לידה
+    app.dom.golBirthChipsContainer.querySelectorAll('.gol-chip-btn').forEach(chip => {
+        const num = parseInt(chip.dataset.number, 10);
+        chip.classList.toggle('active', birthArray.includes(num));
+    });
+    
+    // קריאה לפונקציית הבדיקה החדשה
+    updateActivePresetButton();
+}
+// --- END: New Preset Button Logic ---
+
+
+
+
 function openGolSettingsModal() {
     if (app.isBreathing() || app.isLifePlaying()) return;
-    const rules = app.getGameOfLifeRules();
     
-    // --- START MODIFICATION ---
-    // Convert arrays back to comma-separated strings
-    app.dom.golSurvivalRules.value = rules.survival.join(', ');
-    app.dom.golBirthRules.value = rules.birth.join(', ');
-
-    // Reset validation styles
-    app.dom.golSurvivalRules.style.borderColor = '';
-    app.dom.golBirthRules.style.borderColor = '';
-    // --- END MODIFICATION ---
+    // --- START: MODIFICATION ---
+    // במקום להגדיר טקסט, נפעיל את הפונקציה שמעדכנת את הכפתורים
+    const rules = app.getGameOfLifeRules();
+    applyGolPreset(rules.survival, rules.birth);
+updateActivePresetButton();
+    // --- END: MODIFICATION ---
     
     app.dom.gameOfLifeSettingsModal.style.display = 'flex';
     setTimeout(() => app.dom.gameOfLifeSettingsModal.classList.add('modal-visible'), 10);
 }
 
+
 // --- START: MODIFICATION ---
-// Helper function to parse and validate rule strings
-function validateRuleString(ruleString) {
-    const rules = new Set();
-    const parts = ruleString.trim().split(',');
-
-    // Handle empty string as a valid empty list
-    if (ruleString.trim() === '') {
-        return [];
-    }
-
-    for (const part of parts) {
-        const trimmedPart = part.trim();
-        if (trimmedPart === '') continue; // Allow for trailing commas or double commas
-
-        const num = parseInt(trimmedPart, 10);
-        
-        // Check for invalid numbers (NaN, out of range 0-8)
-        if (isNaN(num) || num < 0 || num > 8 || num.toString() !== trimmedPart) {
-            return null; // Invalid input
-        }
-        rules.add(num);
-    }
-    return Array.from(rules).sort((a, b) => a - b); // Return sorted, unique numbers
-}
-
-
-// Updated function to set preset strings
-function applyGolPreset(survivalString, birthString) {
-    app.dom.golSurvivalRules.value = survivalString;
-    app.dom.golBirthRules.value = birthString;
-    // Clear any error states
-    app.dom.golSurvivalRules.style.borderColor = '';
-    app.dom.golBirthRules.style.borderColor = '';
-}
+// הסרת פונקציית הוולידציה הישנה, אין בה צורך יותר
+// function validateRuleString(ruleString) { ... }
 // --- END: MODIFICATION ---
+
 
 function saveGolSettings() {
     // --- START MODIFICATION ---
-    const survivalInput = app.dom.golSurvivalRules;
-    const birthInput = app.dom.golBirthRules;
+    // אין יותר ולידציה, רק איסוף נתונים מהכפתורים
+    const newSurvivalRules = [];
+    app.dom.golSurvivalChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+        newSurvivalRules.push(parseInt(chip.dataset.number, 10));
+    });
 
-    // Reset borders
-    survivalInput.style.borderColor = '';
-    birthInput.style.borderColor = '';
-
-    const newSurvivalRules = validateRuleString(survivalInput.value);
-    const newBirthRules = validateRuleString(birthInput.value);
-
-    let hasError = false;
-
-    if (newSurvivalRules === null) {
-        survivalInput.style.borderColor = 'red';
-        hasError = true;
-    }
-    
-    if (newBirthRules === null) {
-        birthInput.style.borderColor = 'red';
-        hasError = true;
-    }
-
-    if (hasError) {
-        // We could show a more formal alert here, but for now, the red border indicates the error
-        // as requested ("prevent saving").
-        console.error("Invalid GOL rules. Please enter only numbers between 0 and 8, separated by commas.");
-        return; // Don't save, don't close
-    }
+    const newBirthRules = [];
+    app.dom.golBirthChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+        newBirthRules.push(parseInt(chip.dataset.number, 10));
+    });
 
     const newRules = {
         survival: newSurvivalRules,
@@ -497,13 +531,8 @@ function resetGolSettings() {
     const rules = app.getGameOfLifeRules();
     
     // --- START MODIFICATION ---
-    // Convert default arrays to strings
-    app.dom.golSurvivalRules.value = rules.survival.join(', ');
-    app.dom.golBirthRules.value = rules.birth.join(', ');
-    
-    // Clear any error states
-    app.dom.golSurvivalRules.style.borderColor = '';
-    app.dom.golBirthRules.style.borderColor = '';
+    // עדכון הממשק הוויזואלי (הצ'יפים) במקום שדות הטקסט
+    applyGolPreset(rules.survival, rules.birth);
     // --- END MODIFICATION ---
 }
 
@@ -530,6 +559,52 @@ function saveGravitationalSortSettings() {
     closeGravitationalSortSettingsModal();
 }
 
+
+// --- START: Added for Contour Settings ---
+function openContourSettingsModal() {
+    if (app.isBreathing() || app.isLifePlaying()) return;
+
+    // 1. Set all texts from i18n
+    app.dom.contourSettingsTitle.textContent = app.getText('contour_modal_title');
+    app.dom.contourSensitivityLabel.textContent = app.getText('contour_sensitivity_label');
+    app.dom.contourSensitivityDesc.textContent = app.getText('contour_sensitivity_desc');
+    app.dom.contourSensitivityLabelLow.textContent = app.getText('contour_sensitivity_low');
+    app.dom.contourSensitivityLabelHigh.textContent = app.getText('contour_sensitivity_high');
+    app.dom.contourColorLabel.textContent = app.getText('contour_color_label');
+    app.dom.btnContourColorDark.title = app.getText('contour_color_darkest');
+    app.dom.btnContourColorLight.title = app.getText('contour_color_lightest');
+    app.dom.btnContourSettingsCancel.textContent = app.getText('gs_modal_cancel'); // Re-use "Cancel"
+    app.dom.btnContourSettingsSave.textContent = app.getText('gs_modal_save_close'); // Re-use "Save & Close"
+
+    // 2. Get current rules and set UI elements
+    const rules = app.getContourRules();
+    app.dom.contourSensitivitySlider.value = rules.sensitivity;
+    app.dom.contourSensitivityValue.textContent = `${rules.sensitivity}%`; // Set initial text value
+    
+    app.dom.btnContourColorDark.classList.toggle('active', rules.lineColor === 'darkest');
+    app.dom.btnContourColorLight.classList.toggle('active', rules.lineColor === 'lightest');
+
+    // 3. Show the modal
+    app.dom.contourSettingsModal.style.display = 'flex';
+    setTimeout(() => app.dom.contourSettingsModal.classList.add('modal-visible'), 10);
+}
+
+function saveContourSettings() {
+    // 1. Read values from UI
+    const newSensitivity = parseInt(app.dom.contourSensitivitySlider.value, 10);
+    const activeColorBtn = app.dom.contourSettingsModal.querySelector('.contour-color-btn.active');
+    const newLineColor = activeColorBtn ? activeColorBtn.dataset.color : 'darkest'; // Default to darkest if none selected
+
+    // 2. Set new rules
+    app.setContourRules({
+        sensitivity: newSensitivity,
+        lineColor: newLineColor,
+    });
+
+    // 3. Close modal
+    closeContourSettingsModal();
+}
+// --- END: Added for Contour Settings ---
 
 
 let selectedEvoMode = 'brightness'; // ישמור את הבחירה הזמנית של המשתמש
@@ -583,17 +658,28 @@ export function initializeModals(appContext) {
     app.dom.btnGolSettingsCancel.addEventListener('click', closeGolSettingsModal);
     app.dom.btnGolSettingsReset.addEventListener('click', resetGolSettings);
 
-    // --- START: MODIFICATION ---
-    // (אני קולט את הכפתורים כאן כי הם לא ב-dom-elements.js)
-    // Updated preset calls to use the new string-based function
-    document.getElementById('btnGolPresetHarmonic').addEventListener('click', () => applyGolPreset('3, 4, 5', '3'));
-    document.getElementById('btnGolPresetRapid').addEventListener('click', () => applyGolPreset('2, 3, 4, 5, 6, 7, 8', '3')); // Max neighbors is 8
-    document.getElementById('btnGolPresetClassic').addEventListener('click', () => applyGolPreset('2, 3', '3'));
-    document.getElementById('btnGolPresetChaos').addEventListener('click', () => applyGolPreset('3', '2'));
-    document.getElementById('btnGolPresetHive').addEventListener('click', () => applyGolPreset('2, 3, 4, 5', '4'));
-    document.getElementById('btnGolPresetMoon').addEventListener('click', () => applyGolPreset('1, 2, 3, 4', '2'));
-    document.getElementById('btnGolPresetCoral').addEventListener('click', () => applyGolPreset('4, 5, 6, 7, 8', '3'));
-    // --- END: MODIFICATION ---
+
+
+// --- START: MODIFICATION ---
+// הוספת האזנה לכפתורי הצ'יפים החדשים
+app.dom.gameOfLifeSettingsModal.querySelectorAll('.gol-chip-btn').forEach(chip => {
+    chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        updateActivePresetButton(); // בדוק מחדש אחרי לחיצה ידנית
+    });
+});
+
+// עדכון כפתורי ההגדרות המוכנות (Presets) לשימוש בפונקציה החדשה
+// הפכנו את האובייקט PRESET_RULES למקור האמת היחיד
+for (const [buttonId, rules] of Object.entries(PRESET_RULES)) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.addEventListener('click', () => applyGolPreset(rules.survival, rules.birth));
+    }
+}
+// --- END: MODIFICATION ---
+
+
 
     // Gravitational Sort Settings Modal
     app.dom.gsDirectionButtons.forEach(btn => {
@@ -618,6 +704,25 @@ export function initializeModals(appContext) {
         closeAdvancedColorMappingModal();
     });
 
+    // --- START: Added for Contour Settings ---
+    app.dom.btnContourModalClose.addEventListener('click', closeContourSettingsModal);
+    app.dom.contourSettingsModal.addEventListener('click', (e) => { if (e.target === app.dom.contourSettingsModal) { closeContourSettingsModal(); } });
+    app.dom.btnContourSettingsSave.addEventListener('click', saveContourSettings);
+    app.dom.btnContourSettingsCancel.addEventListener('click', closeContourSettingsModal);
+
+    // Listen for slider changes to update the text value
+    app.dom.contourSensitivitySlider.addEventListener('input', () => {
+        app.dom.contourSensitivityValue.textContent = `${app.dom.contourSensitivitySlider.value}%`;
+    });
+
+    app.dom.contourColorButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            app.dom.contourColorButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+    // --- END: Added for Contour Settings ---
+
 
     return {
         openResizeModal,
@@ -627,6 +732,7 @@ export function initializeModals(appContext) {
         openGolSettingsModal,
         openGravitationalSortSettingsModal,
         openAdvancedColorMappingModal, // Phase 1 Addition
+        openContourSettingsModal, // <-- ADDED HERE
         closeModal,
         renderColorPickerContent,
         populateHelpModal,
